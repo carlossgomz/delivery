@@ -3,12 +3,50 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" // or whatever you're using
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Config {
+  id         Int      @id @default(autoincrement())
+  tasaCambio Float    @default(1)
+  updatedAt  DateTime @updatedAt
+}
+
+model Product {
+  id         String      @id @default(cuid())
+  nombre     String
+  precioUsd  Float
+  categoria  String
+  imagenUrl  String?
+  activo     Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+  orderItems OrderItem[]
 }
 
 model Order {
-  id        String   @id @default(cuid())
-  estado    String
-  // ...other fields
+  id              String      @id @default(cuid())
+  clienteNombre   String
+  clienteTelefono String
+  direccion       String
+  estado          String      @default("PENDIENTE_VERIFICACION")
+  tasaCambio      Float
+  totalUsd        Float?
+  totalBs         Float?
+  comprobanteUrl  String?
+  notas           String?
+  createdAt       DateTime    @default(now())
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  productId  String
+  cantidad   Int
+  precioUsd  Float
+  disponible Boolean?
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id])
 }
