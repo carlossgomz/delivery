@@ -1,149 +1,84 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-type Product = {
+interface Producto {
   id: string;
   nombre: string;
-  precioUsd: number;
   categoria: string;
-};
+  imagenUrl?: string;
+  precioUsd: number;
+}
 
-type CartLine = { productId: string; cantidad: number };
-
-const CART_KEY = "delivery_cart";
-
-export default function CatalogPage() {
-  const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [tasaCambio, setTasaCambio] = useState<number>(0);
-  const [cart, setCart] = useState<CartLine[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ClientStorePage() {
+  const [productos, setProductos] = useState<Producto[]>([]);
+  const [busqueda, setBusqueda] = useState<string>("");
+  const [cargando, setCargando] = useState<boolean>(true);
 
   useEffect(() => {
-    async function load() {
-      const [pRes, cRes] = await Promise.all([fetch("/api/products"), fetch("/api/config")]);
-      const [pData, cData] = await Promise.all([pRes.json(), cRes.json()]);
-      setProducts(pData.products);
-      setTasaCambio(cData.tasaCambio);
-      const saved = localStorage.getItem(CART_KEY);
-      if (saved) setCart(JSON.parse(saved));
-      setLoading(false);
+    async function cargarProductos() {
+      try {
+        const resProducts = await fetch("/api/products");
+        const dataProducts = await resProducts.json();
+        if (Array.isArray(dataProducts)) {
+          setProductos(dataProducts);
+        }
+      } catch (error) {
+        console.error("Error al cargar los productos:", error);
+      } finally {
+        setCargando(false);
+      }
     }
-    load();
+
+    cargarProductos();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  }, [cart]);
-
-  const categorias = useMemo(() => Array.from(new Set(products.map((p) => p.categoria))), [products]);
-
-  function addToCart(productId: string) {
-    setCart((prev) => {
-      const existing = prev.find((l) => l.productId === productId);
-      if (existing) {
-        return prev.map((l) => (l.productId === productId ? { ...l, cantidad: l.cantidad + 1 } : l));
-      }
-      return [...prev, { productId, cantidad: 1 }];
-    });
-  }
-
-  function removeFromCart(productId: string) {
-    setCart((prev) =>
-      prev
-        .map((l) => (l.productId === productId ? { ...l, cantidad: l.cantidad - 1 } : l))
-        .filter((l) => l.cantidad > 0)
-    );
-  }
-
-  const totalItems = cart.reduce((sum, l) => sum + l.cantidad, 0);
-  const totalUsd = cart.reduce((sum, l) => {
-    const p = products.find((pr) => pr.id === l.productId);
-    return sum + (p ? p.precioUsd * l.cantidad : 0);
-  }, 0);
-
-  if (loading) {
-    return <div className="p-8 text-leaf-600">Cargando catálogo…</div>;
-  }
+  const productosFiltrados = productos.filter((p) =>
+    p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+    p.categoria.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   return (
-    <main className="max-w-3xl mx-auto px-4 pb-32">
-      <header className="py-6 flex items-baseline justify-between">
-        <h1 className="font-display text-2xl text-leaf-800">Tienda</h1>
-        <span className="text-sm text-ink/60">Tasa del día: {tasaCambio} Bs/USD</span>
+    <main className="max-w-6xl mx-auto p-4 md:p-6">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-leaf-100">
+        <div>
+          <h1 className="text-2xl font-bold text-leaf-800">Catálogo de Productos</h1>
+        </div>
+
+        <input
+          type="text"
+          placeholder="Buscar producto o categoría..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="w-full md:w-72 border border-leaf-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-leaf-600"
+        />
       </header>
 
-      {categorias.map((cat) => (
-        <section key={cat} className="mb-8">
-          <h2 className="text-sm uppercase tracking-wide text-leaf-600 mb-3">{cat}</h2>
-          <ul className="space-y-2">
-            {products
-              .filter((p) => p.categoria === cat)
-              .map((p) => {
-                const line = cart.find((l) => l.productId === p.id);
-                const precioBs = (p.precioUsd * tasaCambio).toFixed(2);
-                return (
-                  <li
-                    key={p.id}
-                    className="flex items-center justify-between bg-white rounded-lg border border-leaf-100 px-4 py-3"
-                  >
-                    <div>
-                      <p className="font-medium">{p.nombre}</p>
-                      <p className="text-sm text-ink/60">
-                        ${p.precioUsd.toFixed(2)} · Bs {precioBs}
-                      </p>
-                    </div>
-                    {line ? (
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => removeFromCart(p.id)}
-                          className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600"
-                          aria-label={`Quitar una unidad de ${p.nombre}`}
-                        >
-                          −
-                        </button>
-                        <span className="w-4 text-center">{line.cantidad}</span>
-                        <button
-                          onClick={() => addToCart(p.id)}
-                          className="w-8 h-8 rounded-full bg-leaf-600 text-white"
-                          aria-label={`Agregar una unidad de ${p.nombre}`}
-                        >
-                          +
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => addToCart(p.id)}
-                        className="px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm"
-                      >
-                        Agregar
-                      </button>
-                    )}
-                  </li>
-                );
-              })}
-          </ul>
-        </section>
-      ))}
-
-      {totalItems > 0 && (
-        <div className="fixed bottom-0 inset-x-0 bg-leaf-800 text-white px-4 py-4">
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <div>
-              <p className="text-sm text-leaf-100">{totalItems} producto(s)</p>
-              <p className="font-medium">
-                ${totalUsd.toFixed(2)} · Bs {(totalUsd * tasaCambio).toFixed(2)}
-              </p>
-            </div>
-            <button
-              onClick={() => router.push("/checkout")}
-              className="px-5 py-3 rounded-lg bg-clay-400 text-ink font-medium"
+      {cargando ? (
+        <div className="text-center py-12 text-gray-500">Cargando productos...</div>
+      ) : productosFiltrados.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">No se encontraron productos.</div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {productosFiltrados.map((prod) => (
+            <div
+              key={prod.id}
+              className="bg-white border border-leaf-100 rounded-lg p-4 shadow-sm flex flex-col justify-between"
             >
-              Continuar
-            </button>
-          </div>
+              <div>
+                <span className="text-xs font-semibold text-leaf-600 uppercase tracking-wider">
+                  {prod.categoria}
+                </span>
+                <h3 className="font-medium text-gray-800 text-sm mt-1 line-clamp-2">
+                  {prod.nombre}
+                </h3>
+              </div>
+
+              <div className="mt-4 pt-2 border-t border-leaf-100">
+                <p className="text-lg font-bold text-leaf-800">${prod.precioUsd.toFixed(2)}</p>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </main>
