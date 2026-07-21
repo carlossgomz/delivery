@@ -9,19 +9,29 @@ datasource db {
 }
 
 model Config {
-  id         Int      @id @default(autoincrement())
-  tasaCambio Float    @default(1)
-  updatedAt  DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  tasaCambio       Float    @default(1)
+  // Porcentaje de ganancia que se aplica por defecto sobre el costo de cada
+  // producto (a menos que el producto tenga su propio margenPorcentaje).
+  margenPorcentaje Float    @default(30)
+  updatedAt        DateTime @updatedAt
 }
 
 model Product {
-  id         String      @id @default(cuid())
-  nombre     String
-  precioUsd  Float
-  categoria  String
-  imagenUrl  String?
-  activo     Boolean     @default(true)
-  createdAt  DateTime    @default(now())
+  id        String      @id @default(cuid())
+  // Código de barras / SKU del sistema de la tienda física (Excel). Permite
+  // reimportar el catálogo sin crear productos duplicados.
+  codigo    String?     @unique
+  nombre    String
+  // Precio de COSTO (lo que paga la tienda). Nunca se muestra al cliente.
+  costoUsd  Float
+  // Margen específico de este producto, en porcentaje. Si es null, se usa
+  // el margenPorcentaje general de Config.
+  margenPorcentaje Float?
+  categoria String
+  imagenUrl String?
+  activo    Boolean     @default(true)
+  createdAt DateTime    @default(now())
   orderItems OrderItem[]
 }
 
@@ -45,6 +55,8 @@ model OrderItem {
   orderId    String
   productId  String
   cantidad   Int
+  // Precio final (ya con margen + delivery) al momento del pedido, para que
+  // si luego cambia el costo o el margen, los pedidos viejos no se alteren.
   precioUsd  Float
   disponible Boolean?
   order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
