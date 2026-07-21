@@ -531,31 +531,25 @@ async function main() {
     let actualizados = 0;
 
     for (const p of productos) {
-        const existente = await prisma.product.findFirst({
-            where: { codigo: p.codigo } as any
-        });
+        const existente = await prisma.product.findUnique({ where: { codigo: p.codigo } });
         if (existente) {
-            const data = {
-                nombre: p.nombre,
-                costoUsd: p.costoUsd,
-                categoria: p.categoria
-            } as any;
-
             await prisma.product.update({
-                where: { id: existente.id },
-                data
+                where: { codigo: p.codigo },
+                data: {
+                    nombre: p.nombre,
+                    costoUsd: p.costoUsd,
+                    categoria: p.categoria
+                }
             });
             actualizados++;
         } else {
-            const data = {
-                codigo: p.codigo,
-                nombre: p.nombre,
-                costoUsd: p.costoUsd,
-                categoria: p.categoria
-            } as any;
-
             await prisma.product.create({
-                data
+                data: {
+                    codigo: p.codigo,
+                    nombre: p.nombre,
+                    costoUsd: p.costoUsd,
+                    categoria: p.categoria
+                }
             });
             creados++;
         }

@@ -2,20 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed } from "@/lib/auth";
 
-type ConfigRecord = {
-  id: number;
-  tasaCambio: number;
-  margenPorcentaje: number;
-  updatedAt: Date;
-};
-
 export async function GET() {
-  const config = (await prisma.config.upsert({
+  const config = await prisma.config.upsert({
     where: { id: 1 },
     update: {},
     create: { id: 1, tasaCambio: 1, margenPorcentaje: 30 }
-  })) as ConfigRecord;
-
+  });
   return NextResponse.json({
     tasaCambio: config.tasaCambio,
     margenPorcentaje: config.margenPorcentaje,
@@ -47,11 +39,11 @@ export async function POST(req: NextRequest) {
     data.margenPorcentaje = margenPorcentaje;
   }
 
-  const config = (await prisma.config.upsert({
+  const config = await prisma.config.upsert({
     where: { id: 1 },
     update: data,
     create: { id: 1, tasaCambio: data.tasaCambio ?? 1, margenPorcentaje: data.margenPorcentaje ?? 30 }
-  })) as ConfigRecord;
+  });
 
   // Nota: los precios de cada producto (costo + margen + delivery) se
   // calculan al vuelo en /api/products, así que cambiar la tasa o el margen
