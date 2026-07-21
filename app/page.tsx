@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Producto {
   id: string;
@@ -16,26 +17,25 @@ interface ItemCarrito {
 }
 
 export default function ClientStorePage() {
+  const router = useRouter();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [tasaCambio, setTasaCambio] = useState<number>(0);
   const [busqueda, setBusqueda] = useState<string>("");
   const [cargando, setCargando] = useState<boolean>(true);
 
-  // Estado del Carrito y Modal
+  // Estado del Carrito y Drawer
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
   const [mostrarCarrito, setMostrarCarrito] = useState<boolean>(false);
 
   useEffect(() => {
     async function cargarDatos() {
       try {
-        // 1. Obtener la tasa de cambio actual desde /api/config
         const resConfig = await fetch("/api/config");
         const dataConfig = await resConfig.json();
-        if (dataConfig && dataConfig.tasaCambio) {
+        if (dataConfig?.tasaCambio) {
           setTasaCambio(dataConfig.tasaCambio);
         }
 
-        // 2. Obtener los productos desde /api/products
         const resProducts = await fetch("/api/products");
         const dataProducts = await resProducts.json();
 
@@ -54,7 +54,7 @@ export default function ClientStorePage() {
     cargarDatos();
   }, []);
 
-  // --- FUNCIONES DEL CARRITO ---
+  // --- CONTROLES DEL CARRITO ---
   const agregarAlCarrito = (prod: Producto) => {
     setCarrito((prev) => {
       const existe = prev.find((item) => item.producto.id === prod.id);
@@ -87,14 +87,20 @@ export default function ClientStorePage() {
     setCarrito((prev) => prev.filter((item) => item.producto.id !== id));
   };
 
-  // Cálculos del Carrito
+  // --- REDIRECCIÓN A LA PÁGINA DE COMPRA ---
+  const irAProcesarPedido = () => {
+    // Guardamos el pedido actual en localStorage para que la página de checkout/compra lo lea
+    localStorage.setItem("carrito_pedido", JSON.stringify(carrito));
+    // Redirige a la vista de checkout / creación de pedido
+    router.push("/checkout"); // Si tu ruta de compra tiene otro nombre (ej: /pedido o /comprar), cámbiala aquí
+  };
+
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
   const totalBs = carrito.reduce(
     (acc, item) => acc + item.producto.precioUsd * tasaCambio * item.cantidad,
     0
   );
 
-  // Filtrado de productos por búsqueda
   const productosFiltrados = productos.filter(
     (p) =>
       p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -103,7 +109,6 @@ export default function ClientStorePage() {
 
   return (
     <main className="max-w-6xl mx-auto p-4 md:p-6 relative">
-      {/* HEADER CON BUSCADOR Y BOTÓN DE CARRITO */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-leaf-100">
         <div>
           <h1 className="text-2xl font-bold text-leaf-800">Catálogo de Productos</h1>
@@ -115,7 +120,6 @@ export default function ClientStorePage() {
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
-          {/* Input de Búsqueda */}
           <div className="relative flex-1 md:w-72">
             <input
               type="text"
@@ -134,7 +138,6 @@ export default function ClientStorePage() {
             )}
           </div>
 
-          {/* Botón Flotante/Header del Carrito */}
           <button
             onClick={() => setMostrarCarrito(true)}
             className="relative bg-leaf-600 hover:bg-leaf-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
@@ -189,11 +192,9 @@ export default function ClientStorePage() {
                 </div>
 
                 <div className="mt-4 pt-2 border-t border-leaf-100 flex items-center justify-between gap-2">
-                  <div>
-                    <p className="text-lg font-bold text-leaf-800">
-                      Bs. {precioBs}
-                    </p>
-                  </div>
+                  <p className="text-lg font-bold text-leaf-800">
+                    Bs. {precioBs}
+                  </p>
 
                   <button
                     onClick={() => agregarAlCarrito(prod)}
@@ -214,10 +215,10 @@ export default function ClientStorePage() {
         </div>
       )}
 
-      {/* MODAL / DRAWER DEL CARRITO DE COMPRAS */}
+      {/* DRAWER DEL CARRITO */}
       {mostrarCarrito && (
         <div className="fixed inset-0 bg-black/50 z-50 flex justify-end">
-          <div className="bg-white w-full max-w-md h-full flex flex-col justify-between p-6 shadow-xl animate-in slide-in-from-right">
+          <div className="bg-white w-full max-w-md h-full flex flex-col justify-between p-6 shadow-xl">
             <div>
               <div className="flex items-center justify-between pb-4 border-b">
                 <h2 className="text-xl font-bold text-gray-800">Tu Carrito</h2>
@@ -229,11 +230,10 @@ export default function ClientStorePage() {
                 </button>
               </div>
 
-              {/* LISTA DE ITEMS */}
               <div className="mt-4 max-h-[60vh] overflow-y-auto space-y-4 pr-1">
                 {carrito.length === 0 ? (
                   <p className="text-center text-gray-500 py-8">
-                    El carrito está vacío. ¡Agrega productos para comenzar tu compra!
+                    El carrito está vacío.
                   </p>
                 ) : (
                   carrito.map(({ producto, cantidad }) => {
@@ -257,7 +257,6 @@ export default function ClientStorePage() {
                           </p>
                         </div>
 
-                        {/* CONTROLES + / - */}
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => cambiarCantidad(producto.id, -1)}
@@ -277,7 +276,6 @@ export default function ClientStorePage() {
                           <button
                             onClick={() => eliminarDelCarrito(producto.id)}
                             className="ml-2 text-red-500 hover:text-red-700 text-xs"
-                            title="Eliminar producto"
                           >
                             🗑️
                           </button>
@@ -289,21 +287,20 @@ export default function ClientStorePage() {
               </div>
             </div>
 
-            {/* RESUMEN Y BOTÓN FINALIZAR */}
             {carrito.length > 0 && (
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-gray-600 font-medium">Total a Pagar:</span>
+                  <span className="text-gray-600 font-medium">Total Estimado:</span>
                   <span className="text-2xl font-bold text-leaf-800">
                     Bs. {totalBs.toFixed(2)}
                   </span>
                 </div>
 
                 <button
-                  onClick={() => alert("¡Pedido listo para procesar!")}
+                  onClick={irAProcesarPedido}
                   className="w-full bg-leaf-600 hover:bg-leaf-700 text-white font-bold py-3 rounded-lg text-center transition-colors"
                 >
-                  Finalizar Compra
+                  Proceder a Enviar Pedido
                 </button>
               </div>
             )}
