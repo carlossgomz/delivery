@@ -93,7 +93,6 @@ export default function CatalogPage() {
     <main className="max-w-3xl mx-auto px-4 pb-32">
       <header className="py-6 flex items-baseline justify-between">
         <h1 className="font-display text-2xl text-leaf-800">Tienda</h1>
-        <span className="text-sm text-ink/60">Tasa del día: {tasaCambio} Bs/USD</span>
       </header>
 
       {/* --- BARRA DE BÚSQUEDA Y CATEGORÍAS --- */}
@@ -156,7 +155,7 @@ export default function CatalogPage() {
                       <div>
                         <p className="font-medium">{p.nombre}</p>
                         <p className="text-sm text-ink/60">
-                          ${p.precioUsd.toFixed(2)} · Bs {precioBs}
+                          Bs {precioBs}
                         </p>
                       </div>
                       {line ? (
@@ -204,7 +203,7 @@ export default function CatalogPage() {
             <div>
               <p className="text-sm text-leaf-100">{totalItems} producto(s)</p>
               <p className="font-medium">
-                ${totalUsd.toFixed(2)} · Bs {(totalUsd * tasaCambio).toFixed(2)}
+                Bs {(totalUsd * tasaCambio).toFixed(2)}
               </p>
             </div>
             <button
