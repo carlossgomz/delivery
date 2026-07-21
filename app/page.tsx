@@ -70,9 +70,9 @@ export default function CatalogPage() {
 
   return (
     <main className="max-w-3xl mx-auto px-4 pb-32">
-      <header className="py-6 flex items-baseline justify-between">
+      <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-4 flex items-baseline justify-between">
         <h1 className="font-display text-2xl text-leaf-800">Tienda</h1>
-        <span className="text-sm text-ink/60">Tasa del día: {tasaCambio} Bs/USD</span>
+        <span className="text-sm text-ink/60">Tasa: {tasaCambio} Bs/USD</span>
       </header>
 
       {categorias.map((cat) => (
@@ -87,27 +87,27 @@ export default function CatalogPage() {
                 return (
                   <li
                     key={p.id}
-                    className="flex items-center justify-between bg-white rounded-lg border border-leaf-100 px-4 py-3"
+                    className="flex items-center justify-between gap-3 bg-white rounded-lg border border-leaf-100 px-4 py-3"
                   >
-                    <div>
-                      <p className="font-medium">{p.nombre}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{p.nombre}</p>
                       <p className="text-sm text-ink/60">
                         ${p.precioUsd.toFixed(2)} · Bs {precioBs}
                       </p>
                     </div>
                     {line ? (
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={() => removeFromCart(p.id)}
-                          className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600"
+                          className="w-10 h-10 shrink-0 rounded-full border border-leaf-400 text-leaf-600 text-lg"
                           aria-label={`Quitar una unidad de ${p.nombre}`}
                         >
                           −
                         </button>
-                        <span className="w-4 text-center">{line.cantidad}</span>
+                        <span className="w-5 text-center">{line.cantidad}</span>
                         <button
                           onClick={() => addToCart(p.id)}
-                          className="w-8 h-8 rounded-full bg-leaf-600 text-white"
+                          className="w-10 h-10 shrink-0 rounded-full bg-leaf-600 text-white text-lg"
                           aria-label={`Agregar una unidad de ${p.nombre}`}
                         >
                           +
@@ -116,7 +116,7 @@ export default function CatalogPage() {
                     ) : (
                       <button
                         onClick={() => addToCart(p.id)}
-                        className="px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm"
+                        className="shrink-0 px-4 py-2.5 rounded-lg bg-leaf-600 text-white text-sm"
                       >
                         Agregar
                       </button>
@@ -129,17 +129,17 @@ export default function CatalogPage() {
       ))}
 
       {totalItems > 0 && (
-        <div className="fixed bottom-0 inset-x-0 bg-leaf-800 text-white px-4 py-4">
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <div>
+        <div className="fixed bottom-0 inset-x-0 bg-leaf-800 text-white px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+            <div className="min-w-0">
               <p className="text-sm text-leaf-100">{totalItems} producto(s)</p>
-              <p className="font-medium">
+              <p className="font-medium truncate">
                 ${totalUsd.toFixed(2)} · Bs {(totalUsd * tasaCambio).toFixed(2)}
               </p>
             </div>
             <button
               onClick={() => router.push("/checkout")}
-              className="px-5 py-3 rounded-lg bg-clay-400 text-ink font-medium"
+              className="shrink-0 px-5 py-3 rounded-lg bg-clay-400 text-ink font-medium"
             >
               Continuar
             </button>

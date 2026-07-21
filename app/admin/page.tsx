@@ -53,7 +53,7 @@ export default function AdminHomePage() {
           value={nuevaTasa}
           onChange={(e) => setNuevaTasa(e.target.value)}
           placeholder="Nueva tasa, ej: 42.50"
-          className="flex-1 border border-leaf-100 rounded-lg px-3 py-2"
+          className="flex-1 border border-leaf-100 rounded-lg px-3 py-3"
         />
         <button
           disabled={!nuevaTasa || guardando}

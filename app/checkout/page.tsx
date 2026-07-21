@@ -128,7 +128,7 @@ export default function CheckoutPage() {
           <input
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            className="w-full border border-leaf-100 rounded-lg px-3 py-2"
+            className="w-full border border-leaf-100 rounded-lg px-3 py-3"
           />
         </div>
         <div>
@@ -136,7 +136,7 @@ export default function CheckoutPage() {
           <input
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
-            className="w-full border border-leaf-100 rounded-lg px-3 py-2"
+            className="w-full border border-leaf-100 rounded-lg px-3 py-3"
           />
         </div>
         <div>
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
           <textarea
             value={direccion}
             onChange={(e) => setDireccion(e.target.value)}
-            className="w-full border border-leaf-100 rounded-lg px-3 py-2"
+            className="w-full border border-leaf-100 rounded-lg px-3 py-3"
           />
         </div>
 

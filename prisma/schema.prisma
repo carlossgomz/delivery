@@ -1,59 +1,14 @@
-// Base de datos propia del proyecto de delivery.
-// NO se conecta al sistema de facturación local: los precios en USD
-// y el stock se administran aquí manualmente desde el panel /admin.
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql" // or whatever you're using
   url      = env("DATABASE_URL")
 }
 
-// Fila única con la configuración global de la tienda.
-model Config {
-  id          Int      @id @default(1)
-  tasaCambio  Float    @default(1) // Bs por 1 USD
-  updatedAt   DateTime @updatedAt
-}
-
-model Product {
-  id         String      @id @default(cuid())
-  nombre     String
-  precioUsd  Float
-  categoria  String
-  imagenUrl  String?
-  activo     Boolean     @default(true)
-  createdAt  DateTime    @default(now())
-  items      OrderItem[]
-}
-
-// SQLite no soporta enums en Prisma, así que el estado se guarda como texto.
-// Valores usados por la app: PENDIENTE_VERIFICACION | ESPERANDO_PAGO |
-// PAGO_EN_REVISION | CONFIRMADO | EN_PREPARACION | ENTREGADO | CANCELADO
 model Order {
-  id             String      @id @default(cuid())
-  clienteNombre  String
-  clienteTelefono String
-  direccion      String
-  estado         String      @default("PENDIENTE_VERIFICACION")
-  tasaCambio     Float       // tasa vigente al momento del pedido, congelada aquí
-  totalUsd       Float?      // se llena una vez el personal confirma disponibilidad
-  totalBs        Float?
-  comprobanteUrl String?
-  notas          String?
-  createdAt      DateTime    @default(now())
-  items          OrderItem[]
-}
-
-model OrderItem {
-  id          String   @id @default(cuid())
-  orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  cantidad    Int
-  precioUsd   Float    // precio congelado al momento del pedido
-  disponible  Boolean? // null = sin revisar, true/false = revisado por el personal
+  id        String   @id @default(cuid())
+  estado    String
+  // ...other fields
 }

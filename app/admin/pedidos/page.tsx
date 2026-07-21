@@ -132,14 +132,14 @@ export default function AdminPedidosPage() {
       <div className="space-y-4">
         {orders.map((order) => (
           <div key={order.id} className="bg-white border border-leaf-100 rounded-lg p-4">
-            <div className="flex justify-between items-start mb-2">
-              <div>
+            <div className="flex flex-wrap gap-2 justify-between items-start mb-2">
+              <div className="min-w-0">
                 <p className="font-medium">{order.clienteNombre}</p>
                 <p className="text-sm text-ink/60">
                   {order.clienteTelefono} · {order.direccion}
                 </p>
               </div>
-              <span className="text-xs px-2 py-1 rounded-full bg-clay-100 text-clay-600">
+              <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-clay-100 text-clay-600">
                 {ETIQUETAS[order.estado] ?? order.estado}
               </span>
             </div>
