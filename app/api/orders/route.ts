@@ -22,12 +22,20 @@ export async function POST(req: NextRequest) {
   const config = await prisma.config.upsert({
     where: { id: 1 },
     update: {},
-    create: { id: 1, tasaCambio: 1 }
+    create: { id: 1, tasaCambio: 1, margenPorcentaje: 30 }
   });
 
   const products = await prisma.product.findMany({
     where: { id: { in: items.map((i) => i.productId) } }
   });
+
+  const missingProductIds = items
+    .map((i) => i.productId)
+    .filter((productId) => !products.some((p) => p.id === productId));
+
+  if (missingProductIds.length) {
+    return NextResponse.json({ error: "Productos no encontrados" }, { status: 400 });
+  }
 
   const order = await prisma.order.create({
     data: {

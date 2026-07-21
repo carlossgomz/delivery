@@ -11,7 +11,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     where: { id: params.id },
     data: {
       ...(body.nombre !== undefined && { nombre: body.nombre }),
-      ...(body.precioUsd !== undefined && { precioUsd: Number(body.precioUsd) }),
+      ...(body.costoUsd !== undefined && { costoUsd: Number(body.costoUsd) }),
+      ...(body.margenPorcentaje !== undefined && {
+        margenPorcentaje: body.margenPorcentaje === null ? null : Number(body.margenPorcentaje)
+      }),
       ...(body.categoria !== undefined && { categoria: body.categoria }),
       ...(body.activo !== undefined && { activo: Boolean(body.activo) })
     }
