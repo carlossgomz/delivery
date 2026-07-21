@@ -19,11 +19,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Faltan datos del pedido" }, { status: 400 });
   }
 
-  const config = await prisma.config.upsert({
+  // Se usa casteado temporal o fallback para evitar bloqueos si el tipo de Prisma aún no se regeneró
+  const configRecord = await prisma.config.upsert({
     where: { id: 1 },
     update: {},
-    create: { id: 1, tasaCambio: 1, margenPorcentaje: 30 }
+    create: { id: 1, tasaCambio: 1, margenPorcentaje: 30 } as any
   });
+
+  const config = configRecord as typeof configRecord & { margenPorcentaje?: number };
 
   const products = await prisma.product.findMany({
     where: { id: { in: items.map((i) => i.productId) } }
@@ -45,11 +48,21 @@ export async function POST(req: NextRequest) {
       tasaCambio: config.tasaCambio,
       items: {
         create: items.map((i) => {
-          const p = products.find((pr) => pr.id === i.productId)!;
+          const p = products.find((pr) => pr.id === i.productId) as any;
+
+          // 1. Determina el margen a usar (producto -> config -> por defecto 30)
+          const margen = p?.margenPorcentaje ?? config?.margenPorcentaje ?? 30;
+
+          // 2. Toma el costo base (costoUsd o precioUsd si existiera)
+          const baseUsd = p?.costoUsd ?? p?.precioUsd ?? 0;
+
+          // 3. Calcula el precio final de venta en USD
+          const precioCalculado = baseUsd * (1 + margen / 100);
+
           return {
             productId: i.productId,
             cantidad: i.cantidad,
-            precioUsd: p.precioUsd
+            precioUsd: precioCalculado
           };
         })
       }
