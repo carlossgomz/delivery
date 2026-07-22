@@ -31,7 +31,8 @@ export default function CheckoutPage() {
     load();
   }, []);
 
-  // Consulta el estado del pedido periódicamente
+  // Una vez creado el pedido, consulta cada pocos segundos si la tienda
+  // ya verificó disponibilidad, para mostrar el total y pedir el pago.
   useEffect(() => {
     if (!orderId) return;
     const interval = setInterval(async () => {
@@ -85,22 +86,10 @@ export default function CheckoutPage() {
         <h1 className="font-display text-xl text-leaf-800 mb-2">Pedido enviado</h1>
         <p className="text-ink/70 mb-6">Número de pedido: {orderId.slice(0, 8)}</p>
 
-        {/* 1. PENDIENTE DE VERIFICACIÓN (Pantalla inicial al enviar pedido) */}
         {estado === "PENDIENTE_VERIFICACION" && (
-          <div className="space-y-6">
-            <p className="text-clay-600 bg-clay-100 p-4 rounded-lg border border-clay-200">
-              La tienda está confirmando qué productos tiene disponibles…
-            </p>
-            <button
-              onClick={() => router.push("/")}
-              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
-            >
-              Finalizar / Volver a la tienda
-            </button>
-          </div>
+          <p className="text-clay-600">La tienda está confirmando qué productos tiene disponibles…</p>
         )}
 
-        {/* 2. ESPERANDO PAGO */}
         {estado === "ESPERANDO_PAGO" && (
           <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4">
             <p className="text-sm text-ink/80">Tu pedido está listo. Realiza el pago y sube el comprobante.</p>
@@ -121,12 +110,10 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {/* 3. PAGO EN REVISIÓN (Después de adjuntar el comprobante) */}
+        {/* AQUÍ ESTÁ EL MENSAJE + EL BOTÓN DE FINALIZAR COMPRA */}
         {estado === "PAGO_EN_REVISION" && (
           <div className="space-y-6">
-            <p className="text-clay-600 bg-clay-100 p-4 rounded-lg border border-clay-200">
-              Recibimos tu comprobante. La tienda lo está verificando.
-            </p>
+            <p className="text-clay-600">Recibimos tu comprobante. La tienda lo está verificando.</p>
             <button
               onClick={() => router.push("/")}
               className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
@@ -136,32 +123,14 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {/* 4. CONFIRMADO / EN PREPARACIÓN */}
         {(estado === "CONFIRMADO" || estado === "EN_PREPARACION") && (
-          <div className="space-y-6">
-            <p className="text-leaf-600">Pago confirmado. Tu pedido está en preparación.</p>
-            <button
-              onClick={() => router.push("/")}
-              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
-            >
-              Finalizar compra
-            </button>
-          </div>
+          <p className="text-leaf-600">Pago confirmado. Tu pedido está en preparación.</p>
         )}
 
-        {/* 5. CANCELADO */}
         {estado === "CANCELADO" && (
-          <div className="space-y-6">
-            <p className="text-alert-600">
-              Ningún producto del pedido quedó disponible. La tienda debería haberte contactado.
-            </p>
-            <button
-              onClick={() => router.push("/")}
-              className="w-full py-3 rounded-lg border border-leaf-100 text-ink/80 font-medium"
-            >
-              Volver al inicio
-            </button>
-          </div>
+          <p className="text-alert-600">
+            Ningún producto del pedido quedó disponible. La tienda debería haberte contactado.
+          </p>
         )}
       </main>
     );
