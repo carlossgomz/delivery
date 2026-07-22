@@ -20,6 +20,8 @@ type Order = {
   totalBs: number | null;
   comprobanteUrl: string | null;
   notaPago?: string | null;
+  nota?: string | null;
+  referencia?: string | null;
   items: OrderItem[];
 };
 
@@ -34,21 +36,34 @@ const ETIQUETAS: Record<string, string> = {
   CANCELADO: "Cancelado"
 };
 
-// Pequeño "ding" generado en el navegador (sin depender de un archivo de audio)
+// Función de alerta sonora optimizada para vencer el bloqueo del navegador
 function sonarAlerta() {
   try {
-    const ctx = new AudioContext();
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+
+    if (ctx.state === "suspended") {
+      ctx.resume();
+    }
+
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.frequency.value = 880;
+
     osc.type = "sine";
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    osc.frequency.setValueAtTime(880, ctx.currentTime); // Tono A5
+    osc.frequency.setValueAtTime(1174.66, ctx.currentTime + 0.15); // Tono D6
+
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    osc.connect(gain).connect(ctx.destination);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
     osc.start();
     osc.stop(ctx.currentTime + 0.5);
-  } catch {
-    // Si el navegador bloquea audio sin interacción previa, no pasa nada grave.
+  } catch (e) {
+    console.warn("No se pudo reproducir audio de notificación:", e);
   }
 }
 
@@ -57,34 +72,55 @@ export default function AdminPedidosPage() {
   const [conectado, setConectado] = useState(false);
 
   async function cargar() {
-    const res = await fetch("/api/orders");
-    const data = await res.json();
-    setOrders(data.orders);
+    try {
+      const res = await fetch("/api/orders");
+      const data = await res.json();
+      if (data.orders) {
+        setOrders(data.orders);
+      }
+    } catch (e) {
+      console.error("Error al cargar pedidos:", e);
+    }
   }
 
   useEffect(() => {
     cargar();
 
-    // Conexión en vivo: el servidor avisa apenas entra un pedido nuevo o
-    // se actualiza uno existente, sin tener que estar preguntando.
-    const source = new EventSource("/api/orders/stream");
+    let eventSource: EventSource | null = null;
 
-    source.addEventListener("connected", () => setConectado(true));
+    function conectarStream() {
+      eventSource = new EventSource("/api/orders/stream");
 
-    source.addEventListener("nuevo_pedido", () => {
-      sonarAlerta();
-      cargar();
-    });
+      eventSource.addEventListener("connected", () => {
+        setConectado(true);
+      });
 
-    source.addEventListener("pedido_actualizado", () => {
-      cargar();
-    });
+      eventSource.addEventListener("nuevo_pedido", () => {
+        sonarAlerta();
+        cargar();
+      });
 
-    source.onerror = () => {
-      setConectado(false);
+      eventSource.addEventListener("pedido_actualizado", () => {
+        sonarAlerta();
+        cargar();
+      });
+
+      eventSource.onerror = () => {
+        setConectado(false);
+        if (eventSource) {
+          eventSource.close();
+        }
+        setTimeout(conectarStream, 3000);
+      };
+    }
+
+    conectarStream();
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
     };
-
-    return () => source.close();
   }, []);
 
   function toggleDisponible(order: Order, itemId: string, value: boolean) {
@@ -127,129 +163,138 @@ export default function AdminPedidosPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="font-display text-xl text-leaf-800">Pedidos</h1>
         <span className={`text-xs flex items-center gap-1.5 ${conectado ? "text-leaf-600" : "text-alert-600"}`}>
-          <span className={`w-2 h-2 rounded-full ${conectado ? "bg-leaf-600" : "bg-alert-600"}`} />
+          <span className={`w-2 h-2 rounded-full ${conectado ? "bg-leaf-600 animate-pulse" : "bg-alert-600"}`} />
           {conectado ? "Recibiendo pedidos en vivo" : "Sin conexión — reintentando…"}
         </span>
       </div>
       <div className="space-y-4">
-        {orders.map((order) => (
-          <div key={order.id} className="bg-white border border-leaf-100 rounded-lg p-4">
-            <div className="flex flex-wrap gap-2 justify-between items-start mb-2">
-              <div className="min-w-0">
-                <p className="font-medium">{order.clienteNombre}</p>
-                <p className="text-sm text-ink/60">
-                  {order.clienteTelefono} · {order.direccion}
-                </p>
-              </div>
-              <span
-                className={`shrink-0 text-xs px-2 py-1 rounded-full ${order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION"
-                    ? "bg-amber-100 text-amber-800 font-medium"
-                    : "bg-clay-100 text-clay-600"
-                  }`}
-              >
-                {ETIQUETAS[order.estado] ?? order.estado}
-              </span>
-            </div>
+        {orders.map((order) => {
+          const notaCliente = order.notaPago || order.nota || order.referencia;
 
-            <ul className="text-sm divide-y divide-leaf-50">
-              {order.items.map((item) => (
-                <li key={item.id} className="flex items-center justify-between py-2">
-                  <span>
-                    {item.cantidad}× {item.product.nombre}
-                  </span>
-                  {order.estado === "PENDIENTE_VERIFICACION" ? (
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={!!item.disponible}
-                        onChange={(e) => toggleDisponible(order, item.id, e.target.checked)}
-                      />
-                      Disponible
-                    </label>
-                  ) : (
-                    <span className={item.disponible ? "text-leaf-600" : "text-alert-600"}>
-                      {item.disponible ? "Disponible" : "No disponible"}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
-
-            {order.estado === "PENDIENTE_VERIFICACION" && (
-              <button
-                onClick={() => guardarDisponibilidad(order)}
-                className="mt-3 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm"
-              >
-                Confirmar disponibilidad
-              </button>
-            )}
-
-            {order.totalUsd != null && (
-              <p className="mt-3 text-sm text-ink/70 font-medium">
-                Total: ${order.totalUsd.toFixed(2)} · Bs {order.totalBs?.toFixed(2)}
-              </p>
-            )}
-
-            {/* SECCIÓN DE REVISIÓN DE PAGO */}
-            {(order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION") && (
-              <div className="mt-3 p-3 bg-amber-50/60 border border-amber-200 rounded-lg text-sm space-y-2">
-                <p className="font-semibold text-amber-900">💳 Detalles del pago enviado por el cliente:</p>
-
-                {order.notaPago && (
-                  <p className="text-ink/80 text-xs bg-white p-2 rounded border border-amber-100">
-                    <span className="font-semibold">Referencia / Mensaje:</span> {order.notaPago}
+          return (
+            <div key={order.id} className="bg-white border border-leaf-100 rounded-lg p-4 shadow-sm">
+              <div className="flex flex-wrap gap-2 justify-between items-start mb-2">
+                <div className="min-w-0">
+                  <p className="font-medium">{order.clienteNombre}</p>
+                  <p className="text-sm text-ink/60">
+                    {order.clienteTelefono} · {order.direccion}
                   </p>
-                )}
-
-                {order.comprobanteUrl ? (
-                  <a
-                    href={order.comprobanteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-leaf-600 underline text-xs font-medium"
-                  >
-                    🖼️ Ver captura / comprobante adjunto
-                  </a>
-                ) : (
-                  !order.notaPago && <p className="text-xs text-ink/60">El cliente no adjuntó archivo ni nota.</p>
-                )}
-
-                <div className="pt-2 flex flex-wrap gap-2">
-                  <button
-                    onClick={() => cambiarEstado(order, "CONFIRMADO")}
-                    className="px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-800 transition-colors"
-                  >
-                    Aprobar pago
-                  </button>
-                  <button
-                    onClick={() => cambiarEstado(order, "ESPERANDO_PAGO")}
-                    className="px-3 py-1.5 rounded-lg border border-alert-600 text-alert-600 text-sm font-medium hover:bg-alert-50 transition-colors"
-                  >
-                    Rechazar comprobante
-                  </button>
                 </div>
+                <span
+                  className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION"
+                      ? "bg-amber-100 text-amber-800 border border-amber-200"
+                      : "bg-clay-100 text-clay-600"
+                    }`}
+                >
+                  {ETIQUETAS[order.estado] ?? order.estado}
+                </span>
               </div>
-            )}
 
-            {order.estado === "CONFIRMADO" && (
-              <button
-                onClick={() => cambiarEstado(order, "EN_PREPARACION")}
-                className="mt-3 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm"
-              >
-                Pasar a preparación
-              </button>
-            )}
+              <ul className="text-sm divide-y divide-leaf-50">
+                {order.items.map((item) => (
+                  <li key={item.id} className="flex items-center justify-between py-2">
+                    <span>
+                      {item.cantidad}× {item.product.nombre}
+                    </span>
+                    {order.estado === "PENDIENTE_VERIFICACION" ? (
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!!item.disponible}
+                          onChange={(e) => toggleDisponible(order, item.id, e.target.checked)}
+                          className="rounded text-leaf-600 focus:ring-leaf-500"
+                        />
+                        <span className="text-xs">Disponible</span>
+                      </label>
+                    ) : (
+                      <span className={item.disponible ? "text-leaf-600 font-medium" : "text-alert-600 font-medium"}>
+                        {item.disponible ? "Disponible" : "No disponible"}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
 
-            {order.estado === "EN_PREPARACION" && (
-              <button
-                onClick={() => cambiarEstado(order, "ENTREGADO")}
-                className="mt-3 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm"
-              >
-                Marcar como entregado
-              </button>
-            )}
-          </div>
-        ))}
+              {order.estado === "PENDIENTE_VERIFICACION" && (
+                <button
+                  onClick={() => guardarDisponibilidad(order)}
+                  className="mt-3 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-700 transition-colors"
+                >
+                  Confirmar disponibilidad
+                </button>
+              )}
+
+              {order.totalUsd != null && (
+                <p className="mt-3 text-sm text-ink/80 font-medium">
+                  Total: ${order.totalUsd.toFixed(2)} · Bs {order.totalBs?.toFixed(2)}
+                </p>
+              )}
+
+              {/* REVISIÓN DE PAGO */}
+              {(order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION") && (
+                <div className="mt-3 p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-sm space-y-2">
+                  <p className="font-semibold text-amber-900 flex items-center gap-1.5">
+                    💳 Detalles del pago enviado por el cliente:
+                  </p>
+
+                  {notaCliente && (
+                    <p className="text-ink/80 text-xs bg-white p-2.5 rounded border border-amber-100">
+                      <span className="font-semibold">Referencia / Mensaje:</span> {notaCliente}
+                    </p>
+                  )}
+
+                  {order.comprobanteUrl ? (
+                    <a
+                      href={order.comprobanteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block text-leaf-600 underline text-xs font-medium hover:text-leaf-800"
+                    >
+                      🖼️ Ver captura / comprobante adjunto
+                    </a>
+                  ) : null}
+
+                  {!notaCliente && !order.comprobanteUrl && (
+                    <p className="text-xs text-ink/60 italic">El cliente no adjuntó archivo ni nota.</p>
+                  )}
+
+                  <div className="pt-2 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => cambiarEstado(order, "CONFIRMADO")}
+                      className="px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-700 transition-colors"
+                    >
+                      Aprobar pago
+                    </button>
+                    <button
+                      onClick={() => cambiarEstado(order, "ESPERANDO_PAGO")}
+                      className="px-3 py-1.5 rounded-lg border border-alert-600 text-alert-600 text-sm font-medium hover:bg-alert-50 transition-colors"
+                    >
+                      Rechazar comprobante
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {order.estado === "CONFIRMADO" && (
+                <button
+                  onClick={() => cambiarEstado(order, "EN_PREPARACION")}
+                  className="mt-3 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-700 transition-colors"
+                >
+                  Pasar a preparación
+                </button>
+              )}
+
+              {order.estado === "EN_PREPARACION" && (
+                <button
+                  onClick={() => cambiarEstado(order, "ENTREGADO")}
+                  className="mt-3 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-700 transition-colors"
+                >
+                  Marcar como entregado
+                </button>
+              )}
+            </div>
+          );
+        })}
         {orders.length === 0 && <p className="text-ink/60">No hay pedidos todavía.</p>}
       </div>
     </div>
