@@ -110,9 +110,12 @@ export default function CheckoutPage() {
           </div>
         )}
 
+        {/* --- CORRECCIÓN AQUÍ: SE MUESTRA EL MENSAJE Y EL BOTÓN --- */}
         {estado === "PAGO_EN_REVISION" && (
           <div className="space-y-6">
-            <p className="text-clay-600">Recibimos tu comprobante. La tienda lo está verificando.</p>
+            <p className="text-clay-600 bg-clay-100 p-4 rounded-lg border border-clay-200">
+              Recibimos tu comprobante. La tienda lo está verificando.
+            </p>
             <button
               onClick={() => router.push("/")}
               className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
@@ -121,6 +124,7 @@ export default function CheckoutPage() {
             </button>
           </div>
         )}
+        {/* -------------------------------------------------------- */}
 
         {(estado === "CONFIRMADO" || estado === "EN_PREPARACION") && (
           <div className="space-y-6">
