@@ -19,6 +19,7 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [estado, setEstado] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -31,8 +32,6 @@ export default function CheckoutPage() {
     load();
   }, []);
 
-  // Una vez creado el pedido, consulta cada pocos segundos si la tienda
-  // ya verificó disponibilidad, para mostrar el total y pedir el pago.
   useEffect(() => {
     if (!orderId) return;
     const interval = setInterval(async () => {
@@ -67,9 +66,11 @@ export default function CheckoutPage() {
     setEnviando(false);
   }
 
-  async function subirComprobante(file: File) {
+  async function procesarPago() {
+    if (!archivoComprobante || !orderId) return;
+    setEnviando(true);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", archivoComprobante);
     const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
     const { url } = await uploadRes.json();
     await fetch(`/api/orders/${orderId}`, {
@@ -78,6 +79,7 @@ export default function CheckoutPage() {
       body: JSON.stringify({ comprobanteUrl: url })
     });
     setEstado("PAGO_EN_REVISION");
+    setEnviando(false);
   }
 
   if (orderId) {
@@ -90,6 +92,7 @@ export default function CheckoutPage() {
           <p className="text-clay-600">La tienda está confirmando qué productos tiene disponibles…</p>
         )}
 
+        {/* AQUÍ ESTÁ LA TARJETA EXACTA DE TU CAPTURA DE PANTALLA */}
         {estado === "ESPERANDO_PAGO" && (
           <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4">
             <p className="text-sm text-ink/80">Tu pedido está listo. Realiza el pago y sube el comprobante.</p>
@@ -104,23 +107,23 @@ export default function CheckoutPage() {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => e.target.files?.[0] && subirComprobante(e.target.files[0])}
+              onChange={(e) => setArchivoComprobante(e.target.files?.[0] || null)}
               className="block w-full text-sm text-ink/70 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-leaf-600 file:text-white hover:file:bg-leaf-800 cursor-pointer"
             />
+
+            {/* BOTÓN AQUÍ ABAJO */}
+            <button
+              disabled={!archivoComprobante || enviando}
+              onClick={procesarPago}
+              className="w-full mt-2 py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-40"
+            >
+              {enviando ? "Enviando comprobante…" : "Finalizar compra"}
+            </button>
           </div>
         )}
 
-        {/* AQUÍ ESTÁ EL MENSAJE + EL BOTÓN DE FINALIZAR COMPRA */}
         {estado === "PAGO_EN_REVISION" && (
-          <div className="space-y-6">
-            <p className="text-clay-600">Recibimos tu comprobante. La tienda lo está verificando.</p>
-            <button
-              onClick={() => router.push("/")}
-              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
-            >
-              Finalizar compra
-            </button>
-          </div>
+          <p className="text-clay-600">Recibimos tu comprobante. La tienda lo está verificando.</p>
         )}
 
         {(estado === "CONFIRMADO" || estado === "EN_PREPARACION") && (
