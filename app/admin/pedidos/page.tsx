@@ -40,7 +40,9 @@ function sonarAlerta() {
   if (typeof window === "undefined") return;
 
   try {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
 
     const ctx = new AudioContextClass();
@@ -73,9 +75,10 @@ export default function AdminPedidosPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [conectado, setConectado] = useState(false);
 
+  // Carga de pedidos desactivando el caché HTTP
   async function cargar() {
     try {
-      const res = await fetch("/api/orders");
+      const res = await fetch("/api/orders", { cache: "no-store" });
       const data = await res.json();
       if (Array.isArray(data.orders)) {
         setOrders(data.orders);
@@ -170,32 +173,40 @@ export default function AdminPedidosPage() {
         body: JSON.stringify({ action: "confirmar_disponibilidad" })
       });
       const data = await res.json();
+
+      if (data.order) {
+        setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
+      }
+      cargar();
+    } catch (e) {
+      console.error("Error al guardar disponibilidad:", e);
+      cargar();
+    }
+  }
+
+  async function cambiarEstado(order: Order, nuevoEstado: string) {
+    // 1. Cambio optimista inmediato en la interfaz
+    setOrders((prev) =>
+      (prev || []).map((o) => (o.id === order.id ? { ...o, estado: nuevoEstado } : o))
+    );
+
+    // 2. Enviar actualización al servidor
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado: nuevoEstado })
+      });
+      const data = await res.json();
+
       if (data.order) {
         setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
       } else {
         cargar();
       }
     } catch (e) {
-      console.error("Error al guardar disponibilidad:", e);
-    }
-  }
-
-  async function cambiarEstado(order: Order, estado: string) {
-    setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? { ...o, estado } : o)));
-
-    try {
-      const res = await fetch(`/api/orders/${order.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ estado })
-      });
-      const data = await res.json();
-      if (data.order) {
-        setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
-      }
-    } catch (e) {
       console.error("Error al cambiar estado:", e);
-      cargar();
+      cargar(); // Si falla la red, revierte los cambios cargando el estado real
     }
   }
 
