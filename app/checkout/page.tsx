@@ -37,13 +37,26 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (!orderId) return;
+
+    // Si ya está en revisión/pago recibido o confirmado, cancelamos el polling para evitar sobreescritura
+    if (estado === "PAGO_RECIBIDO" || estado === "PAGO_EN_REVISION" || estado === "CONFIRMADO") {
+      return;
+    }
+
     const interval = setInterval(async () => {
-      const res = await fetch(`/api/orders/${orderId}`);
-      const data = await res.json();
-      setEstado(data.order.estado);
+      try {
+        const res = await fetch(`/api/orders/${orderId}`);
+        const data = await res.json();
+        if (data?.order?.estado) {
+          setEstado(data.order.estado);
+        }
+      } catch (err) {
+        console.error("Error consultando estado:", err);
+      }
     }, 4000);
+
     return () => clearInterval(interval);
-  }, [orderId]);
+  }, [orderId, estado]);
 
   const totalUsd = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
@@ -76,26 +89,38 @@ export default function CheckoutPage() {
     let url = "";
 
     if (archivoComprobante) {
-      const formData = new FormData();
-      formData.append("file", archivoComprobante);
-      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
-      const uploadData = await uploadRes.json();
-      url = uploadData.url;
+      try {
+        const formData = new FormData();
+        formData.append("file", archivoComprobante);
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        const uploadData = await uploadRes.json();
+        url = uploadData.url || uploadData.secure_url || "";
+      } catch (err) {
+        console.error("Error al subir archivo:", err);
+      }
     }
 
-    // Actualizamos el pedido en la BD con el estado PAGO_RECIBIDO para el Admin
-    await fetch(`/api/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        estado: "PAGO_RECIBIDO",
-        comprobanteUrl: url || undefined,
-        notaPago: notaPago || undefined
-      })
-    });
+    try {
+      // Enviamos el PATCH pasando todas las variantes para asegurar compatibilidad con tu esquema de DB
+      await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          estado: "PAGO_RECIBIDO",
+          comprobanteUrl: url || null,
+          notaPago: notaPago || null,
+          nota: notaPago || null,
+          referencia: notaPago || null
+        })
+      });
 
-    setEstado("PAGO_RECIBIDO");
-    setEnviando(false);
+      // Forzamos el estado a PAGO_RECIBIDO para mostrar la pantalla final inmediatamente
+      setEstado("PAGO_RECIBIDO");
+    } catch (err) {
+      console.error("Error al procesar pago:", err);
+    } finally {
+      setEnviando(false);
+    }
   }
 
   if (orderId) {
