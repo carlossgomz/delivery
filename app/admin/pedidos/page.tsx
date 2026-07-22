@@ -37,10 +37,13 @@ const ETIQUETAS: Record<string, string> = {
 };
 
 function sonarAlerta() {
+  if (typeof window === "undefined") return;
+
   try {
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const ctx = new AudioContextClass();
 
     if (ctx.state === "suspended") {
       ctx.resume();
@@ -62,7 +65,7 @@ function sonarAlerta() {
     osc.start();
     osc.stop(ctx.currentTime + 0.5);
   } catch {
-    // Evita lanzar errores no controlados si no hubo interacción previa
+    // Evita romper la app si el navegador bloquea el audio autoejecutado
   }
 }
 
@@ -169,7 +172,6 @@ export default function AdminPedidosPage() {
   }
 
   async function cambiarEstado(order: Order, estado: string) {
-    // Actualización optimista inmediata en UI
     setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, estado } : o)));
 
     try {
@@ -184,7 +186,7 @@ export default function AdminPedidosPage() {
       }
     } catch (e) {
       console.error("Error al cambiar estado:", e);
-      cargar(); // Revertir en caso de falla
+      cargar();
     }
   }
 
