@@ -14,7 +14,11 @@ export async function GET(req: NextRequest) {
       const encoder = new TextEncoder();
 
       function send(event: string, data: unknown) {
-        controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+        try {
+          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+        } catch {
+          // Captura silenciosa por si el cliente se desconecta abruptamente
+        }
       }
 
       send("connected", { ok: true });
@@ -29,16 +33,24 @@ export async function GET(req: NextRequest) {
       orderEvents.on("nuevo_pedido", onNewOrder);
       orderEvents.on("pedido_actualizado", onOrderUpdated);
 
-      // Late para mantener viva la conexión a través de proxies/navegadores.
+      // Latido (heartbeat) para mantener viva la conexión a través de proxies/navegadores.
       const heartbeat = setInterval(() => {
-        controller.enqueue(encoder.encode(`: ping\n\n`));
+        try {
+          controller.enqueue(encoder.encode(`: ping\n\n`));
+        } catch {
+          clearInterval(heartbeat);
+        }
       }, 20000);
 
       req.signal.addEventListener("abort", () => {
         clearInterval(heartbeat);
         orderEvents.off("nuevo_pedido", onNewOrder);
         orderEvents.off("pedido_actualizado", onOrderUpdated);
-        controller.close();
+        try {
+          controller.close();
+        } catch {
+          // Ignorar si el controlador ya fue cerrado
+        }
       });
     }
   });

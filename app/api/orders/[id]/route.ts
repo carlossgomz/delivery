@@ -15,12 +15,18 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json();
 
-  // 1) El cliente sube su comprobante de pago (no requiere sesión de admin,
+  // 1) El cliente sube su comprobante O su nota/referencia de pago (no requiere sesión de admin,
   //    solo conocer el id del pedido, que es un identificador largo y único).
-  if (body.comprobanteUrl) {
+  if (body.comprobanteUrl || body.notaPago || body.nota || body.referencia) {
+    const notaGuardar = body.notaPago || body.nota || body.referencia;
+
     const order = await prisma.order.update({
       where: { id: params.id },
-      data: { comprobanteUrl: body.comprobanteUrl, estado: "PAGO_EN_REVISION" }
+      data: {
+        ...(body.comprobanteUrl && { comprobanteUrl: body.comprobanteUrl }),
+        ...(notaGuardar && { notaPago: notaGuardar }),
+        estado: "PAGO_EN_REVISION"
+      }
     });
     orderEvents.emit("pedido_actualizado", order);
     return NextResponse.json({ order });
@@ -62,6 +68,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         estado: disponibles.length > 0 ? "ESPERANDO_PAGO" : "CANCELADO"
       }
     });
+    orderEvents.emit("pedido_actualizado", updated);
     return NextResponse.json({ order: updated });
   }
 
@@ -71,6 +78,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       where: { id: params.id },
       data: { estado: body.estado }
     });
+    orderEvents.emit("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
 
