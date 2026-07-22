@@ -91,7 +91,7 @@ export default function AdminMensajesPage() {
       if (payload.remitente === "CLIENTE") {
         sonarAlerta();
         // Si el mensaje es de la conversación que ya tengo abierta, la recargo.
-        if (payload.conversacionId === seleccionada) {
+        if (seleccionada && payload.conversacionId === seleccionada) {
           abrirConversacion(seleccionada);
         }
       }
@@ -123,9 +123,8 @@ export default function AdminMensajesPage() {
               <li key={c.id}>
                 <button
                   onClick={() => abrirConversacion(c.id)}
-                  className={`w-full text-left px-3 py-3 hover:bg-leaf-50/50 ${
-                    seleccionada === c.id ? "bg-leaf-50" : ""
-                  }`}
+                  className={`w-full text-left px-3 py-3 hover:bg-leaf-50/50 ${seleccionada === c.id ? "bg-leaf-50" : ""
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium truncate">
@@ -154,11 +153,10 @@ export default function AdminMensajesPage() {
                 {hilo.map((m) => (
                   <div
                     key={m.id}
-                    className={`max-w-[75%] px-3 py-2 rounded-lg text-sm ${
-                      m.remitente === "TIENDA"
+                    className={`max-w-[75%] px-3 py-2 rounded-lg text-sm ${m.remitente === "TIENDA"
                         ? "ml-auto bg-leaf-600 text-white rounded-br-sm"
                         : "mr-auto bg-white border border-leaf-100 text-ink rounded-bl-sm"
-                    }`}
+                      }`}
                   >
                     {m.texto}
                   </div>
