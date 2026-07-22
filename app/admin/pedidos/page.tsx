@@ -22,7 +22,7 @@ type Order = {
   notaPago?: string | null;
   nota?: string | null;
   referencia?: string | null;
-  items: OrderItem[];
+  items?: OrderItem[];
 };
 
 const ETIQUETAS: Record<string, string> = {
@@ -65,7 +65,7 @@ function sonarAlerta() {
     osc.start();
     osc.stop(ctx.currentTime + 0.5);
   } catch {
-    // Evita romper la app si el navegador bloquea el audio autoejecutado
+    // Silencia fallos en reproducción automática
   }
 }
 
@@ -77,11 +77,16 @@ export default function AdminPedidosPage() {
     try {
       const res = await fetch("/api/orders");
       const data = await res.json();
-      if (data.orders) {
+      if (Array.isArray(data.orders)) {
         setOrders(data.orders);
+      } else if (Array.isArray(data)) {
+        setOrders(data);
+      } else {
+        setOrders([]);
       }
     } catch (e) {
       console.error("Error al cargar pedidos:", e);
+      setOrders([]);
     }
   }
 
@@ -108,7 +113,7 @@ export default function AdminPedidosPage() {
           try {
             const updatedOrder: Order = JSON.parse(event.data);
             setOrders((prev) =>
-              prev.map((o) => (o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o))
+              (prev || []).map((o) => (o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o))
             );
           } catch {
             cargar();
@@ -138,21 +143,25 @@ export default function AdminPedidosPage() {
 
   function toggleDisponible(order: Order, itemId: string, value: boolean) {
     setOrders((prev) =>
-      prev.map((o) =>
+      (prev || []).map((o) =>
         o.id !== order.id
           ? o
-          : { ...o, items: o.items.map((i) => (i.id === itemId ? { ...i, disponible: value } : i)) }
+          : {
+            ...o,
+            items: (o.items || []).map((i) => (i.id === itemId ? { ...i, disponible: value } : i))
+          }
       )
     );
   }
 
   async function guardarDisponibilidad(order: Order) {
     try {
+      const itemsList = order.items || [];
       await fetch(`/api/orders/${order.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: order.items.map((i) => ({ id: i.id, disponible: !!i.disponible }))
+          items: itemsList.map((i) => ({ id: i.id, disponible: !!i.disponible }))
         })
       });
       const res = await fetch(`/api/orders/${order.id}`, {
@@ -162,7 +171,7 @@ export default function AdminPedidosPage() {
       });
       const data = await res.json();
       if (data.order) {
-        setOrders((prev) => prev.map((o) => (o.id === order.id ? data.order : o)));
+        setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
       } else {
         cargar();
       }
@@ -172,7 +181,7 @@ export default function AdminPedidosPage() {
   }
 
   async function cambiarEstado(order: Order, estado: string) {
-    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, estado } : o)));
+    setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? { ...o, estado } : o)));
 
     try {
       const res = await fetch(`/api/orders/${order.id}`, {
@@ -182,13 +191,15 @@ export default function AdminPedidosPage() {
       });
       const data = await res.json();
       if (data.order) {
-        setOrders((prev) => prev.map((o) => (o.id === order.id ? data.order : o)));
+        setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
       }
     } catch (e) {
       console.error("Error al cambiar estado:", e);
       cargar();
     }
   }
+
+  const safeOrders = Array.isArray(orders) ? orders : [];
 
   return (
     <div>
@@ -201,9 +212,10 @@ export default function AdminPedidosPage() {
       </div>
 
       <div className="space-y-4">
-        {orders.map((order) => {
-          const notaCliente = order.notaPago || order.nota || order.referencia;
-          const esRevisionPago = order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION";
+        {safeOrders.map((order) => {
+          const items = Array.isArray(order?.items) ? order.items : [];
+          const notaCliente = order?.notaPago || order?.nota || order?.referencia;
+          const esRevisionPago = order?.estado === "PAGO_RECIBIDO" || order?.estado === "PAGO_EN_REVISION";
 
           return (
             <div key={order.id} className="bg-white border border-leaf-100 rounded-lg p-4 shadow-sm">
@@ -227,10 +239,10 @@ export default function AdminPedidosPage() {
               </div>
 
               <ul className="text-sm divide-y divide-leaf-50">
-                {order.items.map((item) => (
+                {items.map((item) => (
                   <li key={item.id} className="flex items-center justify-between py-2">
                     <span>
-                      {item.cantidad}× {item.product.nombre}
+                      {item.cantidad}× {item.product?.nombre ?? "Producto"}
                     </span>
                     {order.estado === "PENDIENTE_VERIFICACION" ? (
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -352,7 +364,7 @@ export default function AdminPedidosPage() {
           );
         })}
 
-        {orders.length === 0 && <p className="text-ink/60">No hay pedidos todavía.</p>}
+        {safeOrders.length === 0 && <p className="text-ink/60">No hay pedidos todavía.</p>}
       </div>
     </div>
   );
