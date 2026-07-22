@@ -70,7 +70,6 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!orderId) return;
 
-    // Estados donde ya no hace falta seguir haciendo polling cada 4 segundos
     const terminalStates = [
       "PAGO_RECIBIDO",
       "PAGO_EN_REVISION",
@@ -145,6 +144,7 @@ export default function CheckoutPage() {
 
     let url = "";
 
+    // Subida de imagen a Vercel Blob
     if (archivoComprobante) {
       try {
         const formData = new FormData();
@@ -154,16 +154,21 @@ export default function CheckoutPage() {
           body: formData,
         });
 
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json();
-          url = uploadData.url || uploadData.secure_url || "";
+        const uploadData = await uploadRes.json();
+        if (uploadRes.ok && uploadData.url) {
+          url = uploadData.url;
         } else {
-          console.error("Error al subir archivo:", await uploadRes.text());
+          throw new Error(uploadData.error || "Fallo al subir el archivo de comprobante");
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error al subir comprobante:", err);
+        setErrorMsg(err.message || "No se pudo subir la imagen del comprobante.");
+        setEnviando(false);
+        return;
       }
     }
+
+    const textoNota = notaPago.trim();
 
     try {
       const res = await fetch(`/api/orders/${orderId}`, {
@@ -171,10 +176,10 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           estado: "PAGO_RECIBIDO",
-          comprobanteUrl: url || null,
-          notaPago: notaPago.trim() || null,
-          nota: notaPago.trim() || null,
-          referencia: notaPago.trim() || null,
+          comprobanteUrl: url !== "" ? url : null,
+          notaPago: textoNota !== "" ? textoNota : null,
+          nota: textoNota !== "" ? textoNota : null,
+          referencia: textoNota !== "" ? textoNota : null,
         }),
       });
 

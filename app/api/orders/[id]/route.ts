@@ -18,16 +18,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   // 1) Si el cliente está enviando su comprobante/referencia de pago desde la vista pública:
   const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
 
-  if (
-    !esEstadoAdmin &&
-    (body.comprobanteUrl !== undefined ||
-      body.comprobante !== undefined ||
-      body.notaPago !== undefined ||
-      body.nota !== undefined ||
-      body.referencia !== undefined ||
-      body.estado === "PAGO_RECIBIDO" ||
-      body.estado === "PAGO_EN_REVISION")
-  ) {
+  const tieneCamposCliente =
+    body.comprobanteUrl !== undefined ||
+    body.comprobante !== undefined ||
+    body.notaPago !== undefined ||
+    body.nota !== undefined ||
+    body.referencia !== undefined ||
+    body.estado === "PAGO_RECIBIDO" ||
+    body.estado === "PAGO_EN_REVISION";
+
+  if (!esEstadoAdmin && tieneCamposCliente) {
     const notaGuardar = body.notaPago || body.nota || body.referencia || null;
     const urlComprobante = body.comprobanteUrl || body.comprobante || null;
     const nuevoEstado = body.estado || "PAGO_RECIBIDO";
@@ -91,7 +91,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       where: { id: params.id },
       data: {
         estado: "ESPERANDO_PAGO",
-        comprobanteUrl: null, // Borra el archivo previo para solicitar uno nuevo al cliente
+        comprobanteUrl: null,
         notaPago: null
       },
       include: { items: { include: { product: true } } }
