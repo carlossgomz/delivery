@@ -15,17 +15,11 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json();
 
-  // 1) El cliente envía su comprobante, nota/referencia de pago, O actualiza su estado a PAGO_RECIBIDO/PAGO_EN_REVISION.
-  //    (No requiere sesión de admin, solo conocer el id del pedido).
-  const esEnvioCliente =
-    body.comprobanteUrl ||
-    body.notaPago ||
-    body.nota ||
-    body.referencia ||
-    body.estado === "PAGO_RECIBIDO" ||
-    body.estado === "PAGO_EN_REVISION";
+  // 1) Si el cliente está enviando su comprobante/referencia de pago desde la vista pública:
+  // Evaluamos que NO sea una petición del admin cambiando a estados administrativos (CONFIRMADO, EN_PREPARACION, etc.)
+  const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
 
-  if (esEnvioCliente) {
+  if (!esEstadoAdmin && (body.comprobanteUrl || body.notaPago || body.nota || body.referencia || body.estado === "PAGO_RECIBIDO" || body.estado === "PAGO_EN_REVISION")) {
     const notaGuardar = body.notaPago || body.nota || body.referencia;
     const nuevoEstado = body.estado || "PAGO_RECIBIDO";
 
@@ -35,20 +29,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         ...(body.comprobanteUrl && { comprobanteUrl: body.comprobanteUrl }),
         ...(notaGuardar && { notaPago: notaGuardar }),
         estado: nuevoEstado
-      }
+      },
+      include: { items: { include: { product: true } } }
     });
 
     orderEvents.emit("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
 
-  // Todo lo demás (marcar disponibilidad, confirmar pago, cambiar estado)
-  // lo hace el personal de tienda desde /admin.
+  // 2) De aquí en adelante REQUIERE sesión de admin.
   if (!isAdminAuthed()) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // 2) El personal marca disponible/no disponible producto por producto.
+  // 3) El personal marca disponible/no disponible producto por producto.
   if (body.items) {
     for (const it of body.items as { id: string; disponible: boolean }[]) {
       await prisma.orderItem.update({ where: { id: it.id }, data: { disponible: it.disponible } });
@@ -56,9 +50,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ ok: true });
   }
 
-  // 3) El personal confirma la verificación: calcula el total solo con lo
-  //    disponible, y pasa el pedido a ESPERANDO_PAGO (o lo cancela si nada
-  //    quedó disponible).
+  // 4) El personal confirma la verificación de stock.
   if (body.action === "confirmar_disponibilidad") {
     const order = await prisma.order.findUnique({
       where: { id: params.id },
@@ -76,18 +68,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         totalUsd,
         totalBs,
         estado: disponibles.length > 0 ? "ESPERANDO_PAGO" : "CANCELADO"
-      }
+      },
+      include: { items: { include: { product: true } } }
     });
+
     orderEvents.emit("pedido_actualizado", updated);
     return NextResponse.json({ order: updated });
   }
 
-  // 4) Cambios de estado directos desde el admin (confirmar pago, pasar a preparación, entregado, cancelar).
+  // 5) Cambios de estado directos desde el admin (Aprobar pago -> CONFIRMADO, EN_PREPARACION, etc.)
   if (body.estado) {
     const order = await prisma.order.update({
       where: { id: params.id },
-      data: { estado: body.estado }
+      data: { estado: body.estado },
+      include: { items: { include: { product: true } } }
     });
+
     orderEvents.emit("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
