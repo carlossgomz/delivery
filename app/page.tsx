@@ -91,7 +91,7 @@ export default function CatalogPage() {
 
   return (
     <main className="max-w-3xl mx-auto px-4 pb-32">
-      <header className="py-6 flex items-baseline justify-between">
+      <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-4">
         <h1 className="font-display text-2xl text-leaf-800">Tienda</h1>
       </header>
 
@@ -123,8 +123,8 @@ export default function CatalogPage() {
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === cat
-                  ? "bg-leaf-600 text-white"
-                  : "bg-white text-ink/70 border border-leaf-100 hover:bg-leaf-100/50"
+                ? "bg-leaf-600 text-white"
+                : "bg-white text-ink/70 border border-leaf-100 hover:bg-leaf-100/50"
                 }`}
             >
               {cat}
@@ -154,9 +154,7 @@ export default function CatalogPage() {
                     >
                       <div>
                         <p className="font-medium">{p.nombre}</p>
-                        <p className="text-sm text-ink/60">
-                          Bs {precioBs}
-                        </p>
+                        <p className="text-sm text-ink/60">Bs {precioBs}</p>
                       </div>
                       {line ? (
                         <div className="flex items-center gap-3">
@@ -202,9 +200,7 @@ export default function CatalogPage() {
           <div className="max-w-3xl mx-auto flex items-center justify-between">
             <div>
               <p className="text-sm text-leaf-100">{totalItems} producto(s)</p>
-              <p className="font-medium">
-                Bs {(totalUsd * tasaCambio).toFixed(2)}
-              </p>
+              <p className="font-medium truncate">Bs {(totalUsd * tasaCambio).toFixed(2)}</p>
             </div>
             <button
               onClick={() => router.push("/checkout")}

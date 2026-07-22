@@ -25,14 +25,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   const body = await req.json();
+  const costoUsd = body.costoUsd !== undefined ? Number(body.costoUsd) : null;
+  const margenPorcentaje = body.margenPorcentaje !== undefined ? Number(body.margenPorcentaje) : 30;
+  const precioUsd =
+    body.precioUsd !== undefined
+      ? Number(body.precioUsd)
+      : costoUsd != null
+        ? costoUsd * (1 + margenPorcentaje / 100) + 0.15
+        : 0;
+
   const product = await prisma.product.create({
     data: {
       nombre: body.nombre,
-      costoUsd: Number(body.costoUsd),
-      margenPorcentaje:
-        body.margenPorcentaje !== undefined && body.margenPorcentaje !== ""
-          ? Number(body.margenPorcentaje)
-          : null,
+      costoUsd,
+      margenPorcentaje,
+      precioUsd,
       categoria: body.categoria,
       imagenUrl: body.imagenUrl ?? null
     }

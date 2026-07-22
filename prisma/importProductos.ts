@@ -520,21 +520,22 @@ const productos = [
 ];
 
 async function main() {
-    // Asegura que exista la configuración con el margen base del 30%.
     await prisma.config.upsert({
         where: { id: 1 },
         update: {},
-        create: { id: 1, tasaCambio: 40, margenPorcentaje: 30 }
+        create: { id: 1, tasaCambio: 40 }   // ya sin margenPorcentaje
     });
 
     let creados = 0;
     let actualizados = 0;
 
     for (const p of productos) {
-        const existente = await prisma.product.findUnique({ where: { codigo: p.codigo } });
+        const existente = await prisma.product.findFirst({ where: { codigo: p.codigo } });
         if (existente) {
+            // Al reimportar solo se actualiza el costo del proveedor.
+            // El margen y el precio final los sigue controlando el admin, no se pisan aquí.
             await prisma.product.update({
-                where: { codigo: p.codigo },
+                where: { id: existente.id },
                 data: {
                     nombre: p.nombre,
                     costoUsd: p.costoUsd,
@@ -543,11 +544,15 @@ async function main() {
             });
             actualizados++;
         } else {
+            const margenInicial = 30;
+            const precioUsdInicial = p.costoUsd * (1 + margenInicial / 100) + 0.15;
             await prisma.product.create({
                 data: {
                     codigo: p.codigo,
                     nombre: p.nombre,
                     costoUsd: p.costoUsd,
+                    margenPorcentaje: margenInicial,
+                    precioUsd: precioUsdInicial,
                     categoria: p.categoria
                 }
             });

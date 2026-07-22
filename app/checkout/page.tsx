@@ -272,9 +272,7 @@ export default function CheckoutPage() {
 
         <div className="pt-2 border-t border-leaf-100">
           <p className="text-sm text-ink/60">Total estimado (sujeto a disponibilidad)</p>
-          <p className="font-medium">
-            Bs {(totalUsd * tasaCambio).toFixed(2)}
-          </p>
+          <p className="font-medium">Bs {(totalUsd * tasaCambio).toFixed(2)}</p>
         </div>
 
         <button
