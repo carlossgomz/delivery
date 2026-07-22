@@ -185,12 +185,10 @@ export default function AdminPedidosPage() {
   }
 
   async function cambiarEstado(order: Order, nuevoEstado: string) {
-    // 1. Cambio optimista inmediato en la interfaz
     setOrders((prev) =>
       (prev || []).map((o) => (o.id === order.id ? { ...o, estado: nuevoEstado } : o))
     );
 
-    // 2. Enviar actualización al servidor
     try {
       const res = await fetch(`/api/orders/${order.id}`, {
         method: "PATCH",
@@ -206,7 +204,33 @@ export default function AdminPedidosPage() {
       }
     } catch (e) {
       console.error("Error al cambiar estado:", e);
-      cargar(); // Si falla la red, revierte los cambios cargando el estado real
+      cargar();
+    }
+  }
+
+  async function rechazarPago(order: Order) {
+    setOrders((prev) =>
+      (prev || []).map((o) =>
+        o.id === order.id ? { ...o, estado: "ESPERANDO_PAGO", comprobanteUrl: null } : o
+      )
+    );
+
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "rechazar_pago" })
+      });
+      const data = await res.json();
+
+      if (data.order) {
+        setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
+      } else {
+        cargar();
+      }
+    } catch (e) {
+      console.error("Error al rechazar pago:", e);
+      cargar();
     }
   }
 
@@ -325,7 +349,7 @@ export default function AdminPedidosPage() {
                       Aprobar pago
                     </button>
                     <button
-                      onClick={() => cambiarEstado(order, "ESPERANDO_PAGO")}
+                      onClick={() => rechazarPago(order)}
                       className="px-3 py-1.5 rounded-lg border border-alert-600 text-alert-600 text-sm font-medium hover:bg-alert-50 transition-colors"
                     >
                       Rechazar comprobante

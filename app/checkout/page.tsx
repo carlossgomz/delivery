@@ -7,51 +7,93 @@ type Product = { id: string; nombre: string; precioUsd: number };
 type CartLine = { productId: string; cantidad: number };
 
 const CART_KEY = "delivery_cart";
+const ACTIVE_ORDER_KEY = "active_order_id";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [tasaCambio, setTasaCambio] = useState(0);
+  const [loadingConfig, setLoadingConfig] = useState(true);
+
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
+
   const [orderId, setOrderId] = useState<string | null>(null);
   const [estado, setEstado] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Estados para comprobante o referencia/nota
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
   const [notaPago, setNotaPago] = useState("");
 
+  // 1. Cargar productos, config y restaurar orden activa si existe
   useEffect(() => {
     async function load() {
-      const [pRes, cRes] = await Promise.all([fetch("/api/products"), fetch("/api/config")]);
-      setProducts((await pRes.json()).products);
-      setTasaCambio((await cRes.json()).tasaCambio);
-      const saved = localStorage.getItem(CART_KEY);
-      if (saved) setCart(JSON.parse(saved));
+      try {
+        const [pRes, cRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/config"),
+        ]);
+
+        if (pRes.ok) {
+          const pData = await pRes.json();
+          setProducts(pData.products || []);
+        }
+
+        if (cRes.ok) {
+          const cData = await cRes.json();
+          setTasaCambio(cData.tasaCambio || 0);
+        }
+
+        const savedCart = localStorage.getItem(CART_KEY);
+        if (savedCart) {
+          setCart(JSON.parse(savedCart));
+        }
+
+        const savedOrder = localStorage.getItem(ACTIVE_ORDER_KEY);
+        if (savedOrder) {
+          setOrderId(savedOrder);
+        }
+      } catch (err) {
+        console.error("Error al cargar datos iniciales:", err);
+      } finally {
+        setLoadingConfig(false);
+      }
     }
     load();
   }, []);
 
+  // 2. Polling de la orden
   useEffect(() => {
     if (!orderId) return;
 
-    // Si ya está en revisión/pago recibido o confirmado, cancelamos el polling para evitar sobreescritura
-    if (estado === "PAGO_RECIBIDO" || estado === "PAGO_EN_REVISION" || estado === "CONFIRMADO") {
+    // Estados donde ya no hace falta seguir haciendo polling cada 4 segundos
+    const terminalStates = [
+      "PAGO_RECIBIDO",
+      "PAGO_EN_REVISION",
+      "CONFIRMADO",
+      "EN_PREPARACION",
+      "CANCELADO",
+    ];
+
+    if (estado && terminalStates.includes(estado)) {
       return;
     }
 
     const interval = setInterval(async () => {
       try {
         const res = await fetch(`/api/orders/${orderId}`);
+        if (!res.ok) return;
+
         const data = await res.json();
         if (data?.order?.estado) {
           setEstado(data.order.estado);
         }
       } catch (err) {
-        console.error("Error consultando estado:", err);
+        console.error("Error al consultar el estado del pedido:", err);
       }
     }, 4000);
 
@@ -64,27 +106,42 @@ export default function CheckoutPage() {
   }, 0);
 
   async function enviarPedido() {
+    setErrorMsg(null);
     setEnviando(true);
-    const res = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        clienteNombre: nombre,
-        clienteTelefono: telefono,
-        direccion,
-        items: cart
-      })
-    });
-    const data = await res.json();
-    setOrderId(data.order.id);
-    setEstado(data.order.estado);
-    localStorage.removeItem(CART_KEY);
-    setEnviando(false);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clienteNombre: nombre,
+          clienteTelefono: telefono,
+          direccion,
+          items: cart,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("No se pudo procesar el pedido. Inténtalo de nuevo.");
+      }
+
+      const data = await res.json();
+      if (data?.order?.id) {
+        setOrderId(data.order.id);
+        setEstado(data.order.estado);
+        localStorage.setItem(ACTIVE_ORDER_KEY, data.order.id);
+        localStorage.removeItem(CART_KEY);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al enviar el pedido");
+    } finally {
+      setEnviando(false);
+    }
   }
 
   async function procesarPago() {
     if (!orderId) return;
     setEnviando(true);
+    setErrorMsg(null);
 
     let url = "";
 
@@ -92,17 +149,22 @@ export default function CheckoutPage() {
       try {
         const formData = new FormData();
         formData.append("file", archivoComprobante);
-        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
-        const uploadData = await uploadRes.json();
-        url = uploadData.url || uploadData.secure_url || "";
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          url = uploadData.url || uploadData.secure_url || "";
+        }
       } catch (err) {
-        console.error("Error al subir archivo:", err);
+        console.error("Error al subir comprobante:", err);
       }
     }
 
     try {
-      // Enviamos el PATCH pasando todas las variantes para asegurar compatibilidad con tu esquema de DB
-      await fetch(`/api/orders/${orderId}`, {
+      const res = await fetch(`/api/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -110,31 +172,44 @@ export default function CheckoutPage() {
           comprobanteUrl: url || null,
           notaPago: notaPago || null,
           nota: notaPago || null,
-          referencia: notaPago || null
-        })
+          referencia: notaPago || null,
+        }),
       });
 
-      // Forzamos el estado a PAGO_RECIBIDO para mostrar la pantalla final inmediatamente
+      if (!res.ok) {
+        throw new Error("Error registrando la información del pago.");
+      }
+
+      localStorage.removeItem(ACTIVE_ORDER_KEY);
       setEstado("PAGO_RECIBIDO");
-    } catch (err) {
-      console.error("Error al procesar pago:", err);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al procesar el pago");
     } finally {
       setEnviando(false);
     }
   }
 
+  // --- VISTA PANTALLA DE ESTADO DE ORDEN ---
   if (orderId) {
     return (
       <main className="max-w-md mx-auto px-4 py-10 text-center">
         <h1 className="font-display text-xl text-leaf-800 mb-2">Pedido enviado</h1>
         <p className="text-ink/70 mb-6">Número de pedido: {orderId.slice(0, 8)}</p>
 
+        {errorMsg && (
+          <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
+            {errorMsg}
+          </div>
+        )}
+
         {estado === "PENDIENTE_VERIFICACION" && (
-          <p className="text-clay-600">La tienda está confirmando qué productos tiene disponibles…</p>
+          <p className="text-clay-600 animate-pulse">
+            La tienda está confirmando qué productos tiene disponibles…
+          </p>
         )}
 
         {estado === "ESPERANDO_PAGO" && (
-          <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4">
+          <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4 shadow-sm">
             <p className="text-sm text-ink/80 font-medium">
               ¡Tu pedido está listo! 🎉 Realiza tu Pago Móvil y confirma tu compra a continuación.
             </p>
@@ -184,7 +259,6 @@ export default function CheckoutPage() {
               />
             </div>
 
-            {/* BOTÓN FINALIZAR COMPRA */}
             <button
               disabled={enviando}
               onClick={procesarPago}
@@ -195,16 +269,19 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {/* PANTALLA DE COMPRA REALIZADA / PAGO RECIBIDO */}
+        {/* PANTALLA DE PAGO RECIBIDO */}
         {(estado === "PAGO_RECIBIDO" || estado === "PAGO_EN_REVISION") && (
-          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4">
+          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4 shadow-sm">
             <div className="text-4xl">🛍️✨</div>
             <h2 className="text-lg font-bold text-leaf-800">¡Compra realizada con éxito!</h2>
             <p className="text-sm text-ink/70">
               Hemos recibido la información de tu pago. La tienda está verificando los detalles para comenzar a preparar tu pedido.
             </p>
             <button
-              onClick={() => router.push("/")}
+              onClick={() => {
+                localStorage.removeItem(ACTIVE_ORDER_KEY);
+                router.push("/");
+              }}
               className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
             >
               Volver al catálogo
@@ -213,10 +290,13 @@ export default function CheckoutPage() {
         )}
 
         {(estado === "CONFIRMADO" || estado === "EN_PREPARACION") && (
-          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4">
+          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4 shadow-sm">
             <p className="text-leaf-600 font-medium">✅ Pago confirmado. Tu pedido está en preparación.</p>
             <button
-              onClick={() => router.push("/")}
+              onClick={() => {
+                localStorage.removeItem(ACTIVE_ORDER_KEY);
+                router.push("/");
+              }}
               className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
             >
               Volver al catálogo
@@ -225,12 +305,15 @@ export default function CheckoutPage() {
         )}
 
         {estado === "CANCELADO" && (
-          <div className="bg-white rounded-lg border border-alert-100 p-6 space-y-4">
+          <div className="bg-white rounded-lg border border-alert-100 p-6 space-y-4 shadow-sm">
             <p className="text-alert-600">
-              Ningún producto del pedido quedó disponible. La tienda debería haberte contactado.
+              Ningún producto del pedido quedó disponible o el pedido fue cancelado.
             </p>
             <button
-              onClick={() => router.push("/")}
+              onClick={() => {
+                localStorage.removeItem(ACTIVE_ORDER_KEY);
+                router.push("/");
+              }}
               className="w-full py-3 rounded-lg border border-leaf-100 text-ink/80 font-medium"
             >
               Volver al catálogo
@@ -241,9 +324,17 @@ export default function CheckoutPage() {
     );
   }
 
+  // --- VISTA FORMULARIO DATOS DE ENTREGA ---
   return (
     <main className="max-w-md mx-auto px-4 py-8">
       <h1 className="font-display text-xl text-leaf-800 mb-6">Datos de entrega</h1>
+
+      {errorMsg && (
+        <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
+          {errorMsg}
+        </div>
+      )}
+
       <div className="space-y-4">
         <div>
           <label className="block text-sm text-ink/70 mb-1">Nombre</label>
@@ -251,6 +342,7 @@ export default function CheckoutPage() {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             className="w-full border border-leaf-100 rounded-lg px-3 py-3"
+            placeholder="Tu nombre completo"
           />
         </div>
         <div>
@@ -259,6 +351,7 @@ export default function CheckoutPage() {
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
             className="w-full border border-leaf-100 rounded-lg px-3 py-3"
+            placeholder="04121234567"
           />
         </div>
         <div>
@@ -267,18 +360,21 @@ export default function CheckoutPage() {
             value={direccion}
             onChange={(e) => setDireccion(e.target.value)}
             className="w-full border border-leaf-100 rounded-lg px-3 py-3"
+            placeholder="Dirección exacta, punto de referencia..."
           />
         </div>
 
         <div className="pt-2 border-t border-leaf-100">
           <p className="text-sm text-ink/60">Total estimado (sujeto a disponibilidad)</p>
-          <p className="font-medium">Bs {(totalUsd * tasaCambio).toFixed(2)}</p>
+          <p className="font-medium">
+            {loadingConfig ? "Cargando total..." : `Bs ${(totalUsd * tasaCambio).toFixed(2)}`}
+          </p>
         </div>
 
         <button
-          disabled={!nombre || !telefono || !direccion || enviando}
+          disabled={!nombre || !telefono || !direccion || enviando || cart.length === 0}
           onClick={enviarPedido}
-          className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
+          className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40 hover:bg-leaf-800 transition-colors"
         >
           {enviando ? "Enviando…" : "Enviar pedido a la tienda"}
         </button>

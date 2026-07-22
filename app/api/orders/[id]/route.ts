@@ -16,18 +16,27 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const body = await req.json();
 
   // 1) Si el cliente está enviando su comprobante/referencia de pago desde la vista pública:
-  // Evaluamos que NO sea una petición del admin cambiando a estados administrativos (CONFIRMADO, EN_PREPARACION, etc.)
   const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
 
-  if (!esEstadoAdmin && (body.comprobanteUrl || body.notaPago || body.nota || body.referencia || body.estado === "PAGO_RECIBIDO" || body.estado === "PAGO_EN_REVISION")) {
-    const notaGuardar = body.notaPago || body.nota || body.referencia;
+  if (
+    !esEstadoAdmin &&
+    (body.comprobanteUrl !== undefined ||
+      body.comprobante !== undefined ||
+      body.notaPago ||
+      body.nota ||
+      body.referencia ||
+      body.estado === "PAGO_RECIBIDO" ||
+      body.estado === "PAGO_EN_REVISION")
+  ) {
+    const notaGuardar = body.notaPago || body.nota || body.referencia || null;
+    const urlComprobante = body.comprobanteUrl || body.comprobante || null;
     const nuevoEstado = body.estado || "PAGO_RECIBIDO";
 
     const order = await prisma.order.update({
       where: { id: params.id },
       data: {
-        ...(body.comprobanteUrl && { comprobanteUrl: body.comprobanteUrl }),
-        ...(notaGuardar && { notaPago: notaGuardar }),
+        ...(urlComprobante ? { comprobanteUrl: urlComprobante } : {}),
+        ...(notaGuardar ? { notaPago: notaGuardar } : {}),
         estado: nuevoEstado
       },
       include: { items: { include: { product: true } } }
@@ -76,7 +85,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ order: updated });
   }
 
-  // 5) Cambios de estado directos desde el admin (Aprobar pago -> CONFIRMADO, EN_PREPARACION, etc.)
+  // 5) Rechazar comprobante explícitamente desde el Admin
+  if (body.action === "rechazar_pago") {
+    const order = await prisma.order.update({
+      where: { id: params.id },
+      data: {
+        estado: "ESPERANDO_PAGO",
+        comprobanteUrl: null // Borra el archivo previo para solicitar uno nuevo al cliente
+      },
+      include: { items: { include: { product: true } } }
+    });
+
+    orderEvents.emit("pedido_actualizado", order);
+    return NextResponse.json({ order });
+  }
+
+  // 6) Cambios de estado directos desde el admin (Aprobar pago -> CONFIRMADO, EN_PREPARACION, etc.)
   if (body.estado) {
     const order = await prisma.order.update({
       where: { id: params.id },
