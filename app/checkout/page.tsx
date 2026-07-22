@@ -92,7 +92,6 @@ export default function CheckoutPage() {
           <p className="text-clay-600">La tienda está confirmando qué productos tiene disponibles…</p>
         )}
 
-        {/* AQUÍ ESTÁ LA TARJETA EXACTA DE TU CAPTURA DE PANTALLA */}
         {estado === "ESPERANDO_PAGO" && (
           <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4">
             <p className="text-sm text-ink/80">Tu pedido está listo. Realiza el pago y sube el comprobante.</p>
@@ -111,7 +110,7 @@ export default function CheckoutPage() {
               className="block w-full text-sm text-ink/70 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-leaf-600 file:text-white hover:file:bg-leaf-800 cursor-pointer"
             />
 
-            {/* BOTÓN AQUÍ ABAJO */}
+            {/* BOTÓN JUSTO ABAJO DEL INPUT */}
             <button
               disabled={!archivoComprobante || enviando}
               onClick={procesarPago}
