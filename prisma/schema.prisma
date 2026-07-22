@@ -12,6 +12,9 @@ model Product {
   id               String      @id @default(cuid())
   codigo           String      @unique
   nombre           String
+  // costoUsd y margenPorcentaje quedaron sin uso: el admin ahora carga
+  // precioUsd directamente como precio final. Se dejan en el schema
+  // para no perder datos históricos, pero ningún endpoint los lee ni escribe.
   costoUsd         Float?
   margenPorcentaje Float?      @default(30)
   precioUsd        Float       @default(0)

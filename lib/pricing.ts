@@ -1,10 +1,4 @@
-// Fuente única de verdad para el precio de venta de un producto.
-// precio = costo + margen% sobre el costo + una comisión fija de $0.15
-// Si el producto no tiene margen propio configurado, se asume 0%.
-export function calcularPrecioFinalUsd(
-    costoUsd: number,
-    margenPorcentaje?: number | null
-): number {
-    const margen = margenPorcentaje ?? 0;
-    return costoUsd * (1 + margen / 100) + 0.15;
-}
+// El admin carga el precio final de venta directamente en cada producto
+// (campo Product.precioUsd). Ya no se calcula a partir de costo + margen.
+// Este archivo se deja solo por si en el futuro se necesita centralizar
+// de nuevo alguna regla de precios.

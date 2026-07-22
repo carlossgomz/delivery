@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed } from "@/lib/auth";
 import { orderEvents } from "@/lib/orderEvents";
-import { calcularPrecioFinalUsd } from "@/lib/pricing";
 
 // El cliente crea el pedido ANTES de pagar. El estado arranca en
 // PENDIENTE_VERIFICACION hasta que el personal de tienda marca
@@ -42,7 +41,7 @@ export async function POST(req: NextRequest) {
           return {
             productId: i.productId,
             cantidad: i.cantidad,
-            precioUsd: calcularPrecioFinalUsd(p.costoUsd ?? 0, p.margenPorcentaje ?? 0)
+            precioUsd: p.precioUsd
           };
         })
       }

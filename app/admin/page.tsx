@@ -1,14 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { calcularPrecioFinalUsd } from "@/lib/pricing";
 
 type Product = {
   id: string;
   nombre: string;
-  costoUsd?: number | null;
   precioUsd: number;
-  margenPorcentaje?: number | null;
   imagenUrl?: string | null;
 };
 
@@ -22,7 +19,7 @@ export default function AdminHomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingValues, setEditingValues] = useState<
-    Record<string, { nombre: string; costoUsd: string; margenPorcentaje: string }>
+    Record<string, { nombre: string; precioUsd: string }>
   >({});
   const [guardandoProductoId, setGuardandoProductoId] = useState<string | null>(null);
 
@@ -43,12 +40,11 @@ export default function AdminHomePage() {
       const lista = Array.isArray(data.products) ? data.products : Array.isArray(data) ? data : [];
       setProducts(lista);
 
-      const iniciales: Record<string, { nombre: string; costoUsd: string; margenPorcentaje: string }> = {};
+      const iniciales: Record<string, { nombre: string; precioUsd: string }> = {};
       lista.forEach((p: Product) => {
         iniciales[p.id] = {
           nombre: p.nombre,
-          costoUsd: p.costoUsd?.toString() ?? "",
-          margenPorcentaje: p.margenPorcentaje !== null && p.margenPorcentaje !== undefined ? p.margenPorcentaje.toString() : "",
+          precioUsd: p.precioUsd?.toString() ?? "",
         };
       });
       setEditingValues(iniciales);
@@ -76,22 +72,14 @@ export default function AdminHomePage() {
     setGuardando(false);
   }
 
-  // Usa la misma fórmula que el resto de la app (lib/pricing.ts),
-  // así el precio que ves aquí siempre coincide con el que se cobra en el checkout.
-  function calcularPrecioBs(costoStr: string, margenPropioStr: string): string {
-    const costo = parseFloat(costoStr);
-    if (isNaN(costo) || costo <= 0) return "0.00";
-
-    const pct = parseFloat(margenPropioStr);
-    const margenUsar = isNaN(pct) ? null : pct;
-
-    const precioUsd = calcularPrecioFinalUsd(costo, margenUsar);
-    const precioBs = precioUsd * tasaCambio;
-
-    return precioBs.toFixed(2);
+  // El precio final ya viene cargado directamente, sin costo ni margen.
+  function calcularPrecioBs(precioUsdStr: string): string {
+    const precioUsd = parseFloat(precioUsdStr);
+    if (isNaN(precioUsd) || precioUsd <= 0) return "0.00";
+    return (precioUsd * tasaCambio).toFixed(2);
   }
 
-  function handleProductChange(id: string, field: "nombre" | "costoUsd" | "margenPorcentaje", value: string) {
+  function handleProductChange(id: string, field: "nombre" | "precioUsd", value: string) {
     setEditingValues((prev) => ({
       ...prev,
       [id]: {
@@ -108,15 +96,11 @@ export default function AdminHomePage() {
     setGuardandoProductoId(id);
 
     try {
-      const costo = parseFloat(val.costoUsd) || 0;
-      const pct = parseFloat(val.margenPorcentaje);
+      const precioUsd = parseFloat(val.precioUsd) || 0;
 
-      // OJO: ya no se manda precioUsd. Esa columna no existe en Product;
-      // el precio se calcula al vuelo a partir de costoUsd + margenPorcentaje.
       const bodyPayload = {
         nombre: val.nombre,
-        costoUsd: val.costoUsd !== "" ? costo : null,
-        margenPorcentaje: val.margenPorcentaje !== "" && !isNaN(pct) ? pct : null,
+        precioUsd,
       };
 
       const res = await fetch(`/api/products/${id}`, {
@@ -179,7 +163,7 @@ export default function AdminHomePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <h2 className="font-display text-xl text-leaf-800">Productos</h2>
-          <p className="text-xs text-ink/50">Edita el costo o margen propio por producto</p>
+          <p className="text-xs text-ink/50">Edita el precio final ($) de cada producto</p>
         </div>
 
         {/* BARRA DE BÚSQUEDA */}
@@ -208,8 +192,7 @@ export default function AdminHomePage() {
             <thead>
               <tr className="border-b border-leaf-100 bg-leaf-50/50 text-xs font-semibold text-leaf-800">
                 <th className="py-3 px-4">Producto</th>
-                <th className="py-3 px-3 w-28">Costo ($)</th>
-                <th className="py-3 px-3 w-28">Margen (%)</th>
+                <th className="py-3 px-3 w-32">Precio Final ($)</th>
                 <th className="py-3 px-3 w-36 text-right">Precio Cliente (Bs)</th>
                 <th className="py-3 px-4 w-24 text-right">Acción</th>
               </tr>
@@ -218,11 +201,10 @@ export default function AdminHomePage() {
               {productosFiltrados.map((product) => {
                 const edit = editingValues[product.id] || {
                   nombre: product.nombre,
-                  costoUsd: product.costoUsd?.toString() ?? "",
-                  margenPorcentaje: product.margenPorcentaje !== null && product.margenPorcentaje !== undefined ? product.margenPorcentaje.toString() : "",
+                  precioUsd: product.precioUsd?.toString() ?? "",
                 };
 
-                const precioBs = calcularPrecioBs(edit.costoUsd, edit.margenPorcentaje);
+                const precioBs = calcularPrecioBs(edit.precioUsd);
                 const estaGuardando = guardandoProductoId === product.id;
 
                 return (
@@ -242,23 +224,10 @@ export default function AdminHomePage() {
                           type="number"
                           step="0.01"
                           placeholder="0.00"
-                          value={edit.costoUsd}
-                          onChange={(e) => handleProductChange(product.id, "costoUsd", e.target.value)}
+                          value={edit.precioUsd}
+                          onChange={(e) => handleProductChange(product.id, "precioUsd", e.target.value)}
                           className="w-full pl-5 pr-1 py-1 border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded focus:bg-white focus:outline-none"
                         />
-                      </div>
-                    </td>
-                    <td className="py-2 px-3">
-                      <div className="relative flex items-center">
-                        <input
-                          type="number"
-                          step="1"
-                          placeholder="0"
-                          value={edit.margenPorcentaje}
-                          onChange={(e) => handleProductChange(product.id, "margenPorcentaje", e.target.value)}
-                          className="w-full pr-4 pl-1 py-1 border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded focus:bg-white focus:outline-none text-right"
-                        />
-                        <span className="absolute right-1 text-xs text-ink/40">%</span>
                       </div>
                     </td>
                     <td className="py-2 px-3 text-right">
@@ -281,7 +250,7 @@ export default function AdminHomePage() {
 
               {productosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-xs text-ink/50">
+                  <td colSpan={4} className="py-6 text-center text-xs text-ink/50">
                     {searchTerm ? "No se encontraron productos." : "No hay productos disponibles."}
                   </td>
                 </tr>
