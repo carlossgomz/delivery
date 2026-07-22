@@ -83,16 +83,18 @@ export default function CheckoutPage() {
       url = uploadData.url;
     }
 
+    // Actualizamos el pedido en la BD con el estado PAGO_RECIBIDO para el Admin
     await fetch(`/api/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        estado: "PAGO_RECIBIDO",
         comprobanteUrl: url || undefined,
         notaPago: notaPago || undefined
       })
     });
 
-    setEstado("PAGO_EN_REVISION");
+    setEstado("PAGO_RECIBIDO");
     setEnviando(false);
   }
 
@@ -168,18 +170,47 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {estado === "PAGO_EN_REVISION" && (
-          <p className="text-clay-600">Recibimos la información de tu pago. La tienda lo está verificando.</p>
+        {/* PANTALLA DE COMPRA REALIZADA / PAGO RECIBIDO */}
+        {(estado === "PAGO_RECIBIDO" || estado === "PAGO_EN_REVISION") && (
+          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4">
+            <div className="text-4xl">🛍️✨</div>
+            <h2 className="text-lg font-bold text-leaf-800">¡Compra realizada con éxito!</h2>
+            <p className="text-sm text-ink/70">
+              Hemos recibido la información de tu pago. La tienda está verificando los detalles para comenzar a preparar tu pedido.
+            </p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+            >
+              Volver al catálogo
+            </button>
+          </div>
         )}
 
         {(estado === "CONFIRMADO" || estado === "EN_PREPARACION") && (
-          <p className="text-leaf-600">Pago confirmado. Tu pedido está en preparación.</p>
+          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4">
+            <p className="text-leaf-600 font-medium">✅ Pago confirmado. Tu pedido está en preparación.</p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+            >
+              Volver al catálogo
+            </button>
+          </div>
         )}
 
         {estado === "CANCELADO" && (
-          <p className="text-alert-600">
-            Ningún producto del pedido quedó disponible. La tienda debería haberte contactado.
-          </p>
+          <div className="bg-white rounded-lg border border-alert-100 p-6 space-y-4">
+            <p className="text-alert-600">
+              Ningún producto del pedido quedó disponible. La tienda debería haberte contactado.
+            </p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg border border-leaf-100 text-ink/80 font-medium"
+            >
+              Volver al catálogo
+            </button>
+          </div>
         )}
       </main>
     );

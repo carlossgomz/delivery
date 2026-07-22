@@ -19,12 +19,14 @@ type Order = {
   totalUsd: number | null;
   totalBs: number | null;
   comprobanteUrl: string | null;
+  notaPago?: string | null;
   items: OrderItem[];
 };
 
 const ETIQUETAS: Record<string, string> = {
   PENDIENTE_VERIFICACION: "Por verificar stock",
   ESPERANDO_PAGO: "Esperando pago",
+  PAGO_RECIBIDO: "Pago en revisión",
   PAGO_EN_REVISION: "Pago en revisión",
   CONFIRMADO: "Pago confirmado",
   EN_PREPARACION: "En preparación",
@@ -139,7 +141,12 @@ export default function AdminPedidosPage() {
                   {order.clienteTelefono} · {order.direccion}
                 </p>
               </div>
-              <span className="shrink-0 text-xs px-2 py-1 rounded-full bg-clay-100 text-clay-600">
+              <span
+                className={`shrink-0 text-xs px-2 py-1 rounded-full ${order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION"
+                    ? "bg-amber-100 text-amber-800 font-medium"
+                    : "bg-clay-100 text-clay-600"
+                  }`}
+              >
                 {ETIQUETAS[order.estado] ?? order.estado}
               </span>
             </div>
@@ -178,30 +185,45 @@ export default function AdminPedidosPage() {
             )}
 
             {order.totalUsd != null && (
-              <p className="mt-3 text-sm text-ink/70">
+              <p className="mt-3 text-sm text-ink/70 font-medium">
                 Total: ${order.totalUsd.toFixed(2)} · Bs {order.totalBs?.toFixed(2)}
               </p>
             )}
 
-            {order.comprobanteUrl && order.estado === "PAGO_EN_REVISION" && (
-              <div className="mt-3">
-                <a
-                  href={order.comprobanteUrl}
-                  target="_blank"
-                  className="text-sm text-leaf-600 underline"
-                >
-                  Ver comprobante de pago
-                </a>
-                <div className="mt-2 flex gap-2">
+            {/* SECCIÓN DE REVISIÓN DE PAGO */}
+            {(order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION") && (
+              <div className="mt-3 p-3 bg-amber-50/60 border border-amber-200 rounded-lg text-sm space-y-2">
+                <p className="font-semibold text-amber-900">💳 Detalles del pago enviado por el cliente:</p>
+
+                {order.notaPago && (
+                  <p className="text-ink/80 text-xs bg-white p-2 rounded border border-amber-100">
+                    <span className="font-semibold">Referencia / Mensaje:</span> {order.notaPago}
+                  </p>
+                )}
+
+                {order.comprobanteUrl ? (
+                  <a
+                    href={order.comprobanteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-leaf-600 underline text-xs font-medium"
+                  >
+                    🖼️ Ver captura / comprobante adjunto
+                  </a>
+                ) : (
+                  !order.notaPago && <p className="text-xs text-ink/60">El cliente no adjuntó archivo ni nota.</p>
+                )}
+
+                <div className="pt-2 flex flex-wrap gap-2">
                   <button
                     onClick={() => cambiarEstado(order, "CONFIRMADO")}
-                    className="px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-sm"
+                    className="px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-800 transition-colors"
                   >
                     Aprobar pago
                   </button>
                   <button
-                    onClick={() => cambiarEstado(order, "PENDIENTE_VERIFICACION")}
-                    className="px-3 py-1.5 rounded-lg border border-alert-600 text-alert-600 text-sm"
+                    onClick={() => cambiarEstado(order, "ESPERANDO_PAGO")}
+                    className="px-3 py-1.5 rounded-lg border border-alert-600 text-alert-600 text-sm font-medium hover:bg-alert-50 transition-colors"
                   >
                     Rechazar comprobante
                   </button>
