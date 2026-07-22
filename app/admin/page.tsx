@@ -12,6 +12,8 @@ type Product = {
 export default function AdminHomePage() {
   const [tasaCambio, setTasaCambio] = useState<number>(0);
   const [nuevaTasa, setNuevaTasa] = useState<string>("");
+  const [telefonoTienda, setTelefonoTienda] = useState<string>("");
+  const [nuevoTelefono, setNuevoTelefono] = useState<string>("");
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
@@ -28,6 +30,7 @@ export default function AdminHomePage() {
       .then((r) => r.json())
       .then((d) => {
         setTasaCambio(d.tasaCambio);
+        setTelefonoTienda(d.telefonoTienda ?? "");
       });
 
     cargarProductos();
@@ -68,6 +71,25 @@ export default function AdminHomePage() {
       setMensaje("Tasa actualizada.");
     } else {
       setMensaje("No se pudo actualizar la tasa.");
+    }
+    setGuardando(false);
+  }
+
+  async function actualizarTelefono() {
+    setGuardando(true);
+    setMensaje("");
+    const res = await fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ telefonoTienda: nuevoTelefono })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setTelefonoTienda(data.telefonoTienda ?? "");
+      setNuevoTelefono("");
+      setMensaje("Teléfono actualizado.");
+    } else {
+      setMensaje("No se pudo actualizar el teléfono.");
     }
     setGuardando(false);
   }
@@ -156,6 +178,33 @@ export default function AdminHomePage() {
       </div>
 
       {mensaje && <p className="text-sm mt-3 text-leaf-600">{mensaje}</p>}
+
+      {/* TELÉFONO DE LA TIENDA (llamadas y chat del cliente) */}
+      <hr className="border-leaf-100 my-6" />
+      <h2 className="font-display text-lg text-leaf-800 mb-3">Teléfono de la tienda</h2>
+      <p className="text-xs text-ink/50 mb-3">
+        Este es el número que usa el botón de "Llamar a la tienda" en la página del cliente.
+      </p>
+      <div className="bg-white border border-leaf-100 rounded-lg p-4 mb-4">
+        <p className="text-sm text-ink/60">Número actual</p>
+        <p className="font-display text-xl text-leaf-800">{telefonoTienda || "Sin definir"}</p>
+      </div>
+      <div className="flex gap-3">
+        <input
+          type="tel"
+          value={nuevoTelefono}
+          onChange={(e) => setNuevoTelefono(e.target.value)}
+          placeholder="Ej: 04266215863"
+          className="flex-1 border border-leaf-100 rounded-lg px-3 py-3"
+        />
+        <button
+          disabled={!nuevoTelefono || guardando}
+          onClick={actualizarTelefono}
+          className="px-5 py-2 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
+        >
+          Actualizar
+        </button>
+      </div>
 
       {/* SECCIÓN DE PRODUCTOS EDITABLES */}
       <hr className="border-leaf-100 my-8" />

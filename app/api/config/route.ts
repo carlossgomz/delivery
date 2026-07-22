@@ -11,6 +11,7 @@ export async function GET() {
 
   return NextResponse.json({
     tasaCambio: config.tasaCambio,
+    telefonoTienda: config.telefonoTienda,
     updatedAt: config.updatedAt
   });
 }
@@ -21,17 +22,28 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const tasaCambio = Number(body.tasaCambio);
+  const data: { tasaCambio?: number; telefonoTienda?: string } = {};
 
-  if (!tasaCambio || tasaCambio <= 0) {
-    return NextResponse.json({ error: "Tasa inválida" }, { status: 400 });
+  if (body.tasaCambio !== undefined) {
+    const tasaCambio = Number(body.tasaCambio);
+    if (!tasaCambio || tasaCambio <= 0) {
+      return NextResponse.json({ error: "Tasa inválida" }, { status: 400 });
+    }
+    data.tasaCambio = tasaCambio;
+  }
+
+  if (body.telefonoTienda !== undefined) {
+    data.telefonoTienda = String(body.telefonoTienda).trim();
   }
 
   const config = await prisma.config.upsert({
     where: { id: 1 },
-    update: { tasaCambio },
-    create: { id: 1, tasaCambio }
+    update: data,
+    create: { id: 1, tasaCambio: data.tasaCambio ?? 1, telefonoTienda: data.telefonoTienda }
   });
 
-  return NextResponse.json({ tasaCambio: config.tasaCambio });
+  return NextResponse.json({
+    tasaCambio: config.tasaCambio,
+    telefonoTienda: config.telefonoTienda
+  });
 }

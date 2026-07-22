@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import ContactoTienda from "@/app/components/ContactoTienda";
 
 type Product = {
   id: string;
@@ -211,6 +212,7 @@ export default function CatalogPage() {
           </div>
         </div>
       )}
+      <ContactoTienda />
     </main>
   );
 }

@@ -17,6 +17,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <Link href="/admin/pedidos" className="hover:text-leaf-100 transition-colors">
           Pedidos
         </Link>
+        <Link href="/admin/mensajes" className="hover:text-leaf-100 transition-colors">
+          Mensajes
+        </Link>
       </nav>
       <div className="max-w-4xl mx-auto px-4 py-6">{children}</div>
     </div>

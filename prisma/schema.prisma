@@ -53,7 +53,34 @@ model OrderItem {
 }
 
 model Config {
-  id         Int      @id @default(autoincrement())
-  tasaCambio Float    @default(1)
-  updatedAt  DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  tasaCambio     Float    @default(1)
+  // Número que usa el botón "Llamar a la tienda" y el que se muestra en el
+  // chat. Se edita desde el mismo panel donde se edita la tasa.
+  telefonoTienda String?  @default("04266215863")
+  updatedAt      DateTime @updatedAt
+}
+
+// Una conversación por cliente. El cliente no tiene cuenta ni login: se
+// identifica con un id aleatorio que el navegador genera una sola vez y
+// guarda en localStorage (igual que ya se hace con el carrito).
+model Conversacion {
+  id              String    @id @default(cuid())
+  clienteId       String    @unique
+  clienteNombre   String?
+  clienteTelefono String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  mensajes        Mensaje[]
+}
+
+model Mensaje {
+  id             String       @id @default(cuid())
+  conversacionId String
+  // "CLIENTE" o "TIENDA"
+  remitente      String
+  texto          String
+  leido          Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  conversacion   Conversacion @relation(fields: [conversacionId], references: [id], onDelete: Cascade)
 }

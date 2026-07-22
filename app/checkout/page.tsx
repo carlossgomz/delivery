@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ContactoTienda from "@/app/components/ContactoTienda";
 
 type Product = { id: string; nombre: string; precioUsd: number };
 type CartLine = { productId: string; cantidad: number };
@@ -331,6 +332,7 @@ export default function CheckoutPage() {
             </button>
           </div>
         )}
+        <ContactoTienda />
       </main>
     );
   }
@@ -390,6 +392,7 @@ export default function CheckoutPage() {
           {enviando ? "Enviando…" : "Enviar pedido a la tienda"}
         </button>
       </div>
+      <ContactoTienda />
     </main>
   );
 }
