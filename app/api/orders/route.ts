@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
           return {
             productId: i.productId,
             cantidad: i.cantidad,
-            precioUsd: calcularPrecioFinalUsd(p.costoUsd, p.margenPorcentaje)
+            precioUsd: calcularPrecioFinalUsd(p.costoUsd ?? 0, p.margenPorcentaje ?? 0)
           };
         })
       }

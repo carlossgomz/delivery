@@ -9,27 +9,32 @@ async function main() {
     create: {
       id: 1,
       tasaCambio: 40,
-      margenPorcentaje: 30
     }
   });
 
   const productos = [
-    { nombre: "Harina de maíz 1kg", costoUsd: 1.2, categoria: "Despensa" },
-    { nombre: "Aceite de girasol 1L", costoUsd: 2.5, categoria: "Despensa" },
-    { nombre: "Queso blanco 1kg", costoUsd: 4.8, categoria: "Lácteos" },
-    { nombre: "Pollo entero", costoUsd: 5.5, categoria: "Carnes" },
-    { nombre: "Refresco 2L", costoUsd: 1.8, categoria: "Bebidas" }
+    { codigo: "PROD-001", nombre: "Harina de maíz 1kg", costoUsd: 1.2, categoria: "Despensa" },
+    { codigo: "PROD-002", nombre: "Aceite de girasol 1L", costoUsd: 2.5, categoria: "Despensa" },
+    { codigo: "PROD-003", nombre: "Queso blanco 1kg", costoUsd: 4.8, categoria: "Lácteos" },
+    { codigo: "PROD-004", nombre: "Pollo entero", costoUsd: 5.5, categoria: "Carnes" },
+    { codigo: "PROD-005", nombre: "Refresco 2L", costoUsd: 1.8, categoria: "Bebidas" }
   ];
 
-  // Agregamos 'as any[]' al iterar para saltar la validación estricta de TypeScript solo en la siembra
-  for (const p of (productos as any[])) {
-    await prisma.product.create({
-      data: {
-        nombre: p.nombre,
-        categoria: p.categoria,
-        costoUsd: Number(p.costoUsd)
-      }
+  for (const p of productos) {
+    const existente = await prisma.product.findFirst({
+      where: { codigo: p.codigo }
     });
+
+    if (!existente) {
+      await prisma.product.create({
+        data: {
+          codigo: p.codigo,
+          nombre: p.nombre,
+          categoria: p.categoria,
+          costoUsd: Number(p.costoUsd)
+        }
+      });
+    }
   }
 
   console.log("Seed completo");
