@@ -10,12 +10,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div>
-      <nav className="bg-leaf-800 text-white px-4 py-3 flex gap-4 text-sm">
-        <Link href="/admin">Tasa del día</Link>
-        <Link href="/admin/pedidos">Pedidos</Link>
-        <Link href="/admin/productos">Productos</Link>
+      <nav className="bg-leaf-800 text-white px-4 py-3 flex gap-6 text-sm font-medium">
+        <Link href="/admin" className="hover:text-leaf-100 transition-colors">
+          Tasa y Productos
+        </Link>
+        <Link href="/admin/pedidos" className="hover:text-leaf-100 transition-colors">
+          Pedidos
+        </Link>
       </nav>
-      <div className="max-w-3xl mx-auto px-4 py-6">{children}</div>
+      <div className="max-w-4xl mx-auto px-4 py-6">{children}</div>
     </div>
   );
 }
