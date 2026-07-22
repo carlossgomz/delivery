@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { calcularPrecioFinalUsd } from "@/lib/pricing";
 
 type Product = {
   id: string;
@@ -13,9 +14,7 @@ type Product = {
 
 export default function AdminHomePage() {
   const [tasaCambio, setTasaCambio] = useState<number>(0);
-  const [margenPorcentaje, setMargenPorcentaje] = useState<number>(0);
   const [nuevaTasa, setNuevaTasa] = useState<string>("");
-  const [nuevoMargen, setNuevoMargen] = useState<string>("");
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
@@ -32,7 +31,6 @@ export default function AdminHomePage() {
       .then((r) => r.json())
       .then((d) => {
         setTasaCambio(d.tasaCambio);
-        setMargenPorcentaje(d.margenPorcentaje);
       });
 
     cargarProductos();
@@ -78,34 +76,16 @@ export default function AdminHomePage() {
     setGuardando(false);
   }
 
-  async function actualizarMargen() {
-    setGuardando(true);
-    setMensaje("");
-    const res = await fetch("/api/config", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ margenPorcentaje: Number(nuevoMargen) })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setMargenPorcentaje(data.margenPorcentaje);
-      setNuevoMargen("");
-      setMensaje("Margen de ganancia actualizado. Se recalcularon todos los precios.");
-    } else {
-      setMensaje("No se pudo actualizar el margen.");
-    }
-    setGuardando(false);
-  }
-
-  // Cálculo directo: ((Costo * (1 + Margen%)) + $0.15) * Tasa
+  // Usa la misma fórmula que el resto de la app (lib/pricing.ts),
+  // así el precio que ves aquí siempre coincide con el que se cobra en el checkout.
   function calcularPrecioBs(costoStr: string, margenPropioStr: string): string {
     const costo = parseFloat(costoStr);
     if (isNaN(costo) || costo <= 0) return "0.00";
 
-    const pct = margenPropioStr !== "" ? parseFloat(margenPropioStr) : margenPorcentaje;
-    const margenUsar = isNaN(pct) ? 0 : pct;
+    const pct = parseFloat(margenPropioStr);
+    const margenUsar = isNaN(pct) ? null : pct;
 
-    const precioUsd = (costo * (1 + margenUsar / 100)) + 0.15;
+    const precioUsd = calcularPrecioFinalUsd(costo, margenUsar);
     const precioBs = precioUsd * tasaCambio;
 
     return precioBs.toFixed(2);
@@ -129,14 +109,14 @@ export default function AdminHomePage() {
 
     try {
       const costo = parseFloat(val.costoUsd) || 0;
-      const pct = val.margenPorcentaje !== "" ? parseFloat(val.margenPorcentaje) : margenPorcentaje;
-      const precioUsdCalculado = (costo * (1 + pct / 100)) + 0.15;
+      const pct = parseFloat(val.margenPorcentaje);
 
+      // OJO: ya no se manda precioUsd. Esa columna no existe en Product;
+      // el precio se calcula al vuelo a partir de costoUsd + margenPorcentaje.
       const bodyPayload = {
         nombre: val.nombre,
         costoUsd: val.costoUsd !== "" ? costo : null,
-        precioUsd: precioUsdCalculado,
-        margenPorcentaje: val.margenPorcentaje !== "" ? parseFloat(val.margenPorcentaje) : null,
+        margenPorcentaje: val.margenPorcentaje !== "" && !isNaN(pct) ? pct : null,
       };
 
       const res = await fetch(`/api/products/${id}`, {
@@ -167,7 +147,7 @@ export default function AdminHomePage() {
 
   return (
     <div>
-      <h1 className="font-display text-xl text-leaf-800 mb-4">Tasa y margen</h1>
+      <h1 className="font-display text-xl text-leaf-800 mb-4">Tasa de Cambio</h1>
 
       <div className="bg-white border border-leaf-100 rounded-lg p-6 mb-4">
         <p className="text-sm text-ink/60">Tasa actual</p>
@@ -185,32 +165,6 @@ export default function AdminHomePage() {
         <button
           disabled={!nuevaTasa || guardando}
           onClick={actualizarTasa}
-          className="px-5 py-2 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
-        >
-          Actualizar
-        </button>
-      </div>
-
-      <div className="bg-white border border-leaf-100 rounded-lg p-6 mb-4">
-        <p className="text-sm text-ink/60">Margen de ganancia general (sobre el costo)</p>
-        <p className="font-display text-3xl text-leaf-800">{margenPorcentaje}%</p>
-        <p className="text-xs text-ink/50 mt-1">
-          El precio que ve el cliente = costo + este % + $0.15 de delivery. Los productos con un
-          margen propio (editado en Productos) ignoran este número general.
-        </p>
-      </div>
-      <div className="flex gap-3">
-        <input
-          type="number"
-          step="1"
-          value={nuevoMargen}
-          onChange={(e) => setNuevoMargen(e.target.value)}
-          placeholder="Nuevo margen, ej: 30"
-          className="flex-1 border border-leaf-100 rounded-lg px-3 py-3"
-        />
-        <button
-          disabled={!nuevoMargen || guardando}
-          onClick={actualizarMargen}
           className="px-5 py-2 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
         >
           Actualizar
@@ -299,7 +253,7 @@ export default function AdminHomePage() {
                         <input
                           type="number"
                           step="1"
-                          placeholder={`${margenPorcentaje}`}
+                          placeholder="0"
                           value={edit.margenPorcentaje}
                           onChange={(e) => handleProductChange(product.id, "margenPorcentaje", e.target.value)}
                           className="w-full pr-4 pl-1 py-1 border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded focus:bg-white focus:outline-none text-right"

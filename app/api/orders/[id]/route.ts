@@ -2,91 +2,68 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed } from "@/lib/auth";
 import { orderEvents } from "@/lib/orderEvents";
+import { calcularPrecioFinalUsd } from "@/lib/pricing";
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const order = await prisma.order.findUnique({
-    where: { id: params.id },
+// El cliente crea el pedido ANTES de pagar. El estado arranca en
+// PENDIENTE_VERIFICACION hasta que el personal de tienda marca
+// disponibilidad producto por producto.
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { clienteNombre, clienteTelefono, direccion, items } = body as {
+    clienteNombre: string;
+    clienteTelefono: string;
+    direccion: string;
+    items: { productId: string; cantidad: number }[];
+  };
+
+  if (!clienteNombre || !clienteTelefono || !direccion || !items?.length) {
+    return NextResponse.json({ error: "Faltan datos del pedido" }, { status: 400 });
+  }
+
+  const config = await prisma.config.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1, tasaCambio: 1 }
+  });
+
+  const products = await prisma.product.findMany({
+    where: { id: { in: items.map((i) => i.productId) } }
+  });
+
+  const order = await prisma.order.create({
+    data: {
+      clienteNombre,
+      clienteTelefono,
+      direccion,
+      tasaCambio: config.tasaCambio,
+      items: {
+        create: items.map((i) => {
+          const p = products.find((pr) => pr.id === i.productId)!;
+          return {
+            productId: i.productId,
+            cantidad: i.cantidad,
+            precioUsd: calcularPrecioFinalUsd(p.costoUsd, p.margenPorcentaje)
+          };
+        })
+      }
+    },
     include: { items: { include: { product: true } } }
   });
-  if (!order) return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+
+  orderEvents.emit("nuevo_pedido", order);
+
   return NextResponse.json({ order });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const body = await req.json();
-
-  // 1) Si el cliente está enviando su comprobante/referencia de pago desde la vista pública:
-  // Evaluamos que NO sea una petición del admin cambiando a estados administrativos (CONFIRMADO, EN_PREPARACION, etc.)
-  const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
-
-  if (!esEstadoAdmin && (body.comprobanteUrl || body.notaPago || body.nota || body.referencia || body.estado === "PAGO_RECIBIDO" || body.estado === "PAGO_EN_REVISION")) {
-    const notaGuardar = body.notaPago || body.nota || body.referencia;
-    const nuevoEstado = body.estado || "PAGO_RECIBIDO";
-
-    const order = await prisma.order.update({
-      where: { id: params.id },
-      data: {
-        ...(body.comprobanteUrl && { comprobanteUrl: body.comprobanteUrl }),
-        ...(notaGuardar && { notaPago: notaGuardar }),
-        estado: nuevoEstado
-      },
-      include: { items: { include: { product: true } } }
-    });
-
-    orderEvents.emit("pedido_actualizado", order);
-    return NextResponse.json({ order });
-  }
-
-  // 2) De aquí en adelante REQUIERE sesión de admin.
+export async function GET(req: NextRequest) {
   if (!isAdminAuthed()) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-
-  // 3) El personal marca disponible/no disponible producto por producto.
-  if (body.items) {
-    for (const it of body.items as { id: string; disponible: boolean }[]) {
-      await prisma.orderItem.update({ where: { id: it.id }, data: { disponible: it.disponible } });
-    }
-    return NextResponse.json({ ok: true });
-  }
-
-  // 4) El personal confirma la verificación de stock.
-  if (body.action === "confirmar_disponibilidad") {
-    const order = await prisma.order.findUnique({
-      where: { id: params.id },
-      include: { items: true }
-    });
-    if (!order) return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
-
-    const disponibles = order.items.filter((i) => i.disponible);
-    const totalUsd = disponibles.reduce((sum, i) => sum + i.precioUsd * i.cantidad, 0);
-    const totalBs = totalUsd * order.tasaCambio;
-
-    const updated = await prisma.order.update({
-      where: { id: params.id },
-      data: {
-        totalUsd,
-        totalBs,
-        estado: disponibles.length > 0 ? "ESPERANDO_PAGO" : "CANCELADO"
-      },
-      include: { items: { include: { product: true } } }
-    });
-
-    orderEvents.emit("pedido_actualizado", updated);
-    return NextResponse.json({ order: updated });
-  }
-
-  // 5) Cambios de estado directos desde el admin (Aprobar pago -> CONFIRMADO, EN_PREPARACION, etc.)
-  if (body.estado) {
-    const order = await prisma.order.update({
-      where: { id: params.id },
-      data: { estado: body.estado },
-      include: { items: { include: { product: true } } }
-    });
-
-    orderEvents.emit("pedido_actualizado", order);
-    return NextResponse.json({ order });
-  }
-
-  return NextResponse.json({ error: "Nada que actualizar" }, { status: 400 });
+  const estado = req.nextUrl.searchParams.get("estado");
+  const orders = await prisma.order.findMany({
+    where: estado ? { estado: estado as any } : undefined,
+    orderBy: { createdAt: "desc" },
+    include: { items: { include: { product: true } } }
+  });
+  return NextResponse.json({ orders });
 }

@@ -8,16 +8,14 @@ datasource db {
 }
 
 model Product {
-  id               String      @id @default(cuid())
-  nombre           String
-  costoUsd         Float       @default(0)
-  margenPorcentaje Float?
-  codigo           String?
-  categoria        String
-  imagenUrl        String?
-  activo           Boolean     @default(true)
-  createdAt        DateTime    @default(now())
-  orderItems       OrderItem[]
+  id         String      @id @default(cuid())
+  nombre     String
+  precioUsd  Float
+  categoria  String
+  imagenUrl  String?
+  activo     Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+  orderItems OrderItem[]
 }
 
 model Order {
@@ -31,6 +29,8 @@ model Order {
   totalBs         Float?
   comprobanteUrl  String?
   notas           String?
+  // NUEVO: referencia o mensaje de pago que el cliente escribe a mano
+  // (alternativa a subir una foto del comprobante).
   notaPago        String?
   createdAt       DateTime    @default(now())
   items           OrderItem[]
@@ -43,8 +43,8 @@ model OrderItem {
   cantidad   Int
   precioUsd  Float
   disponible Boolean?
-  product    Product  @relation(fields: [productId], references: [id])
   order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id])
 }
 
 model Config {

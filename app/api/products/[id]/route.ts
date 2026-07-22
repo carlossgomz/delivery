@@ -13,7 +13,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       ...(body.nombre !== undefined && { nombre: body.nombre }),
       ...(body.costoUsd !== undefined && { costoUsd: Number(body.costoUsd) }),
       ...(body.margenPorcentaje !== undefined && {
-        margenPorcentaje: body.margenPorcentaje === null ? null : Number(body.margenPorcentaje)
+        margenPorcentaje:
+          body.margenPorcentaje === null || body.margenPorcentaje === ""
+            ? null
+            : Number(body.margenPorcentaje)
       }),
       ...(body.categoria !== undefined && { categoria: body.categoria }),
       ...(body.activo !== undefined && { activo: Boolean(body.activo) })
