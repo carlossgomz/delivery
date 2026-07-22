@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed } from "@/lib/auth";
 import { orderEvents } from "@/lib/orderEvents";
-import { calcularPrecioFinal } from "@/lib/pricing";
+import { calcularPrecioFinalUsd } from "@/lib/pricing";
 
 // El cliente crea el pedido ANTES de pagar. El estado arranca en
 // PENDIENTE_VERIFICACION hasta que el personal de tienda marca
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   const config = await prisma.config.upsert({
     where: { id: 1 },
     update: {},
-    create: { id: 1, tasaCambio: 1, margenPorcentaje: 30 }
+    create: { id: 1, tasaCambio: 1 }
   });
 
   const products = await prisma.product.findMany({
@@ -39,11 +39,10 @@ export async function POST(req: NextRequest) {
       items: {
         create: items.map((i) => {
           const p = products.find((pr) => pr.id === i.productId)!;
-          const precioUsd = calcularPrecioFinal(p.costoUsd, p.margenPorcentaje, config.margenPorcentaje);
           return {
             productId: i.productId,
             cantidad: i.cantidad,
-            precioUsd
+            precioUsd: calcularPrecioFinalUsd(p.costoUsd, p.margenPorcentaje)
           };
         })
       }
