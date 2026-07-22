@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
         try {
           controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
         } catch {
-          // Captura silenciosa por si el cliente se desconecta abruptamente
+          // Ignorar si la conexión se cierra repentinamente
         }
       }
 
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
       orderEvents.on("nuevo_pedido", onNewOrder);
       orderEvents.on("pedido_actualizado", onOrderUpdated);
 
-      // Latido (heartbeat) para mantener viva la conexión a través de proxies/navegadores.
+      // Latido constante para mantener vivo el canal
       const heartbeat = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(`: ping\n\n`));
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
         try {
           controller.close();
         } catch {
-          // Ignorar si el controlador ya fue cerrado
+          // Si el canal ya cerró
         }
       });
     }

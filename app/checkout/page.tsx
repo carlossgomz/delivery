@@ -1,72 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-type OrderItem = {
-  id: string;
-  cantidad: number;
-  precioUsd: number;
-  disponible: boolean | null;
-  product: { nombre: string };
-};
+type Product = { id: string; nombre: string; precioUsd: number };
+type CartLine = { productId: string; cantidad: number };
 
-type Order = {
-  id: string;
-  clienteNombre: string;
-  clienteTelefono: string;
-  direccion: string;
-  estado: string;
-  totalUsd: number | null;
-  totalBs: number | null;
-  comprobanteUrl: string | null;
-  notaPago?: string | null;
-  items: OrderItem[];
-};
+const CART_KEY = "delivery_cart";
 
 export default function CheckoutPage() {
-  const [order, setOrder] = useState<Order | null>(null);
-  const [orderId, setOrderId] = useState<string>("");
-  const [estado, setEstado] = useState<string>("DATOS_ENVIO");
-  const [enviando, setEnviando] = useState<boolean>(false);
-
-  // Formulario
+  const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [cart, setCart] = useState<CartLine[]>([]);
+  const [tasaCambio, setTasaCambio] = useState(0);
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
-  const [notaPago, setNotaPago] = useState("");
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [estado, setEstado] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  // Estados para comprobante o referencia/nota
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
+  const [notaPago, setNotaPago] = useState("");
 
-  // Paso 1: Crear pedido inicial
-  async function crearPedido(e: React.FormEvent) {
-    e.preventDefault();
-    if (!nombre || !telefono || !direccion) return;
-
-    setEnviando(true);
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clienteNombre: nombre,
-          clienteTelefono: telefono,
-          direccion
-        })
-      });
-
-      const data = await res.json();
-      if (data.order) {
-        setOrder(data.order);
-        setOrderId(data.order.id);
-        setEstado(data.order.estado); // PENDIENTE_VERIFICACION
-      }
-    } catch (error) {
-      console.error("Error al crear el pedido:", error);
-    } finally {
-      setEnviando(false);
+  useEffect(() => {
+    async function load() {
+      const [pRes, cRes] = await Promise.all([fetch("/api/products"), fetch("/api/config")]);
+      setProducts((await pRes.json()).products);
+      setTasaCambio((await cRes.json()).tasaCambio);
+      const saved = localStorage.getItem(CART_KEY);
+      if (saved) setCart(JSON.parse(saved));
     }
+    load();
+  }, []);
+
+  useEffect(() => {
+    if (!orderId) return;
+    const interval = setInterval(async () => {
+      const res = await fetch(`/api/orders/${orderId}`);
+      const data = await res.json();
+      setEstado(data.order.estado);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [orderId]);
+
+  const totalUsd = cart.reduce((sum, l) => {
+    const p = products.find((pr) => pr.id === l.productId);
+    return sum + (p ? p.precioUsd * l.cantidad : 0);
+  }, 0);
+
+  async function enviarPedido() {
+    setEnviando(true);
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clienteNombre: nombre,
+        clienteTelefono: telefono,
+        direccion,
+        items: cart
+      })
+    });
+    const data = await res.json();
+    setOrderId(data.order.id);
+    setEstado(data.order.estado);
+    localStorage.removeItem(CART_KEY);
+    setEnviando(false);
   }
 
-  // Paso 2: Procesar pago (Subida de nota/comprobante)
   async function procesarPago() {
     if (!orderId) return;
     setEnviando(true);
@@ -74,182 +76,190 @@ export default function CheckoutPage() {
     let url = "";
 
     if (archivoComprobante) {
-      try {
-        const formData = new FormData();
-        formData.append("file", archivoComprobante);
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: formData
-        });
-        const uploadData = await uploadRes.json();
-        url = uploadData.url;
-      } catch (err) {
-        console.error("Error al subir el comprobante:", err);
-      }
+      const formData = new FormData();
+      formData.append("file", archivoComprobante);
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      const uploadData = await uploadRes.json();
+      url = uploadData.url;
     }
 
-    try {
-      const res = await fetch(`/api/orders/${orderId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          estado: "PAGO_EN_REVISION",
-          comprobanteUrl: url || undefined,
-          notaPago: notaPago || undefined,
-          nota: notaPago || undefined,
-          referencia: notaPago || undefined
-        })
-      });
+    // Actualizamos el pedido en la BD con el estado PAGO_RECIBIDO para el Admin
+    await fetch(`/api/orders/${orderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        estado: "PAGO_RECIBIDO",
+        comprobanteUrl: url || undefined,
+        notaPago: notaPago || undefined
+      })
+    });
 
-      const data = await res.json();
-
-      if (data.order) {
-        setOrder(data.order);
-        setEstado(data.order.estado);
-      } else {
-        setEstado("PAGO_EN_REVISION");
-      }
-    } catch (error) {
-      console.error("Error al procesar el pago:", error);
-    } finally {
-      setEnviando(false);
-    }
+    setEstado("PAGO_RECIBIDO");
+    setEnviando(false);
   }
 
-  return (
-    <div className="max-w-md mx-auto p-4 space-y-6">
-      <h1 className="font-display text-2xl text-leaf-800 text-center">Checkout</h1>
+  if (orderId) {
+    return (
+      <main className="max-w-md mx-auto px-4 py-10 text-center">
+        <h1 className="font-display text-xl text-leaf-800 mb-2">Pedido enviado</h1>
+        <p className="text-ink/70 mb-6">Número de pedido: {orderId.slice(0, 8)}</p>
 
-      {/* VISTA 1: DATOS DE ENVÍO */}
-      {estado === "DATOS_ENVIO" && !order && (
-        <form onSubmit={crearPedido} className="space-y-4 bg-white p-6 rounded-xl border border-leaf-100 shadow-sm">
-          <h2 className="font-medium text-lg text-ink">Datos de envío</h2>
-          <div>
-            <label className="block text-xs font-medium text-ink/70 mb-1">Nombre completo</label>
-            <input
-              type="text"
-              required
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="w-full px-3 py-2 border border-leaf-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-leaf-500"
-              placeholder="Ej: María Pérez"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-ink/70 mb-1">Teléfono</label>
-            <input
-              type="tel"
-              required
-              value={telefono}
-              onChange={(e) => setTelefono(e.target.value)}
-              className="w-full px-3 py-2 border border-leaf-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-leaf-500"
-              placeholder="Ej: 04121234567"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-ink/70 mb-1">Dirección exacta</label>
-            <textarea
-              required
-              value={direccion}
-              onChange={(e) => setDireccion(e.target.value)}
-              className="w-full px-3 py-2 border border-leaf-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-leaf-500"
-              rows={3}
-              placeholder="Ej: Av. Principal, Res. Las Palmas, Apto 4B"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={enviando}
-            className="w-full py-2.5 bg-leaf-600 text-white font-medium rounded-lg hover:bg-leaf-700 transition-colors disabled:opacity-50"
-          >
-            {enviando ? "Enviando..." : "Enviar pedido para verificación"}
-          </button>
-        </form>
-      )}
+        {estado === "PENDIENTE_VERIFICACION" && (
+          <p className="text-clay-600">La tienda está confirmando qué productos tiene disponibles…</p>
+        )}
 
-      {/* VISTA 2: ESPERANDO VERIFICACIÓN DE STOCK (ADMIN) */}
-      {(estado === "PENDIENTE_VERIFICACION" || order?.estado === "PENDIENTE_VERIFICACION") && (
-        <div className="bg-amber-50 border border-amber-200 p-6 rounded-xl text-center space-y-3">
-          <div className="text-3xl">⏳</div>
-          <h2 className="font-medium text-amber-900">Verificando disponibilidad</h2>
-          <p className="text-xs text-amber-800/80 leading-relaxed">
-            Estamos confirmando la existencia de los productos de tu pedido en la tienda. En breve se habilitará el monto y los datos de Pago Móvil.
-          </p>
-        </div>
-      )}
+        {estado === "ESPERANDO_PAGO" && (
+          <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4">
+            <p className="text-sm text-ink/80 font-medium">
+              ¡Tu pedido está listo! 🎉 Realiza tu Pago Móvil y confirma tu compra a continuación.
+            </p>
 
-      {/* VISTA 3: PAGO MÓVIL (ESPERANDO_PAGO) */}
-      {(estado === "ESPERANDO_PAGO" || order?.estado === "ESPERANDO_PAGO") && (
-        <div className="bg-white p-6 rounded-xl border border-leaf-100 shadow-sm space-y-4">
-          <div className="text-center">
-            <span className="text-xs font-medium text-leaf-600 bg-leaf-50 px-3 py-1 rounded-full">
-              ¡Stock verificado!
-            </span>
-            <h2 className="font-medium text-lg text-ink mt-2">Realiza tu Pago Móvil</h2>
-          </div>
-
-          <div className="bg-leaf-50/60 p-4 rounded-lg border border-leaf-100 space-y-1 text-sm text-ink/80">
-            <p><span className="font-medium">Total a pagar:</span> ${order?.totalUsd?.toFixed(2)}</p>
-            <p className="text-lg font-bold text-leaf-800">Bs {order?.totalBs?.toFixed(2)}</p>
-            <hr className="my-2 border-leaf-100" />
-            <p className="text-xs text-ink/60"><span className="font-semibold text-ink/80">Banco:</span> Banesco (0134)</p>
-            <p className="text-xs text-ink/60"><span className="font-semibold text-ink/80">Teléfono:</span> 0412-0000000</p>
-            <p className="text-xs text-ink/60"><span className="font-semibold text-ink/80">C.I / RIF:</span> V-12345678</p>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            <div>
-              <label className="block text-xs font-medium text-ink/70 mb-1">
-                Número de referencia o Nota (Opcional)
-              </label>
-              <input
-                type="text"
-                value={notaPago}
-                onChange={(e) => setNotaPago(e.target.value)}
-                className="w-full px-3 py-2 border border-leaf-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-leaf-500"
-                placeholder="Ej: Ref 482910 o Nombre del titular"
-              />
+            {/* Monto total */}
+            <div className="p-3 bg-leaf-100/30 rounded-lg border border-leaf-100">
+              <p className="text-xs text-ink/60">Monto total a pagar:</p>
+              <p className="text-lg font-bold text-leaf-800">
+                Bs {(totalUsd * tasaCambio).toFixed(2)}
+              </p>
             </div>
 
+            {/* DATOS DE PAGO MÓVIL */}
+            <div className="p-3 bg-leaf-50/50 rounded-lg border border-leaf-100 text-xs text-ink/90 space-y-1.5">
+              <p className="font-bold text-leaf-800 flex items-center gap-1 text-sm mb-1">
+                📲 Datos para Pago Móvil
+              </p>
+              <p><span className="font-semibold text-leaf-800">🏛️ Banco:</span> Banesco (0134)</p>
+              <p><span className="font-semibold text-leaf-800">📱 Teléfono:</span> 0426-6215863</p>
+              <p><span className="font-semibold text-leaf-800">🪪 Cédula:</span> V-10073649</p>
+            </div>
+
+            {/* OPCIÓN 1: Subir imagen */}
             <div>
-              <label className="block text-xs font-medium text-ink/70 mb-1">
-                Comprobante de pago (Opcional)
+              <label className="block text-xs text-ink/70 mb-1">
+                🖼️ Adjuntar capture del comprobante (opcional):
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setArchivoComprobante(e.target.files?.[0] || null)}
-                className="w-full text-xs text-ink/70 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-leaf-50 file:text-leaf-700 hover:file:bg-leaf-100"
+                className="block w-full text-sm text-ink/70 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-leaf-600 file:text-white hover:file:bg-leaf-800 cursor-pointer"
               />
             </div>
 
+            {/* OPCIÓN 2: Texto / Referencia */}
+            <div>
+              <label className="block text-xs text-ink/70 mb-1">
+                💬 O escribe aquí el N° de referencia o mensaje:
+              </label>
+              <input
+                type="text"
+                placeholder="Ej: Ref #123456 o pago enviado por mensaje"
+                value={notaPago}
+                onChange={(e) => setNotaPago(e.target.value)}
+                className="w-full text-sm border border-leaf-100 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-leaf-600"
+              />
+            </div>
+
+            {/* BOTÓN FINALIZAR COMPRA */}
             <button
-              onClick={procesarPago}
               disabled={enviando}
-              className="w-full py-2.5 bg-leaf-600 text-white font-medium rounded-lg hover:bg-leaf-700 transition-colors disabled:opacity-50 mt-2"
+              onClick={procesarPago}
+              className="w-full mt-2 py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-40"
             >
-              {enviando ? "Procesando..." : "Finalizar compra ✨"}
+              {enviando ? "Procesando pago…" : "Finalizar compra ✨"}
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* VISTA 4: COMPRA FINALIZADA / EN REVISIÓN */}
-      {(estado === "PAGO_EN_REVISION" || estado === "PAGO_RECIBIDO" || order?.estado === "PAGO_EN_REVISION" || order?.estado === "PAGO_RECIBIDO" || order?.estado === "CONFIRMADO") && (
-        <div className="bg-white p-6 rounded-xl border border-leaf-100 shadow-sm text-center space-y-4">
-          <div className="text-4xl">✨</div>
-          <h2 className="text-xl font-medium text-leaf-800">¡Pago enviado con éxito!</h2>
-          <p className="text-xs text-ink/70 leading-relaxed">
-            Hemos recibido los datos de tu pago. La tienda verificará la transferencia y preparará tu pedido.
-          </p>
-          <a
-            href="/"
-            className="inline-block px-6 py-2 bg-leaf-600 text-white rounded-lg text-sm font-medium hover:bg-leaf-700 transition-colors"
-          >
-            Volver al catálogo
-          </a>
+        {/* PANTALLA DE COMPRA REALIZADA / PAGO RECIBIDO */}
+        {(estado === "PAGO_RECIBIDO" || estado === "PAGO_EN_REVISION") && (
+          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4">
+            <div className="text-4xl">🛍️✨</div>
+            <h2 className="text-lg font-bold text-leaf-800">¡Compra realizada con éxito!</h2>
+            <p className="text-sm text-ink/70">
+              Hemos recibido la información de tu pago. La tienda está verificando los detalles para comenzar a preparar tu pedido.
+            </p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+            >
+              Volver al catálogo
+            </button>
+          </div>
+        )}
+
+        {(estado === "CONFIRMADO" || estado === "EN_PREPARACION") && (
+          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4">
+            <p className="text-leaf-600 font-medium">✅ Pago confirmado. Tu pedido está en preparación.</p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+            >
+              Volver al catálogo
+            </button>
+          </div>
+        )}
+
+        {estado === "CANCELADO" && (
+          <div className="bg-white rounded-lg border border-alert-100 p-6 space-y-4">
+            <p className="text-alert-600">
+              Ningún producto del pedido quedó disponible. La tienda debería haberte contactado.
+            </p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg border border-leaf-100 text-ink/80 font-medium"
+            >
+              Volver al catálogo
+            </button>
+          </div>
+        )}
+      </main>
+    );
+  }
+
+  return (
+    <main className="max-w-md mx-auto px-4 py-8">
+      <h1 className="font-display text-xl text-leaf-800 mb-6">Datos de entrega</h1>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm text-ink/70 mb-1">Nombre</label>
+          <input
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            className="w-full border border-leaf-100 rounded-lg px-3 py-3"
+          />
         </div>
-      )}
-    </div>
+        <div>
+          <label className="block text-sm text-ink/70 mb-1">Teléfono</label>
+          <input
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+            className="w-full border border-leaf-100 rounded-lg px-3 py-3"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-ink/70 mb-1">Dirección de entrega</label>
+          <textarea
+            value={direccion}
+            onChange={(e) => setDireccion(e.target.value)}
+            className="w-full border border-leaf-100 rounded-lg px-3 py-3"
+          />
+        </div>
+
+        <div className="pt-2 border-t border-leaf-100">
+          <p className="text-sm text-ink/60">Total estimado (sujeto a disponibilidad)</p>
+          <p className="font-medium">
+            Bs {(totalUsd * tasaCambio).toFixed(2)}
+          </p>
+        </div>
+
+        <button
+          disabled={!nombre || !telefono || !direccion || enviando}
+          onClick={enviarPedido}
+          className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
+        >
+          {enviando ? "Enviando…" : "Enviar pedido a la tienda"}
+        </button>
+      </div>
+    </main>
   );
 }

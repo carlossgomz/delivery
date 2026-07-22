@@ -36,7 +36,6 @@ const ETIQUETAS: Record<string, string> = {
   CANCELADO: "Cancelado"
 };
 
-// Función de alerta sonora optimizada para vencer el bloqueo del navegador
 function sonarAlerta() {
   try {
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
@@ -51,8 +50,8 @@ function sonarAlerta() {
     const gain = ctx.createGain();
 
     osc.type = "sine";
-    osc.frequency.setValueAtTime(880, ctx.currentTime); // Tono A5
-    osc.frequency.setValueAtTime(1174.66, ctx.currentTime + 0.15); // Tono D6
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1174.66, ctx.currentTime + 0.15);
 
     gain.gain.setValueAtTime(0.3, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
@@ -62,8 +61,8 @@ function sonarAlerta() {
 
     osc.start();
     osc.stop(ctx.currentTime + 0.5);
-  } catch (e) {
-    console.warn("No se pudo reproducir audio de notificación:", e);
+  } catch {
+    // Si la interacción previa no ocurrió, previene lanzar un error no controlado
   }
 }
 
