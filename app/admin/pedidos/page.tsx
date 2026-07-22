@@ -62,7 +62,7 @@ function sonarAlerta() {
     osc.start();
     osc.stop(ctx.currentTime + 0.5);
   } catch {
-    // Si la interacción previa no ocurrió, previene lanzar un error no controlado
+    // Evita lanzar errores no controlados si no hubo interacción previa
   }
 }
 
@@ -99,9 +99,20 @@ export default function AdminPedidosPage() {
         cargar();
       });
 
-      eventSource.addEventListener("pedido_actualizado", () => {
+      eventSource.addEventListener("pedido_actualizado", (event: MessageEvent) => {
         sonarAlerta();
-        cargar();
+        if (event.data) {
+          try {
+            const updatedOrder: Order = JSON.parse(event.data);
+            setOrders((prev) =>
+              prev.map((o) => (o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o))
+            );
+          } catch {
+            cargar();
+          }
+        } else {
+          cargar();
+        }
       });
 
       eventSource.onerror = () => {
@@ -133,28 +144,48 @@ export default function AdminPedidosPage() {
   }
 
   async function guardarDisponibilidad(order: Order) {
-    await fetch(`/api/orders/${order.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: order.items.map((i) => ({ id: i.id, disponible: !!i.disponible }))
-      })
-    });
-    await fetch(`/api/orders/${order.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "confirmar_disponibilidad" })
-    });
-    cargar();
+    try {
+      await fetch(`/api/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: order.items.map((i) => ({ id: i.id, disponible: !!i.disponible }))
+        })
+      });
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "confirmar_disponibilidad" })
+      });
+      const data = await res.json();
+      if (data.order) {
+        setOrders((prev) => prev.map((o) => (o.id === order.id ? data.order : o)));
+      } else {
+        cargar();
+      }
+    } catch (e) {
+      console.error("Error al guardar disponibilidad:", e);
+    }
   }
 
   async function cambiarEstado(order: Order, estado: string) {
-    await fetch(`/api/orders/${order.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ estado })
-    });
-    cargar();
+    // Actualización optimista inmediata en UI
+    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, estado } : o)));
+
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado })
+      });
+      const data = await res.json();
+      if (data.order) {
+        setOrders((prev) => prev.map((o) => (o.id === order.id ? data.order : o)));
+      }
+    } catch (e) {
+      console.error("Error al cambiar estado:", e);
+      cargar(); // Revertir en caso de falla
+    }
   }
 
   return (
@@ -166,9 +197,11 @@ export default function AdminPedidosPage() {
           {conectado ? "Recibiendo pedidos en vivo" : "Sin conexión — reintentando…"}
         </span>
       </div>
+
       <div className="space-y-4">
         {orders.map((order) => {
           const notaCliente = order.notaPago || order.nota || order.referencia;
+          const esRevisionPago = order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION";
 
           return (
             <div key={order.id} className="bg-white border border-leaf-100 rounded-lg p-4 shadow-sm">
@@ -180,9 +213,11 @@ export default function AdminPedidosPage() {
                   </p>
                 </div>
                 <span
-                  className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION"
+                  className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${esRevisionPago
                       ? "bg-amber-100 text-amber-800 border border-amber-200"
-                      : "bg-clay-100 text-clay-600"
+                      : order.estado === "CONFIRMADO"
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                        : "bg-clay-100 text-clay-600"
                     }`}
                 >
                   {ETIQUETAS[order.estado] ?? order.estado}
@@ -229,8 +264,8 @@ export default function AdminPedidosPage() {
                 </p>
               )}
 
-              {/* REVISIÓN DE PAGO */}
-              {(order.estado === "PAGO_RECIBIDO" || order.estado === "PAGO_EN_REVISION") && (
+              {/* BLOQUE DE PAGO EN REVISIÓN */}
+              {esRevisionPago && (
                 <div className="mt-3 p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-sm space-y-2">
                   <p className="font-semibold text-amber-900 flex items-center gap-1.5">
                     💳 Detalles del pago enviado por el cliente:
@@ -274,6 +309,26 @@ export default function AdminPedidosPage() {
                 </div>
               )}
 
+              {/* REGISTRO HISTÓRICO DISCRETO TRAS CONFIRMAR */}
+              {!esRevisionPago && (notaCliente || order.comprobanteUrl) && (
+                <div className="mt-3 pt-2 border-t border-leaf-50 flex items-center justify-between text-xs text-ink/60">
+                  <span>
+                    {notaCliente ? `Ref: ${notaCliente}` : "Comprobante verificado"}
+                  </span>
+                  {order.comprobanteUrl && (
+                    <a
+                      href={order.comprobanteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-leaf-600 underline hover:text-leaf-800"
+                    >
+                      Ver comprobante
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* ACCIONES DE ESTADO SIGUIENTES */}
               {order.estado === "CONFIRMADO" && (
                 <button
                   onClick={() => cambiarEstado(order, "EN_PREPARACION")}
@@ -294,6 +349,7 @@ export default function AdminPedidosPage() {
             </div>
           );
         })}
+
         {orders.length === 0 && <p className="text-ink/60">No hay pedidos todavía.</p>}
       </div>
     </div>
