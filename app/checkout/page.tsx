@@ -91,29 +91,61 @@ export default function CheckoutPage() {
         )}
 
         {estado === "ESPERANDO_PAGO" && (
-          <div className="text-left bg-white rounded-lg border border-leaf-100 p-4">
-            <p className="mb-3">Tu pedido está listo. Realiza el pago y sube el comprobante.</p>
+          <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4">
+            <p className="text-sm text-ink/80">Tu pedido está listo. Realiza el pago y sube el comprobante.</p>
+
+            <div className="p-3 bg-leaf-100/30 rounded-lg border border-leaf-100">
+              <p className="text-xs text-ink/60">Monto total a pagar:</p>
+              <p className="text-lg font-bold text-leaf-800">
+                Bs {(totalUsd * tasaCambio).toFixed(2)}
+              </p>
+            </div>
+
             <input
               type="file"
               accept="image/*"
               onChange={(e) => e.target.files?.[0] && subirComprobante(e.target.files[0])}
-              className="block w-full text-sm"
+              className="block w-full text-sm text-ink/70 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-leaf-600 file:text-white hover:file:bg-leaf-800 cursor-pointer"
             />
           </div>
         )}
 
         {estado === "PAGO_EN_REVISION" && (
-          <p className="text-clay-600">Recibimos tu comprobante. La tienda lo está verificando.</p>
+          <div className="space-y-6">
+            <p className="text-clay-600">Recibimos tu comprobante. La tienda lo está verificando.</p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+            >
+              Finalizar compra
+            </button>
+          </div>
         )}
 
         {(estado === "CONFIRMADO" || estado === "EN_PREPARACION") && (
-          <p className="text-leaf-600">Pago confirmado. Tu pedido está en preparación.</p>
+          <div className="space-y-6">
+            <p className="text-leaf-600">Pago confirmado. Tu pedido está en preparación.</p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+            >
+              Volver a la tienda
+            </button>
+          </div>
         )}
 
         {estado === "CANCELADO" && (
-          <p className="text-alert-600">
-            Ningún producto del pedido quedó disponible. La tienda debería haberte contactado.
-          </p>
+          <div className="space-y-6">
+            <p className="text-alert-600">
+              Ningún producto del pedido quedó disponible. La tienda debería haberte contactado.
+            </p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3 rounded-lg border border-leaf-100 text-ink/80 font-medium"
+            >
+              Volver al inicio
+            </button>
+          </div>
         )}
       </main>
     );
@@ -151,7 +183,7 @@ export default function CheckoutPage() {
         <div className="pt-2 border-t border-leaf-100">
           <p className="text-sm text-ink/60">Total estimado (sujeto a disponibilidad)</p>
           <p className="font-medium">
-            ${totalUsd.toFixed(2)} · Bs {(totalUsd * tasaCambio).toFixed(2)}
+            Bs {(totalUsd * tasaCambio).toFixed(2)}
           </p>
         </div>
 
