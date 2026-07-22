@@ -157,6 +157,8 @@ export default function CheckoutPage() {
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
           url = uploadData.url || uploadData.secure_url || "";
+        } else {
+          console.error("Error al subir archivo:", await uploadRes.text());
         }
       } catch (err) {
         console.error("Error al subir comprobante:", err);
@@ -170,9 +172,9 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           estado: "PAGO_RECIBIDO",
           comprobanteUrl: url || null,
-          notaPago: notaPago || null,
-          nota: notaPago || null,
-          referencia: notaPago || null,
+          notaPago: notaPago.trim() || null,
+          nota: notaPago.trim() || null,
+          referencia: notaPago.trim() || null,
         }),
       });
 
@@ -180,8 +182,12 @@ export default function CheckoutPage() {
         throw new Error("Error registrando la información del pago.");
       }
 
-      localStorage.removeItem(ACTIVE_ORDER_KEY);
-      setEstado("PAGO_RECIBIDO");
+      const data = await res.json();
+      if (data?.order?.estado) {
+        setEstado(data.order.estado);
+      } else {
+        setEstado("PAGO_RECIBIDO");
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "Error al procesar el pago");
     } finally {

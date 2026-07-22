@@ -22,9 +22,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     !esEstadoAdmin &&
     (body.comprobanteUrl !== undefined ||
       body.comprobante !== undefined ||
-      body.notaPago ||
-      body.nota ||
-      body.referencia ||
+      body.notaPago !== undefined ||
+      body.nota !== undefined ||
+      body.referencia !== undefined ||
       body.estado === "PAGO_RECIBIDO" ||
       body.estado === "PAGO_EN_REVISION")
   ) {
@@ -35,8 +35,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const order = await prisma.order.update({
       where: { id: params.id },
       data: {
-        ...(urlComprobante ? { comprobanteUrl: urlComprobante } : {}),
-        ...(notaGuardar ? { notaPago: notaGuardar } : {}),
+        comprobanteUrl: urlComprobante,
+        notaPago: notaGuardar,
         estado: nuevoEstado
       },
       include: { items: { include: { product: true } } }
@@ -91,7 +91,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       where: { id: params.id },
       data: {
         estado: "ESPERANDO_PAGO",
-        comprobanteUrl: null // Borra el archivo previo para solicitar uno nuevo al cliente
+        comprobanteUrl: null, // Borra el archivo previo para solicitar uno nuevo al cliente
+        notaPago: null
       },
       include: { items: { include: { product: true } } }
     });
