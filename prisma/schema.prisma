@@ -27,6 +27,9 @@ model Product {
 
 model Order {
   id              String      @id @default(cuid())
+  // Estos tres campos se guardan siempre como "foto" del pedido (nombre,
+  // teléfono, dirección en ese momento), tenga o no cuenta el cliente.
+  // Así el historial no cambia si luego el cliente edita su perfil.
   clienteNombre   String
   clienteTelefono String
   direccion       String
@@ -39,6 +42,24 @@ model Order {
   notaPago        String?
   createdAt       DateTime    @default(now())
   items           OrderItem[]
+
+  // Opcional: si el pedido lo hizo un cliente con cuenta registrada, queda
+  // enlazado aquí para poder mostrarle su historial de pedidos.
+  clienteId       String?
+  cliente         Cliente?    @relation(fields: [clienteId], references: [id])
+}
+
+// Cuenta simple de cliente: se registra con teléfono + contraseña para no
+// tener que volver a escribir nombre/teléfono/dirección en cada pedido y
+// para poder ver el historial de pedidos ya hechos.
+model Cliente {
+  id           String   @id @default(cuid())
+  nombre       String
+  telefono     String   @unique
+  direccion    String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  orders       Order[]
 }
 
 model OrderItem {

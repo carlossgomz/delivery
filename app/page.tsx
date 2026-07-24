@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import ContactoTienda from "@/app/components/ContactoTienda";
 
 type Product = {
@@ -10,6 +11,8 @@ type Product = {
   precioUsd: number;
   categoria: string;
 };
+
+type Cliente = { id: string; nombre: string };
 
 type CartLine = { productId: string; cantidad: number };
 
@@ -21,6 +24,7 @@ export default function CatalogPage() {
   const [tasaCambio, setTasaCambio] = useState<number>(0);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cliente, setCliente] = useState<Cliente | null>(null);
 
   // Estados para búsqueda y categoría
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,10 +32,18 @@ export default function CatalogPage() {
 
   useEffect(() => {
     async function load() {
-      const [pRes, cRes] = await Promise.all([fetch("/api/products"), fetch("/api/config")]);
+      const [pRes, cRes, meRes] = await Promise.all([
+        fetch("/api/products"),
+        fetch("/api/config"),
+        fetch("/api/clientes/me")
+      ]);
       const [pData, cData] = await Promise.all([pRes.json(), cRes.json()]);
       setProducts(pData.products);
       setTasaCambio(cData.tasaCambio);
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        setCliente(meData.cliente);
+      }
       const saved = localStorage.getItem(CART_KEY);
       if (saved) setCart(JSON.parse(saved));
       setLoading(false);
@@ -92,8 +104,11 @@ export default function CatalogPage() {
 
   return (
     <main className="max-w-3xl mx-auto px-4 pb-32">
-      <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-4">
+      <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-4 flex items-center justify-between">
         <h1 className="font-display text-2xl text-leaf-800">Tienda</h1>
+        <Link href={cliente ? "/cliente" : "/cliente/login"} className="text-sm text-leaf-600 underline">
+          {cliente ? `Hola, ${cliente.nombre.split(" ")[0]}` : "Iniciar sesión"}
+        </Link>
       </header>
 
       {/* --- BARRA DE BÚSQUEDA Y CATEGORÍAS --- */}

@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import ContactoTienda from "@/app/components/ContactoTienda";
 
 type Product = { id: string; nombre: string; precioUsd: number };
 type CartLine = { productId: string; cantidad: number };
+type Cliente = { id: string; nombre: string; telefono: string; direccion: string };
 
 const CART_KEY = "delivery_cart";
 const ACTIVE_ORDER_KEY = "active_order_id";
@@ -20,6 +22,7 @@ export default function CheckoutPage() {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
+  const [cliente, setCliente] = useState<Cliente | null>(null);
 
   const [orderId, setOrderId] = useState<string | null>(null);
   const [estado, setEstado] = useState<string | null>(null);
@@ -34,9 +37,10 @@ export default function CheckoutPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [pRes, cRes] = await Promise.all([
+        const [pRes, cRes, meRes] = await Promise.all([
           fetch("/api/products"),
           fetch("/api/config"),
+          fetch("/api/clientes/me"),
         ]);
 
         if (pRes.ok) {
@@ -47,6 +51,16 @@ export default function CheckoutPage() {
         if (cRes.ok) {
           const cData = await cRes.json();
           setTasaCambio(cData.tasaCambio || 0);
+        }
+
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          if (meData.cliente) {
+            setCliente(meData.cliente);
+            setNombre(meData.cliente.nombre);
+            setTelefono(meData.cliente.telefono);
+            setDireccion(meData.cliente.direccion);
+          }
         }
 
         const savedCart = localStorage.getItem(CART_KEY);
@@ -340,7 +354,23 @@ export default function CheckoutPage() {
   // --- VISTA FORMULARIO DATOS DE ENTREGA ---
   return (
     <main className="max-w-md mx-auto px-4 py-8">
-      <h1 className="font-display text-xl text-leaf-800 mb-6">Datos de entrega</h1>
+      <h1 className="font-display text-xl text-leaf-800 mb-2">Datos de entrega</h1>
+
+      {cliente ? (
+        <p className="text-sm text-ink/60 mb-6">
+          Pedido a nombre de <span className="font-medium text-ink">{cliente.nombre}</span>.{" "}
+          <Link href="/cliente" className="text-leaf-600 underline">
+            Editar mis datos
+          </Link>
+        </p>
+      ) : (
+        <p className="text-sm text-ink/60 mb-6">
+          <Link href="/registro" className="text-leaf-600 underline">
+            Crea una cuenta
+          </Link>{" "}
+          para no volver a escribir tus datos, o continúa como invitado.
+        </p>
+      )}
 
       {errorMsg && (
         <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">

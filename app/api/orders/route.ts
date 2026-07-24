@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthed } from "@/lib/auth";
+import { isAdminAuthed, getClienteIdFromSession } from "@/lib/auth";
 import { orderEvents } from "@/lib/orderEvents";
 
 // El cliente crea el pedido ANTES de pagar. El estado arranca en
@@ -19,6 +19,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Faltan datos del pedido" }, { status: 400 });
   }
 
+  // Si el navegador trae una sesión de cliente válida, el pedido queda
+  // enlazado a su cuenta para que aparezca en su historial. Esto se lee de
+  // la cookie del servidor, no de lo que mande el body, para que nadie
+  // pueda "regalarle" un pedido a otra cuenta.
+  const sessionClienteId = getClienteIdFromSession();
+  const clienteId = sessionClienteId
+    ? (await prisma.cliente.findUnique({ where: { id: sessionClienteId }, select: { id: true } }))?.id ?? null
+    : null;
+
   const config = await prisma.config.upsert({
     where: { id: 1 },
     update: {},
@@ -35,6 +44,7 @@ export async function POST(req: NextRequest) {
       clienteTelefono,
       direccion,
       tasaCambio: config.tasaCambio,
+      ...(clienteId && { clienteId }),
       items: {
         create: items.map((i) => {
           const p = products.find((pr) => pr.id === i.productId)!;
