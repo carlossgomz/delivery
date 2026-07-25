@@ -34,6 +34,15 @@ export async function POST(req: NextRequest) {
     create: { id: 1, tasaCambio: 1 }
   });
 
+  // Interruptor del admin: si está cerrado, no se crea el pedido aunque
+  // la petición llegue directo a la API (sin pasar por el checkout).
+  if (!config.pedidosHabilitados) {
+    return NextResponse.json(
+      { error: "PEDIDOS_DESHABILITADOS", message: "En estos momentos no estamos atendiendo pedidos." },
+      { status: 403 }
+    );
+  }
+
   const products = await prisma.product.findMany({
     where: { id: { in: items.map((i) => i.productId) } }
   });

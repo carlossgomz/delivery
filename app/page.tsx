@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { HORARIO_ATENCION } from "@/lib/horario";
 
 type Product = {
   id: string;
@@ -22,11 +23,17 @@ export default function CatalogPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [tasaCambio, setTasaCambio] = useState<number>(0);
+  const [pedidosHabilitados, setPedidosHabilitados] = useState<boolean>(true);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [loading, setLoading] = useState(true);
   const [cartCargado, setCartCargado] = useState(false);
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [pedidoActivoId, setPedidoActivoId] = useState<string | null>(null);
+  const [pedidosPendientes, setPedidosPendientes] = useState(0);
+
+  // Estados que cuentan como "pedido pendiente" para la burbuja del botón
+  // Pedidos: cualquier cosa que todavía no llegó a un estado final.
+  const ESTADOS_FINALES = ["ENTREGADO", "CANCELADO"];
 
   // Estados para búsqueda y categoría
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,6 +43,29 @@ export default function CatalogPage() {
   // despliega junto a la barra inferior, para no tener que scrollear el
   // catálogo buscando lo que ya se seleccionó.
   const [mostrarResumen, setMostrarResumen] = useState(false);
+
+  async function cargarPedidosPendientes() {
+    try {
+      const res = await fetch("/api/clientes/pedidos", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      const orders = Array.isArray(data.orders) ? data.orders : [];
+      const pendientes = orders.filter(
+        (o: { estado: string }) => !ESTADOS_FINALES.includes(o.estado)
+      ).length;
+      setPedidosPendientes(pendientes);
+    } catch (e) {
+      console.error("Error al cargar pedidos pendientes:", e);
+    }
+  }
+
+  // Refresca el conteo cada pocos segundos para que la burbuja del botón
+  // Pedidos se actualice sola (ej. cuando la tienda confirma un pago).
+  useEffect(() => {
+    if (!cliente) return;
+    const interval = setInterval(cargarPedidosPendientes, 8000);
+    return () => clearInterval(interval);
+  }, [cliente]);
 
   useEffect(() => {
     async function load() {
@@ -47,9 +77,13 @@ export default function CatalogPage() {
       const [pData, cData] = await Promise.all([pRes.json(), cRes.json()]);
       setProducts(pData.products);
       setTasaCambio(cData.tasaCambio);
+      setPedidosHabilitados(cData.pedidosHabilitados ?? true);
       if (meRes.ok) {
         const meData = await meRes.json();
         setCliente(meData.cliente);
+        if (meData.cliente) {
+          cargarPedidosPendientes();
+        }
       }
       const saved = localStorage.getItem(CART_KEY);
       if (saved) setCart(JSON.parse(saved));
@@ -143,9 +177,14 @@ export default function CatalogPage() {
           {cliente && (
             <Link
               href="/cliente/pedidos"
-              className="shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-white border border-leaf-100 text-leaf-700 text-xs sm:text-sm font-medium hover:bg-leaf-50 active:scale-95 transition-all whitespace-nowrap"
+              className="relative shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-white border border-leaf-100 text-leaf-700 text-xs sm:text-sm font-medium hover:bg-leaf-50 active:scale-95 transition-all whitespace-nowrap"
             >
-              📦 Pedidos
+              🛍️ Pedidos
+              {pedidosPendientes > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-alert-600 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                  {pedidosPendientes > 9 ? "9+" : pedidosPendientes}
+                </span>
+              )}
             </Link>
           )}
           <Link
@@ -166,6 +205,17 @@ export default function CatalogPage() {
           </Link>
         </div>
       </header>
+
+      {!pedidosHabilitados && (
+        <div className="my-4 bg-alert-50 border border-alert-200 rounded-lg px-4 py-3">
+          <p className="text-sm text-alert-700 font-medium">
+            🌙 En este momento no estamos atendiendo pedidos.
+          </p>
+          <p className="text-xs text-alert-700/80 mt-1">
+            Puedes seguir mirando el catálogo. Horario: {HORARIO_ATENCION.linea1} · {HORARIO_ATENCION.linea2}
+          </p>
+        </div>
+      )}
 
       {pedidoActivoId && (
         <div className="my-4 flex items-center justify-between gap-3 bg-clay-100 border border-clay-200 rounded-lg px-4 py-3">

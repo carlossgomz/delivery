@@ -52,6 +52,7 @@ export default function AdminNav() {
         { href: "/admin", label: "Tasa y Productos" },
         { href: "/admin/pedidos", label: "Pedidos" },
         { href: "/admin/pedidos/llamada", label: "📞 Llamada" },
+        { href: "/admin/clientes", label: "Clientes" },
         { href: "/admin/mensajes", label: "Mensajes" }
     ];
 
