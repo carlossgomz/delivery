@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { soloDigitos } from "@/lib/cedula";
 
 export default function ClienteLoginPage() {
   const router = useRouter();
@@ -39,8 +40,9 @@ export default function ClienteLoginPage() {
       <div className="space-y-3">
         <input
           value={cedula}
-          onChange={(e) => setCedula(e.target.value)}
-          placeholder="Cédula"
+          onChange={(e) => setCedula(soloDigitos(e.target.value))}
+          inputMode="numeric"
+          placeholder="Cédula (solo números)"
           className="w-full border border-leaf-100 rounded-lg px-3 py-3"
         />
         <input
@@ -63,6 +65,12 @@ export default function ClienteLoginPage() {
           ¿Aún no tienes cuenta?{" "}
           <Link href="/registro" className="text-leaf-600 underline">
             Regístrate
+          </Link>
+        </p>
+        <p className="text-sm text-ink/60 text-center">
+          ¿Olvidaste tu contraseña?{" "}
+          <Link href="/mensajes" className="text-leaf-600 underline">
+            Contáctanos con tu cédula
           </Link>
         </p>
       </div>

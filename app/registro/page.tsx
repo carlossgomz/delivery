@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { soloDigitos } from "@/lib/cedula";
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -64,9 +65,11 @@ export default function RegistroPage() {
           <label className="block text-sm text-ink/70 mb-1">Cédula</label>
           <input
             value={cedula}
-            onChange={(e) => setCedula(e.target.value)}
+            onChange={(e) => setCedula(soloDigitos(e.target.value))}
+            inputMode="numeric"
+            maxLength={9}
             className="w-full border border-leaf-100 rounded-lg px-3 py-3"
-            placeholder="V-12345678"
+            placeholder="Solo números, sin V ni guion. Ej: 12345678"
           />
         </div>
         <div>

@@ -22,6 +22,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ mensajes: [] });
   }
 
+  // El cliente ya está viendo la conversación (este endpoint alimenta el
+  // chat de /mensajes): se marcan como leídos los mensajes de la tienda,
+  // igual que el admin marca los del cliente al abrir la conversación.
+  await prisma.mensaje.updateMany({
+    where: { conversacionId: conversacion.id, remitente: "TIENDA", leido: false },
+    data: { leido: true }
+  });
+
   return NextResponse.json({ mensajes: conversacion.mensajes });
 }
 
