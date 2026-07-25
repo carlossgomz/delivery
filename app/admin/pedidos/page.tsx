@@ -150,10 +150,18 @@ export default function AdminPedidosPage() {
 
     conectarStream();
 
+    // Respaldo por si el stream en vivo no llega a avisar (por ejemplo, si
+    // la app corre en varias instancias/serverless y el aviso se genera en
+    // una instancia distinta a la que tiene esta pestaña conectada). Así el
+    // comprobante y cualquier cambio de estado siempre terminan apareciendo
+    // solos, sin que el admin tenga que refrescar la página a mano.
+    const polling = setInterval(cargar, 6000);
+
     return () => {
       if (eventSource) {
         eventSource.close();
       }
+      clearInterval(polling);
     };
   }, []);
 

@@ -33,6 +33,11 @@ export default function CatalogPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todas");
 
+  // Resumen del carrito: lista editable (sumar/restar/quitar) que se
+  // despliega junto a la barra inferior, para no tener que scrollear el
+  // catálogo buscando lo que ya se seleccionó.
+  const [mostrarResumen, setMostrarResumen] = useState(false);
+
   useEffect(() => {
     async function load() {
       const [pRes, cRes, meRes] = await Promise.all([
@@ -93,6 +98,9 @@ export default function CatalogPage() {
       }
       return [...prev, { productId, cantidad: 1 }];
     });
+    // Al agregar el primer artículo, se muestra el resumen automáticamente
+    // para que quede a la vista sin tener que buscarlo.
+    setMostrarResumen(true);
   }
 
   function removeFromCart(productId: string) {
@@ -101,6 +109,10 @@ export default function CatalogPage() {
         .map((l) => (l.productId === productId ? { ...l, cantidad: l.cantidad - 1 } : l))
         .filter((l) => l.cantidad > 0)
     );
+  }
+
+  function quitarLineaCompleta(productId: string) {
+    setCart((prev) => prev.filter((l) => l.productId !== productId));
   }
 
   const totalItems = cart.reduce((sum, l) => sum + l.cantidad, 0);
@@ -242,18 +254,71 @@ export default function CatalogPage() {
       )}
 
       {totalItems > 0 && (
-        <div className="fixed bottom-0 inset-x-0 bg-leaf-800 text-white px-4 py-4 z-10">
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <div>
-              <p className="text-sm text-leaf-100">{totalItems} producto(s)</p>
-              <p className="font-medium truncate">Bs {(totalUsd * tasaCambio).toFixed(2)}</p>
+        <div className="fixed bottom-0 inset-x-0 z-10">
+          {/* Lista editable del carrito: sumar, restar o quitar sin tener
+              que scrollear el catálogo para encontrar lo seleccionado. */}
+          {mostrarResumen && (
+            <div className="bg-white border-t border-leaf-100 shadow-[0_-2px_8px_rgba(0,0,0,0.06)] max-h-64 overflow-y-auto">
+              <div className="max-w-3xl mx-auto px-4 py-3">
+                <p className="text-xs uppercase tracking-wide text-ink/50 mb-2">Tu selección</p>
+                <ul className="divide-y divide-leaf-50">
+                  {cart.map((line) => {
+                    const p = products.find((pr) => pr.id === line.productId);
+                    if (!p) return null;
+                    return (
+                      <li key={line.productId} className="flex items-center justify-between gap-3 py-2">
+                        <span className="text-sm text-ink flex-1 truncate">{p.nombre}</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => removeFromCart(p.id)}
+                            className="w-7 h-7 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold text-sm"
+                            aria-label={`Quitar una unidad de ${p.nombre}`}
+                          >
+                            −
+                          </button>
+                          <span className="w-4 text-center text-sm">{line.cantidad}</span>
+                          <button
+                            onClick={() => addToCart(p.id)}
+                            className="w-7 h-7 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold text-sm"
+                            aria-label={`Agregar una unidad de ${p.nombre}`}
+                          >
+                            +
+                          </button>
+                          <button
+                            onClick={() => quitarLineaCompleta(p.id)}
+                            className="ml-1 text-alert-600 text-xs underline"
+                            aria-label={`Quitar ${p.nombre} del carrito`}
+                          >
+                            Quitar
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </div>
-            <button
-              onClick={() => router.push("/checkout")}
-              className="px-4 py-3 rounded-lg bg-clay-400 text-ink font-medium hover:opacity-90 transition-opacity whitespace-nowrap shrink-0"
-            >
-              Proceder con el pedido
-            </button>
+          )}
+
+          <div className="bg-leaf-800 text-white px-4 py-4">
+            <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+              <button
+                onClick={() => setMostrarResumen((v) => !v)}
+                className="text-left"
+                aria-expanded={mostrarResumen}
+              >
+                <p className="text-sm text-leaf-100 underline decoration-dotted">
+                  {totalItems} producto(s) {mostrarResumen ? "▲ ocultar" : "▼ editar"}
+                </p>
+                <p className="font-medium truncate">Bs {(totalUsd * tasaCambio).toFixed(2)}</p>
+              </button>
+              <button
+                onClick={() => router.push("/checkout")}
+                className="px-4 py-3 rounded-lg bg-clay-400 text-ink font-medium hover:opacity-90 transition-opacity whitespace-nowrap shrink-0"
+              >
+                Proceder con el pedido
+              </button>
+            </div>
           </div>
         </div>
       )}

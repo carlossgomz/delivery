@@ -605,6 +605,31 @@ export default function CheckoutPage() {
         >
           {enviando ? "Enviando…" : "Enviar pedido a la tienda"}
         </button>
+
+        {/* El carrito sigue guardado en este punto: si se le olvidó algo o
+            quiere revisar cantidades, puede volver al catálogo sin perder
+            nada. "Cancelar" vacía el carrito para empezar de cero. */}
+        <div className="flex flex-col gap-2 pt-1">
+          <button
+            type="button"
+            disabled={enviando}
+            onClick={() => router.push("/")}
+            className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
+          >
+            ← Editar carrito
+          </button>
+          <button
+            type="button"
+            disabled={enviando}
+            onClick={() => {
+              localStorage.removeItem(CART_KEY);
+              router.push("/");
+            }}
+            className="w-full py-3 rounded-lg border border-alert-600 text-alert-600 font-medium hover:bg-alert-50 transition-colors disabled:opacity-40"
+          >
+            Cancelar pedido
+          </button>
+        </div>
       </div>
       <ContactoTienda />
     </main>
