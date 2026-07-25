@@ -49,18 +49,30 @@ export default function MisPedidosPage() {
   const [orders, setOrders] = useState<Order[] | null>(null);
 
   useEffect(() => {
-    async function load() {
+    let activo = true;
+
+    async function cargar() {
       const meRes = await fetch("/api/clientes/me");
       const meData = await meRes.json();
       if (!meData.cliente) {
         router.push("/cliente/login");
         return;
       }
-      const res = await fetch("/api/clientes/pedidos");
+      const res = await fetch("/api/clientes/pedidos", { cache: "no-store" });
       const data = await res.json();
-      setOrders(data.orders || []);
+      if (activo) setOrders(data.orders || []);
     }
-    load();
+
+    cargar();
+    // Refresca solo el estado de los pedidos cada pocos segundos, para que
+    // el cliente vea "en preparación" / "en camino" / "entregado" sin tener
+    // que recargar la página manualmente.
+    const interval = setInterval(cargar, 5000);
+
+    return () => {
+      activo = false;
+      clearInterval(interval);
+    };
   }, [router]);
 
   if (orders === null) {
@@ -71,9 +83,14 @@ export default function MisPedidosPage() {
     <main className="max-w-md mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-xl text-leaf-800">Mis pedidos</h1>
-        <Link href="/cliente" className="text-sm text-leaf-600 underline">
-          Mi cuenta
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-sm text-leaf-600 underline">
+            Volver al catálogo
+          </Link>
+          <Link href="/cliente" className="text-sm text-leaf-600 underline">
+            Mi cuenta
+          </Link>
+        </div>
       </div>
 
       {orders.length === 0 && (

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type Cliente = { id: string; nombre: string; cedula: string; telefono: string; direccion: string };
 
@@ -61,7 +62,12 @@ export default function MiCuentaPage() {
 
   return (
     <main className="max-w-sm mx-auto px-4 py-10">
-      <h1 className="font-display text-xl text-leaf-800 mb-6">Mi cuenta</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="font-display text-xl text-leaf-800">Mi cuenta</h1>
+        <Link href="/" className="text-sm text-leaf-600 underline">
+          Volver al catálogo
+        </Link>
+      </div>
 
       <div className="space-y-3 mb-6">
         <div>

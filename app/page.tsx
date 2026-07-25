@@ -17,6 +17,7 @@ type Cliente = { id: string; nombre: string };
 type CartLine = { productId: string; cantidad: number };
 
 const CART_KEY = "delivery_cart";
+const ACTIVE_ORDER_KEY = "active_order_id";
 
 export default function CatalogPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function CatalogPage() {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [loading, setLoading] = useState(true);
   const [cliente, setCliente] = useState<Cliente | null>(null);
+  const [pedidoActivoId, setPedidoActivoId] = useState<string | null>(null);
 
   // Estados para búsqueda y categoría
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,6 +48,7 @@ export default function CatalogPage() {
       }
       const saved = localStorage.getItem(CART_KEY);
       if (saved) setCart(JSON.parse(saved));
+      setPedidoActivoId(localStorage.getItem(ACTIVE_ORDER_KEY));
       setLoading(false);
     }
     load();
@@ -117,6 +120,18 @@ export default function CatalogPage() {
           </Link>
         </div>
       </header>
+
+      {pedidoActivoId && (
+        <div className="my-4 flex items-center justify-between gap-3 bg-clay-100 border border-clay-200 rounded-lg px-4 py-3">
+          <p className="text-sm text-ink/80">Tienes un pedido en curso.</p>
+          <button
+            onClick={() => router.push("/checkout")}
+            className="px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-800 transition-colors shrink-0"
+          >
+            Continuar pedido
+          </button>
+        </div>
+      )}
 
       {/* --- BARRA DE BÚSQUEDA Y CATEGORÍAS --- */}
       <div className="mb-6 space-y-4">

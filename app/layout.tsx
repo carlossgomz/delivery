@@ -1,22 +1,17 @@
-// @ts-ignore
-import "./globals.css";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import { isAdminAuthed } from "@/lib/auth";
+import AdminNav from "./components/adminnav";
 
-export const metadata = {
-  title: "Delivery",
-  description: "Pide en línea, con verificación de disponibilidad en tienda"
-};
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  if (!isAdminAuthed()) {
+    redirect("/login");
+  }
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  themeColor: "#264423"
-};
-
-export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es">
-      <body className="bg-cream text-ink font-sans min-h-screen">{children}</body>
-    </html>
+    <div>
+      <AdminNav />
+      <div className="max-w-4xl mx-auto px-4 py-6">{children}</div>
+    </div>
   );
 }

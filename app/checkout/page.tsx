@@ -8,6 +8,12 @@ import ContactoTienda from "@/app/components/ContactoTienda";
 type Product = { id: string; nombre: string; precioUsd: number };
 type CartLine = { productId: string; cantidad: number };
 type Cliente = { id: string; nombre: string; telefono: string; direccion: string };
+type OrderData = {
+  id: string;
+  estado: string;
+  totalUsd: number | null;
+  totalBs: number | null;
+};
 
 const CART_KEY = "delivery_cart";
 const ACTIVE_ORDER_KEY = "active_order_id";
@@ -25,6 +31,7 @@ export default function CheckoutPage() {
   const [cliente, setCliente] = useState<Cliente | null>(null);
 
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [order, setOrder] = useState<OrderData | null>(null);
   const [estado, setEstado] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -32,6 +39,25 @@ export default function CheckoutPage() {
   // Estados para comprobante o referencia/nota
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
   const [notaPago, setNotaPago] = useState("");
+
+  // Trae el pedido completo (estado + totales) del servidor. Se usa tanto
+  // al restaurar un pedido activo al entrar/volver a esta página, como en
+  // cada vuelta del polling, para que la pantalla nunca dependa de datos
+  // locales que puedan haberse perdido (ej. el carrito, que se limpia al
+  // enviar el pedido).
+  async function cargarOrden(id: string) {
+    try {
+      const res = await fetch(`/api/orders/${id}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.order) {
+        setOrder(data.order);
+        setEstado(data.order.estado);
+      }
+    } catch (err) {
+      console.error("Error al consultar el pedido:", err);
+    }
+  }
 
   // 1. Cargar productos, config y restaurar orden activa si existe
   useEffect(() => {
@@ -71,6 +97,9 @@ export default function CheckoutPage() {
         const savedOrder = localStorage.getItem(ACTIVE_ORDER_KEY);
         if (savedOrder) {
           setOrderId(savedOrder);
+          // No esperamos al polling: se consulta de una vez para que la
+          // pantalla de pago aparezca al instante, sin pantalla en blanco.
+          cargarOrden(savedOrder);
         }
       } catch (err) {
         console.error("Error al cargar datos iniciales:", err);
@@ -81,7 +110,8 @@ export default function CheckoutPage() {
     load();
   }, []);
 
-  // 2. Polling de la orden
+  // 2. Polling de la orden — se actualiza sola cada pocos segundos sin que
+  // el cliente tenga que recargar la página.
   useEffect(() => {
     if (!orderId) return;
 
@@ -97,18 +127,8 @@ export default function CheckoutPage() {
       return;
     }
 
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/orders/${orderId}`);
-        if (!res.ok) return;
-
-        const data = await res.json();
-        if (data?.order?.estado) {
-          setEstado(data.order.estado);
-        }
-      } catch (err) {
-        console.error("Error al consultar el estado del pedido:", err);
-      }
+    const interval = setInterval(() => {
+      cargarOrden(orderId);
     }, 4000);
 
     return () => clearInterval(interval);
@@ -141,6 +161,7 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (data?.order?.id) {
         setOrderId(data.order.id);
+        setOrder(data.order);
         setEstado(data.order.estado);
         localStorage.setItem(ACTIVE_ORDER_KEY, data.order.id);
         localStorage.removeItem(CART_KEY);
@@ -203,7 +224,8 @@ export default function CheckoutPage() {
       }
 
       const data = await res.json();
-      if (data?.order?.estado) {
+      if (data?.order) {
+        setOrder(data.order);
         setEstado(data.order.estado);
       } else {
         setEstado("PAGO_RECIBIDO");
@@ -219,6 +241,11 @@ export default function CheckoutPage() {
   if (orderId) {
     return (
       <main className="max-w-md mx-auto px-4 py-10 text-center">
+        <div className="flex justify-start mb-4">
+          <Link href="/" className="text-sm text-leaf-600 underline">
+            ← Volver al catálogo
+          </Link>
+        </div>
         <h1 className="font-display text-xl text-leaf-800 mb-2">Pedido enviado</h1>
         <p className="text-ink/70 mb-6">Número de pedido: {orderId.slice(0, 8)}</p>
 
@@ -244,7 +271,7 @@ export default function CheckoutPage() {
             <div className="p-3 bg-leaf-100/30 rounded-lg border border-leaf-100">
               <p className="text-xs text-ink/60">Monto total a pagar:</p>
               <p className="text-lg font-bold text-leaf-800">
-                Bs {(totalUsd * tasaCambio).toFixed(2)}
+                Bs {(order?.totalBs ?? totalUsd * tasaCambio).toFixed(2)}
               </p>
             </div>
 
