@@ -127,15 +127,16 @@ export default function AdminMensajesPage() {
                     }`}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium truncate">
-                      {c.clienteNombre || c.clienteTelefono || "Cliente"}
-                    </p>
+                    <p className="text-sm font-medium truncate">{c.clienteNombre || "Cliente"}</p>
                     {c.noLeidos > 0 && (
                       <span className="shrink-0 text-[10px] bg-alert-600 text-white rounded-full w-5 h-5 flex items-center justify-center">
                         {c.noLeidos}
                       </span>
                     )}
                   </div>
+                  {c.clienteTelefono && (
+                    <p className="text-[11px] text-ink/40 truncate">{c.clienteTelefono}</p>
+                  )}
                   <p className="text-xs text-ink/50 truncate">{c.ultimoMensaje ?? "—"}</p>
                 </button>
               </li>

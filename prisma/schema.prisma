@@ -40,6 +40,11 @@ model Order {
   comprobanteUrl  String?
   notas           String?
   notaPago        String?
+  // "WEB" (por defecto, el cliente hizo el pedido desde el catálogo) o
+  // "LLAMADA" (el personal de tienda lo creó a mano porque el cliente
+  // llamó por teléfono). Sirve para no perder el registro de esas ventas
+  // y para distinguirlas de un vistazo en /admin/pedidos.
+  origen          String      @default("WEB")
   createdAt       DateTime    @default(now())
   items           OrderItem[]
 

@@ -22,6 +22,7 @@ type Order = {
   notaPago?: string | null;
   nota?: string | null;
   referencia?: string | null;
+  origen?: string;
   items?: OrderItem[];
 };
 
@@ -277,7 +278,14 @@ export default function AdminPedidosPage() {
             <div key={order.id} className="bg-white border border-leaf-100 rounded-lg p-4 shadow-sm">
               <div className="flex flex-wrap gap-2 justify-between items-start mb-2">
                 <div className="min-w-0">
-                  <p className="font-medium">{order.clienteNombre}</p>
+                  <p className="font-medium flex items-center gap-1.5 flex-wrap">
+                    {order.clienteNombre}
+                    {order.origen === "LLAMADA" && (
+                      <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">
+                        📞 Por llamada
+                      </span>
+                    )}
+                  </p>
                   <p className="text-sm text-ink/60">
                     {order.clienteTelefono} · {order.direccion}
                   </p>

@@ -9,10 +9,12 @@ type Mensaje = {
   createdAt: string;
 };
 
+type Cliente = { id: string; nombre: string; telefono: string } | null;
+
 const CLIENTE_ID_KEY = "delivery_cliente_id";
 const POLL_MS = 4000;
 
-function obtenerClienteId(): string {
+function obtenerClienteIdInvitado(): string {
   let id = localStorage.getItem(CLIENTE_ID_KEY);
   if (!id) {
     id =
@@ -24,34 +26,44 @@ function obtenerClienteId(): string {
   return id;
 }
 
-// Convierte un número venezolano local (0426-6215863 / 04266215863) a
-// formato internacional para el link "tel:". Si ya viene con "+", lo respeta.
-function formatearTelParaLlamar(telefono: string): string {
-  const limpio = telefono.replace(/[^\d+]/g, "");
-  if (limpio.startsWith("+")) return limpio;
-  if (limpio.startsWith("0")) return `+58${limpio.slice(1)}`;
-  return `+58${limpio}`;
-}
-
-export default function ContactoTienda({ hidden = false }: { hidden?: boolean } = {}) {
-  const [telefonoTienda, setTelefonoTienda] = useState<string | null>(null);
-  const [chatAbierto, setChatAbierto] = useState(false);
+// Panel de chat con la tienda. Vive en su propia página (/mensajes) en vez
+// de flotar sobre el catálogo: así no tapa productos ni botones mientras
+// el cliente compra. Si el cliente tiene una cuenta iniciada, la
+// conversación queda ligada a su cuenta (mismo id en cualquier
+// dispositivo) y el mensaje llega a la tienda con su nombre real; si es
+// invitado, se usa un id anónimo guardado en este navegador y en el panel
+// de la tienda aparece simplemente como "Cliente".
+export default function ContactoTienda() {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [listo, setListo] = useState(false);
   const clienteIdRef = useRef<string>("");
+  const clienteRef = useRef<Cliente>(null);
   const listaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    clienteIdRef.current = obtenerClienteId();
-    fetch("/api/config")
-      .then((r) => r.json())
-      .then((d) => setTelefonoTienda(d.telefonoTienda ?? null))
-      .catch(() => setTelefonoTienda(null));
+    async function iniciar() {
+      try {
+        const meRes = await fetch("/api/clientes/me");
+        const meData = meRes.ok ? await meRes.json() : { cliente: null };
+        if (meData.cliente) {
+          clienteRef.current = meData.cliente;
+          clienteIdRef.current = meData.cliente.id;
+        } else {
+          clienteIdRef.current = obtenerClienteIdInvitado();
+        }
+      } catch {
+        clienteIdRef.current = obtenerClienteIdInvitado();
+      } finally {
+        setListo(true);
+      }
+    }
+    iniciar();
   }, []);
 
   useEffect(() => {
-    if (!chatAbierto) return;
+    if (!listo) return;
 
     async function cargarMensajes() {
       try {
@@ -66,18 +78,17 @@ export default function ContactoTienda({ hidden = false }: { hidden?: boolean } 
     cargarMensajes();
     const interval = setInterval(cargarMensajes, POLL_MS);
     return () => clearInterval(interval);
-  }, [chatAbierto]);
+  }, [listo]);
 
   useEffect(() => {
     listaRef.current?.scrollTo({ top: listaRef.current.scrollHeight });
-  }, [mensajes, chatAbierto]);
+  }, [mensajes]);
 
   async function enviarMensaje() {
     const contenido = texto.trim();
     if (!contenido) return;
 
     setEnviando(true);
-    // Optimista: lo muestro de una vez en pantalla mientras se guarda.
     const temporal: Mensaje = {
       id: `temp-${Date.now()}`,
       remitente: "CLIENTE",
@@ -91,7 +102,12 @@ export default function ContactoTienda({ hidden = false }: { hidden?: boolean } 
       await fetch("/api/chat/mensajes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clienteId: clienteIdRef.current, texto: contenido })
+        body: JSON.stringify({
+          clienteId: clienteIdRef.current,
+          texto: contenido,
+          clienteNombre: clienteRef.current?.nombre,
+          clienteTelefono: clienteRef.current?.telefono
+        })
       });
     } catch (e) {
       console.error("Error al enviar mensaje:", e);
@@ -100,84 +116,44 @@ export default function ContactoTienda({ hidden = false }: { hidden?: boolean } 
     }
   }
 
-  useEffect(() => {
-    if (hidden) setChatAbierto(false);
-  }, [hidden]);
-
-  if (hidden) return null;
-
   return (
-    <>
-      {/* Botones flotantes */}
-      <div className="fixed bottom-24 right-4 z-30 flex flex-col items-end gap-2">
-        {telefonoTienda && (
-          <a
-            href={`tel:${formatearTelParaLlamar(telefonoTienda)}`}
-            className="w-12 h-12 rounded-full bg-clay-400 text-ink shadow-lg flex items-center justify-center text-xl"
-            aria-label="Llamar a la tienda"
-            title="Llamar a la tienda"
-          >
-            📞
-          </a>
+    <div className="bg-white border border-leaf-100 rounded-lg shadow-sm flex flex-col overflow-hidden h-[28rem]">
+      <div ref={listaRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-cream/40">
+        {listo && mensajes.length === 0 && (
+          <p className="text-xs text-ink/50 text-center py-8">
+            Escríbenos cualquier duda sobre tu pedido, disponibilidad o precios.
+          </p>
         )}
-        <button
-          onClick={() => setChatAbierto((v) => !v)}
-          className="w-12 h-12 rounded-full bg-leaf-600 text-white shadow-lg flex items-center justify-center text-xl"
-          aria-label="Escribir a la tienda"
-          title="Escribir a la tienda"
-        >
-          💬
-        </button>
+        {mensajes.map((m) => (
+          <div
+            key={m.id}
+            className={`max-w-[80%] px-3 py-2 rounded-lg text-sm ${
+              m.remitente === "CLIENTE"
+                ? "ml-auto bg-leaf-600 text-white rounded-br-sm"
+                : "mr-auto bg-white border border-leaf-100 text-ink rounded-bl-sm"
+            }`}
+          >
+            {m.texto}
+          </div>
+        ))}
       </div>
 
-      {/* Panel de chat */}
-      {chatAbierto && (
-        <div className="fixed bottom-40 right-4 z-30 w-[calc(100vw-2rem)] max-w-sm bg-white border border-leaf-100 rounded-lg shadow-xl flex flex-col overflow-hidden">
-          <div className="bg-leaf-800 text-white px-4 py-3 flex items-center justify-between">
-            <span className="font-medium text-sm">Escríbenos</span>
-            <button onClick={() => setChatAbierto(false)} className="text-white/80 hover:text-white text-sm">
-              ✕
-            </button>
-          </div>
-
-          <div ref={listaRef} className="flex-1 max-h-72 overflow-y-auto px-3 py-3 space-y-2 bg-cream/40">
-            {mensajes.length === 0 && (
-              <p className="text-xs text-ink/50 text-center py-6">
-                Escríbenos cualquier duda sobre tu pedido, disponibilidad o precios.
-              </p>
-            )}
-            {mensajes.map((m) => (
-              <div
-                key={m.id}
-                className={`max-w-[80%] px-3 py-2 rounded-lg text-sm ${
-                  m.remitente === "CLIENTE"
-                    ? "ml-auto bg-leaf-600 text-white rounded-br-sm"
-                    : "mr-auto bg-white border border-leaf-100 text-ink rounded-bl-sm"
-                }`}
-              >
-                {m.texto}
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-leaf-100 p-2 flex gap-2">
-            <input
-              value={texto}
-              onChange={(e) => setTexto(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && enviarMensaje()}
-              placeholder="Escribe tu mensaje..."
-              className="flex-1 border border-leaf-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-leaf-500"
-            />
-            <button
-              onClick={enviarMensaje}
-              disabled={enviando || !texto.trim()}
-              className="px-3 py-2 rounded-lg bg-leaf-600 text-white text-sm disabled:opacity-40"
-            >
-              Enviar
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+      <div className="border-t border-leaf-100 p-2 flex gap-2">
+        <input
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && enviarMensaje()}
+          placeholder="Escribe tu mensaje..."
+          className="flex-1 border border-leaf-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-leaf-500"
+        />
+        <button
+          onClick={enviarMensaje}
+          disabled={enviando || !texto.trim()}
+          className="px-3 py-2 rounded-lg bg-leaf-600 text-white text-sm disabled:opacity-40"
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
   );
 }

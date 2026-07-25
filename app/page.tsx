@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import ContactoTienda from "@/app/components/ContactoTienda";
 
 type Product = {
   id: string;
@@ -134,6 +133,13 @@ export default function CatalogPage() {
           className="h-11 sm:h-14 w-auto shrink-0 object-contain"
         />
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <Link
+            href="/mensajes"
+            className="shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-white border border-leaf-100 text-leaf-700 text-xs sm:text-sm font-medium hover:bg-leaf-50 active:scale-95 transition-all whitespace-nowrap"
+            aria-label="Escribir o llamar a la tienda"
+          >
+            💬 Contacto
+          </Link>
           {cliente && (
             <Link
               href="/cliente/pedidos"
@@ -342,7 +348,6 @@ export default function CatalogPage() {
           </div>
         </div>
       )}
-      <ContactoTienda hidden={mostrarResumen} />
     </main>
   );
 }

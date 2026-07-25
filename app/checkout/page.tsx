@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import ContactoTienda from "@/app/components/ContactoTienda";
 
 type Product = { id: string; nombre: string; precioUsd: number };
 type CartLine = { productId: string; cantidad: number };
@@ -13,7 +12,12 @@ type OrderData = {
   estado: string;
   totalUsd: number | null;
   totalBs: number | null;
-  items?: { productId: string; cantidad: number }[];
+  items?: {
+    productId: string;
+    cantidad: number;
+    disponible?: boolean | null;
+    product?: { nombre: string };
+  }[];
 };
 
 const CART_KEY = "delivery_cart";
@@ -40,6 +44,16 @@ export default function CheckoutPage() {
   // Estados para comprobante o referencia/nota
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
   const [notaPago, setNotaPago] = useState("");
+
+  // Cuando la tienda confirma disponibilidad y NO todo estaba disponible,
+  // primero mostramos un resumen (qué sí / qué no) con tres salidas
+  // (reemplazar, continuar solo con lo disponible o cancelar) antes de
+  // dejar pasar a la pantalla de pago. Se reinicia cada vez que cambia el
+  // pedido activo.
+  const [continuarConParcial, setContinuarConParcial] = useState(false);
+  useEffect(() => {
+    setContinuarConParcial(false);
+  }, [orderId]);
 
   // Trae el pedido completo (estado + totales) del servidor. Se usa tanto
   // al restaurar un pedido activo al entrar/volver a esta página, como en
@@ -151,6 +165,15 @@ export default function CheckoutPage() {
     const p = products.find((pr) => pr.id === l.productId);
     return sum + (p ? p.precioUsd * l.cantidad : 0);
   }, 0);
+
+  // Una vez la tienda confirma disponibilidad, si algún artículo no estaba
+  // disponible mostramos primero un resumen de qué sí / qué no llegó,
+  // antes de dejar pasar a la pantalla de pago.
+  const itemsNoDisponibles = (order?.items ?? []).filter((it) => it.disponible === false);
+  const itemsDisponibles = (order?.items ?? []).filter((it) => it.disponible !== false);
+  const hayNoDisponibles = itemsNoDisponibles.length > 0;
+  const mostrarVerificacionParcial =
+    estado === "ESPERANDO_PAGO" && hayNoDisponibles && !continuarConParcial;
 
   async function enviarPedido() {
     setErrorMsg(null);
@@ -278,6 +301,35 @@ export default function CheckoutPage() {
     }
   }
 
+  // La tienda marcó algunos artículos como no disponibles. El cliente
+  // prefiere reemplazarlos: se cancela este pedido y vuelve al catálogo
+  // con el carrito tal cual como lo pidió, pero sin los artículos que no
+  // había — así puede agregar algo distinto en su lugar sin tener que
+  // volver a armar todo el pedido desde cero.
+  async function reemplazarArticulo() {
+    if (!orderId) return;
+    setEnviando(true);
+    try {
+      const disponibles = (order?.items ?? []).filter((it) => it.disponible !== false);
+      const cartRestaurado: CartLine[] = disponibles.map((it) => ({
+        productId: it.productId,
+        cantidad: it.cantidad
+      }));
+      localStorage.setItem(CART_KEY, JSON.stringify(cartRestaurado));
+      await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "cancelar_cliente" })
+      });
+    } catch (err) {
+      console.error("Error al cancelar el pedido para reemplazar un artículo:", err);
+    } finally {
+      localStorage.removeItem(ACTIVE_ORDER_KEY);
+      setEnviando(false);
+      router.push("/");
+    }
+  }
+
   // El cliente ya no quiere hacer el pedido.
   async function rechazarPedido() {
     if (!orderId) return;
@@ -337,7 +389,74 @@ export default function CheckoutPage() {
           </p>
         )}
 
-        {estado === "ESPERANDO_PAGO" && (
+        {mostrarVerificacionParcial && (
+          <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4 shadow-sm">
+            <p className="text-sm text-ink/80 font-medium">
+              La tienda ya revisó tu pedido. Algunos artículos no estaban disponibles:
+            </p>
+
+            {itemsDisponibles.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-leaf-700 mb-1">✅ Sí están disponibles</p>
+                <ul className="text-sm text-ink/80 space-y-1">
+                  {itemsDisponibles.map((it) => (
+                    <li key={it.productId}>
+                      {it.cantidad}× {it.product?.nombre ?? "Producto"}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div>
+              <p className="text-xs font-semibold text-alert-600 mb-1">✖ No están disponibles</p>
+              <ul className="text-sm text-ink/80 space-y-1">
+                {itemsNoDisponibles.map((it) => (
+                  <li key={it.productId}>
+                    {it.cantidad}× {it.product?.nombre ?? "Producto"}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {itemsDisponibles.length > 0 && (
+              <div className="p-3 bg-leaf-100/30 rounded-lg border border-leaf-100">
+                <p className="text-xs text-ink/60">Total si continúas solo con lo disponible:</p>
+                <p className="text-lg font-bold text-leaf-800">
+                  Bs {(order?.totalBs ?? 0).toFixed(2)}
+                </p>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2 pt-1">
+              {itemsDisponibles.length > 0 && (
+                <button
+                  disabled={enviando}
+                  onClick={() => setContinuarConParcial(true)}
+                  className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-40"
+                >
+                  ✅ Continuar solo con lo disponible
+                </button>
+              )}
+              <button
+                disabled={enviando}
+                onClick={reemplazarArticulo}
+                className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
+              >
+                🔄 Reemplazar artículo (volver al catálogo)
+              </button>
+              <button
+                disabled={enviando}
+                onClick={rechazarPedido}
+                className="w-full py-3 rounded-lg border border-alert-600 text-alert-600 font-medium hover:bg-alert-50 transition-colors disabled:opacity-40"
+              >
+                Cancelar pedido
+              </button>
+            </div>
+          </div>
+        )}
+
+        {estado === "ESPERANDO_PAGO" && !mostrarVerificacionParcial && (
           <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4 shadow-sm">
             <p className="text-sm text-ink/80 font-medium">
               ¡Tu pedido está listo! 🎉 Realiza tu Pago Móvil y confirma tu compra a continuación.
@@ -399,8 +518,11 @@ export default function CheckoutPage() {
         )}
 
         {/* Mientras el pedido no se ha pagado, el cliente puede agregar
-            algo que se le olvidó o simplemente no seguir con la compra. */}
-        {(estado === "PENDIENTE_VERIFICACION" || estado === "ESPERANDO_PAGO") && (
+            algo que se le olvidó o simplemente no seguir con la compra.
+            (Si hay disponibilidad parcial sin resolver, esas opciones ya
+            las da la pantalla de arriba, así que no se duplican aquí.) */}
+        {(estado === "PENDIENTE_VERIFICACION" ||
+          (estado === "ESPERANDO_PAGO" && !mostrarVerificacionParcial)) && (
           <div className="mt-4 flex flex-col gap-2">
             <button
               disabled={enviando}
@@ -530,7 +652,11 @@ export default function CheckoutPage() {
               </button>
             </div>
           )}
-        <ContactoTienda />
+        <p className="mt-6 text-sm">
+          <Link href="/mensajes" className="text-leaf-600 underline">
+            💬 ¿Dudas? Escríbenos o llama a la tienda
+          </Link>
+        </p>
       </main>
     );
   }
@@ -631,7 +757,11 @@ export default function CheckoutPage() {
           </button>
         </div>
       </div>
-      <ContactoTienda />
+      <p className="mt-6 text-sm text-center">
+        <Link href="/mensajes" className="text-leaf-600 underline">
+          💬 ¿Dudas? Escríbenos o llama a la tienda
+        </Link>
+      </p>
     </main>
   );
 }

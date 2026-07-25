@@ -51,11 +51,12 @@ export default function AdminNav() {
     const links = [
         { href: "/admin", label: "Tasa y Productos" },
         { href: "/admin/pedidos", label: "Pedidos" },
+        { href: "/admin/pedidos/llamada", label: "📞 Llamada" },
         { href: "/admin/mensajes", label: "Mensajes" }
     ];
 
     return (
-        <nav className="bg-leaf-800 text-white px-4 py-3 flex gap-6 text-sm font-medium">
+        <nav className="bg-leaf-800 text-white px-4 py-3 flex gap-6 text-sm font-medium overflow-x-auto whitespace-nowrap">
             {links.map((link) => (
                 <Link
                     key={link.href}
