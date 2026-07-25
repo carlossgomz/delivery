@@ -65,6 +65,12 @@ export default function ClienteLoginPage() {
             Regístrate
           </Link>
         </p>
+        <p className="text-sm text-ink/60 text-center">
+          ¿Olvidaste tu contraseña?{" "}
+          <Link href="/mensajes" className="text-leaf-600 underline">
+            Contáctanos con tu cédula
+          </Link>
+        </p>
       </div>
     </main>
   );

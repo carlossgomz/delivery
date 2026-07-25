@@ -337,6 +337,27 @@ export default function AdminPedidosPage() {
                 </p>
               )}
 
+              {/* Confirmar pago recibido por otro medio (ej. WhatsApp) cuando
+                  el pedido sigue "esperando pago" y el cliente nunca llegó a
+                  subir el comprobante desde la app. */}
+              {order.estado === "ESPERANDO_PAGO" && (
+                <div className="mt-3 p-3 bg-sky-50/70 border border-sky-200 rounded-lg text-sm space-y-2">
+                  <p className="text-ink/70 text-xs">
+                    ¿El cliente envió el comprobante de pago por otro medio (WhatsApp, llamada, etc.)?
+                  </p>
+                  <button
+                    onClick={() => {
+                      if (window.confirm("¿Confirmar que el pago de este pedido fue recibido? El pedido pasará a preparación.")) {
+                        cambiarEstado(order, "CONFIRMADO");
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-700 transition-colors"
+                  >
+                    💵 Confirmar pago recibido
+                  </button>
+                </div>
+              )}
+
               {/* BLOQUE DE PAGO EN REVISIÓN */}
               {esRevisionPago && (
                 <div className="mt-3 p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-sm space-y-2">

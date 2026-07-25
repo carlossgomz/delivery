@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { HORARIO_ATENCION } from "@/lib/horario";
 
 type Product = { id: string; nombre: string; precioUsd: number };
 type CartLine = { productId: string; cantidad: number };
@@ -29,6 +30,7 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [tasaCambio, setTasaCambio] = useState(0);
   const [loadingConfig, setLoadingConfig] = useState(true);
+  const [pedidosHabilitados, setPedidosHabilitados] = useState(true);
 
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -104,6 +106,7 @@ export default function CheckoutPage() {
         if (cRes.ok) {
           const cData = await cRes.json();
           setTasaCambio(cData.tasaCambio || 0);
+          setPedidosHabilitados(cData.pedidosHabilitados ?? true);
         }
 
         if (meRes.ok) {
@@ -176,6 +179,10 @@ export default function CheckoutPage() {
     estado === "ESPERANDO_PAGO" && hayNoDisponibles && !continuarConParcial;
 
   async function enviarPedido() {
+    if (!pedidosHabilitados) {
+      setErrorMsg("En estos momentos no estamos atendiendo pedidos.");
+      return;
+    }
     setErrorMsg(null);
     setEnviando(true);
     try {
@@ -653,6 +660,41 @@ export default function CheckoutPage() {
             </div>
           )}
         <p className="mt-6 text-sm">
+          <Link href="/mensajes" className="text-leaf-600 underline">
+            💬 ¿Dudas? Escríbenos o llama a la tienda
+          </Link>
+        </p>
+      </main>
+    );
+  }
+
+  // --- AVISO: TIENDA CERRADA ---
+  // Solo se muestra si no hay un pedido ya en curso; un pedido que ya
+  // estaba en proceso (pago, verificación, etc.) sigue su flujo normal
+  // aunque se cierren los pedidos nuevos.
+  if (!pedidosHabilitados && !orderId) {
+    return (
+      <main className="max-w-md mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4 shadow-sm text-center">
+          <div className="text-4xl">🌙</div>
+          <h1 className="font-display text-xl text-leaf-800">
+            En este momento no estamos atendiendo pedidos
+          </h1>
+          <p className="text-sm text-ink/70">
+            ¡Gracias por tu preferencia! Vuelve durante nuestro horario de atención:
+          </p>
+          <div className="bg-leaf-50 border border-leaf-100 rounded-lg py-3 px-4 text-sm text-leaf-800 font-medium space-y-1">
+            <p>{HORARIO_ATENCION.linea1}</p>
+            <p>{HORARIO_ATENCION.linea2}</p>
+          </div>
+          <button
+            onClick={() => router.push("/")}
+            className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+          >
+            Volver al catálogo
+          </button>
+        </div>
+        <p className="mt-6 text-sm text-center">
           <Link href="/mensajes" className="text-leaf-600 underline">
             💬 ¿Dudas? Escríbenos o llama a la tienda
           </Link>
