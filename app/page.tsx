@@ -129,8 +129,8 @@ export default function CatalogPage() {
     <main className="max-w-3xl mx-auto px-4 pb-36">
       <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
         <img
-          src="/branding/logo-pay-express.png"
-          alt="Pay Express Supermarket"
+          src="/branding/logo-day-express.png"
+          alt="Day Express Supermarket"
           className="h-11 sm:h-14 w-auto shrink-0 object-contain"
         />
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">

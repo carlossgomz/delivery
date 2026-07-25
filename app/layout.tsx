@@ -3,7 +3,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "Pay Express Supermarket",
+  title: "Day Express Supermarket",
   description: "Pide en línea, con verificación de disponibilidad en tienda"
 };
 
