@@ -25,6 +25,7 @@ export default function CatalogPage() {
   const [tasaCambio, setTasaCambio] = useState<number>(0);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cartCargado, setCartCargado] = useState(false);
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [pedidoActivoId, setPedidoActivoId] = useState<string | null>(null);
 
@@ -50,13 +51,20 @@ export default function CatalogPage() {
       if (saved) setCart(JSON.parse(saved));
       setPedidoActivoId(localStorage.getItem(ACTIVE_ORDER_KEY));
       setLoading(false);
+      // Recién ahora es seguro dejar que el próximo efecto empiece a
+      // guardar el carrito: si lo activamos antes, ese efecto escribe el
+      // estado inicial (carrito vacío) en localStorage ANTES de que esta
+      // función termine de leer y restaurar lo que ya había guardado
+      // (por ejemplo, el carrito que se restaura al volver del checkout).
+      setCartCargado(true);
     }
     load();
   }, []);
 
   useEffect(() => {
+    if (!cartCargado) return;
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  }, [cart]);
+  }, [cart, cartCargado]);
 
   const categorias = useMemo(() => Array.from(new Set(products.map((p) => p.categoria))), [products]);
 

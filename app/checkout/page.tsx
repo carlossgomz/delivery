@@ -49,6 +49,18 @@ export default function CheckoutPage() {
   async function cargarOrden(id: string) {
     try {
       const res = await fetch(`/api/orders/${id}`);
+
+      if (res.status === 404) {
+        // El pedido guardado en este dispositivo ya no existe (se borró o
+        // la base de datos se reinició). No lo dejamos bloqueando el
+        // checkout para siempre: se limpia y vuelve a mostrar el formulario.
+        localStorage.removeItem(ACTIVE_ORDER_KEY);
+        setOrderId(null);
+        setOrder(null);
+        setEstado(null);
+        return;
+      }
+
       if (!res.ok) return;
       const data = await res.json();
       if (data?.order) {
@@ -304,6 +316,21 @@ export default function CheckoutPage() {
           </div>
         )}
 
+        {!estado && (
+          <div className="text-ink/60">
+            <p className="animate-pulse mb-4">Consultando tu pedido…</p>
+            <button
+              onClick={() => {
+                localStorage.removeItem(ACTIVE_ORDER_KEY);
+                router.push("/");
+              }}
+              className="text-sm text-leaf-600 underline"
+            >
+              ¿No carga? Empezar un pedido nuevo
+            </button>
+          </div>
+        )}
+
         {estado === "PENDIENTE_VERIFICACION" && (
           <p className="text-clay-600 animate-pulse">
             La tienda está confirmando qué productos tiene disponibles…
@@ -427,6 +454,37 @@ export default function CheckoutPage() {
           </div>
         )}
 
+        {estado === "EN_CAMINO" && (
+          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4 shadow-sm">
+            <p className="text-leaf-600 font-medium">🛵 ¡Tu pedido va en camino!</p>
+            <button
+              onClick={() => {
+                localStorage.removeItem(ACTIVE_ORDER_KEY);
+                router.push("/");
+              }}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+            >
+              Volver al catálogo
+            </button>
+          </div>
+        )}
+
+        {estado === "ENTREGADO" && (
+          <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4 shadow-sm">
+            <div className="text-4xl">✅</div>
+            <p className="text-leaf-600 font-medium">¡Tu pedido fue entregado! Gracias por tu compra.</p>
+            <button
+              onClick={() => {
+                localStorage.removeItem(ACTIVE_ORDER_KEY);
+                router.push("/");
+              }}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+            >
+              Volver al catálogo
+            </button>
+          </div>
+        )}
+
         {estado === "CANCELADO" && (
           <div className="bg-white rounded-lg border border-alert-100 p-6 space-y-4 shadow-sm">
             <p className="text-alert-600">
@@ -443,6 +501,35 @@ export default function CheckoutPage() {
             </button>
           </div>
         )}
+
+        {/* Red de seguridad: si el pedido quedó en un estado que esta
+            pantalla no reconoce, igual dejamos una salida para que el
+            cliente no se quede atascado sin poder hacer otro pedido. */}
+        {estado &&
+          ![
+            "PENDIENTE_VERIFICACION",
+            "ESPERANDO_PAGO",
+            "PAGO_RECIBIDO",
+            "PAGO_EN_REVISION",
+            "CONFIRMADO",
+            "EN_PREPARACION",
+            "EN_CAMINO",
+            "ENTREGADO",
+            "CANCELADO",
+          ].includes(estado) && (
+            <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4 shadow-sm">
+              <p className="text-ink/70">Estado del pedido: {estado}</p>
+              <button
+                onClick={() => {
+                  localStorage.removeItem(ACTIVE_ORDER_KEY);
+                  router.push("/");
+                }}
+                className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+              >
+                Volver al catálogo
+              </button>
+            </div>
+          )}
         <ContactoTienda />
       </main>
     );
