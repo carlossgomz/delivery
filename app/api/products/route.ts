@@ -4,9 +4,11 @@ import { isAdminAuthed } from "@/lib/auth";
 
 // El catálogo y el checkout esperan un campo "precioUsd" en cada producto.
 // Ese precio ya viene cargado directamente por el admin (sin costo ni margen).
+// Los clientes solo ven productos activos; el admin (autenticado) ve todos,
+// incluyendo los desactivados por falta de stock, para poder reactivarlos.
 export async function GET() {
   const products = await prisma.product.findMany({
-    where: { activo: true },
+    where: isAdminAuthed() ? {} : { activo: true },
     orderBy: { categoria: "asc" }
   });
 

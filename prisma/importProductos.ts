@@ -544,15 +544,12 @@ async function main() {
             });
             actualizados++;
         } else {
-            const margenInicial = 30;
-            const precioUsdInicial = p.costoUsd * (1 + margenInicial / 100) + 0.15;
             await prisma.product.create({
                 data: {
                     codigo: p.codigo,
                     nombre: p.nombre,
                     costoUsd: p.costoUsd,
-                    margenPorcentaje: margenInicial,
-                    precioUsd: precioUsdInicial,
+                    precioUsd: 0,
                     categoria: p.categoria
                 }
             });
