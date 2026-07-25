@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { soloDigitos } from "@/lib/cedula";
 
 type Product = { id: string; nombre: string; precioUsd: number; categoria: string; activo: boolean };
 type Cliente = { id: string; nombre: string; cedula: string; telefono: string; direccion: string };
@@ -200,11 +201,12 @@ export default function PedidoPorLlamadaPage() {
           <input
             value={cedula}
             onChange={(e) => {
-              setCedula(e.target.value);
+              setCedula(soloDigitos(e.target.value));
               setCedulaConsultada(false);
             }}
             onKeyDown={(e) => e.key === "Enter" && buscarCliente()}
-            placeholder="V-12345678"
+            inputMode="numeric"
+            placeholder="Solo números, ej: 12345678"
             className="flex-1 border border-leaf-100 rounded-lg px-3 py-2 text-sm"
           />
           <button

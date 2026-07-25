@@ -88,6 +88,12 @@ function sonarAlerta() {
 export default function AdminPedidosPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [conectado, setConectado] = useState(false);
+  // Cambios de "disponible" que el admin ya marcó en pantalla pero
+  // todavía no ha guardado con "Confirmar disponibilidad". Se guardan
+  // aparte (orderId -> itemId -> valor) para que el refresco automático
+  // (polling cada 6s, o un pedido nuevo llegando por el stream) no los
+  // pise, que era la causa de que el checkbox pareciera "desmarcarse solo".
+  const [cambiosSinGuardar, setCambiosSinGuardar] = useState<Record<string, Record<string, boolean>>>({});
 
   // Carga de pedidos desactivando el caché HTTP
   async function cargar() {
@@ -167,26 +173,32 @@ export default function AdminPedidosPage() {
   }, []);
 
   function toggleDisponible(order: Order, itemId: string, value: boolean) {
-    setOrders((prev) =>
-      (prev || []).map((o) =>
-        o.id !== order.id
-          ? o
-          : {
-            ...o,
-            items: (o.items || []).map((i) => (i.id === itemId ? { ...i, disponible: value } : i))
-          }
-      )
-    );
+    setCambiosSinGuardar((prev) => ({
+      ...prev,
+      [order.id]: { ...(prev[order.id] || {}), [itemId]: value }
+    }));
+  }
+
+  // Valor a mostrar en el checkbox: prioriza el cambio sin guardar (si el
+  // admin ya lo tocó) sobre lo que diga el servidor, para que el
+  // refresco automático nunca borre un cambio que aún no se guardó.
+  function disponibleMostrado(order: Order, item: OrderItem): boolean {
+    const pendiente = cambiosSinGuardar[order.id]?.[item.id];
+    return pendiente !== undefined ? pendiente : !!item.disponible;
   }
 
   async function guardarDisponibilidad(order: Order) {
     try {
       const itemsList = order.items || [];
+      const pendientes = cambiosSinGuardar[order.id] || {};
       await fetch(`/api/orders/${order.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: itemsList.map((i) => ({ id: i.id, disponible: !!i.disponible }))
+          items: itemsList.map((i) => ({
+            id: i.id,
+            disponible: pendientes[i.id] !== undefined ? pendientes[i.id] : !!i.disponible
+          }))
         })
       });
       const res = await fetch(`/api/orders/${order.id}`, {
@@ -195,6 +207,13 @@ export default function AdminPedidosPage() {
         body: JSON.stringify({ action: "confirmar_disponibilidad" })
       });
       const data = await res.json();
+
+      // Ya se guardó en el servidor: soltamos los cambios pendientes de
+      // este pedido para que vuelva a reflejar lo que diga el servidor.
+      setCambiosSinGuardar((prev) => {
+        const { [order.id]: _quitar, ...resto } = prev;
+        return resto;
+      });
 
       if (data.order) {
         setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
@@ -307,7 +326,7 @@ export default function AdminPedidosPage() {
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={!!item.disponible}
+                          checked={disponibleMostrado(order, item)}
                           onChange={(e) => toggleDisponible(order, item.id, e.target.checked)}
                           className="rounded text-leaf-600 focus:ring-leaf-500"
                         />
@@ -335,6 +354,27 @@ export default function AdminPedidosPage() {
                 <p className="mt-3 text-sm text-ink/80 font-medium">
                   Total: ${order.totalUsd.toFixed(2)} · Bs {order.totalBs?.toFixed(2)}
                 </p>
+              )}
+
+              {/* Confirmar pago recibido por otro medio (ej. WhatsApp) cuando
+                  el pedido sigue "esperando pago" y el cliente nunca llegó a
+                  subir el comprobante desde la app. */}
+              {order.estado === "ESPERANDO_PAGO" && (
+                <div className="mt-3 p-3 bg-sky-50/70 border border-sky-200 rounded-lg text-sm space-y-2">
+                  <p className="text-ink/70 text-xs">
+                    ¿El cliente envió el comprobante de pago por otro medio (WhatsApp, llamada, etc.)?
+                  </p>
+                  <button
+                    onClick={() => {
+                      if (window.confirm("¿Confirmar que el pago de este pedido fue recibido? El pedido pasará a preparación.")) {
+                        cambiarEstado(order, "CONFIRMADO");
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-700 transition-colors"
+                  >
+                    💵 Confirmar pago recibido
+                  </button>
+                </div>
               )}
 
               {/* BLOQUE DE PAGO EN REVISIÓN */}

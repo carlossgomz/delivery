@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CLIENTE_COOKIE_NAME, hashPassword } from "@/lib/auth";
+import { soloDigitos } from "@/lib/cedula";
 
 // Registro de cliente. Lo deja logueado de una vez (misma cookie que login).
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { nombre, cedula, telefono, direccion, password } = body as {
+  const { nombre, telefono, direccion, password } = body as {
     nombre: string;
     cedula: string;
     telefono: string;
@@ -13,8 +14,19 @@ export async function POST(req: NextRequest) {
     password: string;
   };
 
+  // Solo números: aunque el formulario ya filtra letras mientras se
+  // escribe, se vuelve a limpiar aquí por si llega una cédula con "V-"
+  // u otro formato (ej. una petición directa a la API).
+  const cedula = soloDigitos(String(body.cedula || ""));
+
   if (!nombre || !cedula || !telefono || !direccion || !password) {
     return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
+  }
+  if (cedula.length < 6 || cedula.length > 9) {
+    return NextResponse.json(
+      { error: "La cédula debe tener solo números, sin letras (ej: 12345678)" },
+      { status: 400 }
+    );
   }
   if (password.length < 6) {
     return NextResponse.json(
