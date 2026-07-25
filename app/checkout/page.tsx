@@ -13,6 +13,7 @@ type OrderData = {
   estado: string;
   totalUsd: number | null;
   totalBs: number | null;
+  items?: { productId: string; cantidad: number }[];
 };
 
 const CART_KEY = "delivery_cart";
@@ -237,6 +238,54 @@ export default function CheckoutPage() {
     }
   }
 
+  // El cliente todavía no ha terminado de pagar y quiere agregar algo que
+  // se le olvidó: cancelamos este pedido pendiente pero le devolvemos sus
+  // artículos al carrito para que arme uno nuevo con todo junto.
+  async function agregarMasArticulos() {
+    if (!orderId) return;
+    setEnviando(true);
+    try {
+      if (order?.items?.length) {
+        const cartRestaurado: CartLine[] = order.items.map((it) => ({
+          productId: it.productId,
+          cantidad: it.cantidad
+        }));
+        localStorage.setItem(CART_KEY, JSON.stringify(cartRestaurado));
+      }
+      await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "cancelar_cliente" })
+      });
+    } catch (err) {
+      console.error("Error al cancelar el pedido para agregar más artículos:", err);
+    } finally {
+      localStorage.removeItem(ACTIVE_ORDER_KEY);
+      setEnviando(false);
+      router.push("/");
+    }
+  }
+
+  // El cliente ya no quiere hacer el pedido.
+  async function rechazarPedido() {
+    if (!orderId) return;
+    setEnviando(true);
+    try {
+      await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "cancelar_cliente" })
+      });
+    } catch (err) {
+      console.error("Error al cancelar el pedido:", err);
+    } finally {
+      localStorage.removeItem(ACTIVE_ORDER_KEY);
+      localStorage.removeItem(CART_KEY);
+      setEnviando(false);
+      router.push("/");
+    }
+  }
+
   // --- VISTA PANTALLA DE ESTADO DE ORDEN ---
   if (orderId) {
     return (
@@ -318,6 +367,27 @@ export default function CheckoutPage() {
               className="w-full mt-2 py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-40"
             >
               {enviando ? "Procesando pago…" : "Finalizar compra ✨"}
+            </button>
+          </div>
+        )}
+
+        {/* Mientras el pedido no se ha pagado, el cliente puede agregar
+            algo que se le olvidó o simplemente no seguir con la compra. */}
+        {(estado === "PENDIENTE_VERIFICACION" || estado === "ESPERANDO_PAGO") && (
+          <div className="mt-4 flex flex-col gap-2">
+            <button
+              disabled={enviando}
+              onClick={agregarMasArticulos}
+              className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
+            >
+              ➕ Se me olvidó algo, agregar más artículos
+            </button>
+            <button
+              disabled={enviando}
+              onClick={rechazarPedido}
+              className="w-full py-3 rounded-lg border border-alert-600 text-alert-600 font-medium hover:bg-alert-50 transition-colors disabled:opacity-40"
+            >
+              Ya no quiero hacer este pedido
             </button>
           </div>
         )}

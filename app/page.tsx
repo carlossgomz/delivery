@@ -242,9 +242,9 @@ export default function CatalogPage() {
             </div>
             <button
               onClick={() => router.push("/checkout")}
-              className="px-5 py-3 rounded-lg bg-clay-400 text-ink font-medium hover:opacity-90 transition-opacity"
+              className="px-4 py-3 rounded-lg bg-clay-400 text-ink font-medium hover:opacity-90 transition-opacity whitespace-nowrap shrink-0"
             >
-              Continuar
+              Proceder con el pedido
             </button>
           </div>
         </div>

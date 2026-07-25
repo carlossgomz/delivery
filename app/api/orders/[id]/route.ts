@@ -15,6 +15,34 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const body = await req.json();
 
+  // 0) El cliente cancela su propio pedido (para agregar más artículos o
+  // porque ya no lo quiere) mientras todavía no ha enviado el pago. No
+  // requiere sesión de admin, pero solo funciona en los estados previos al
+  // pago para no permitir cancelar algo ya confirmado por la tienda.
+  if (body.action === "cancelar_cliente") {
+    const existente = await prisma.order.findUnique({ where: { id: params.id } });
+    if (!existente) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+    }
+
+    const cancelablePorCliente = ["PENDIENTE_VERIFICACION", "ESPERANDO_PAGO"].includes(existente.estado);
+    if (!cancelablePorCliente) {
+      return NextResponse.json(
+        { error: "Este pedido ya no se puede cancelar desde aquí" },
+        { status: 400 }
+      );
+    }
+
+    const order = await prisma.order.update({
+      where: { id: params.id },
+      data: { estado: "CANCELADO" },
+      include: { items: { include: { product: true } } }
+    });
+
+    orderEvents.emit("pedido_actualizado", order);
+    return NextResponse.json({ order });
+  }
+
   // 1) Si el cliente está enviando su comprobante/referencia de pago desde la vista pública:
   const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "EN_CAMINO", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
 
