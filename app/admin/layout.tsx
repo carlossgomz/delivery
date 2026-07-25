@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { isAdminAuthed } from "@/lib/auth";
+import AdminNav from "../components/adminnav";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   if (!isAdminAuthed()) {
@@ -10,17 +10,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div>
-      <nav className="bg-leaf-800 text-white px-4 py-3 flex gap-6 text-sm font-medium">
-        <Link href="/admin" className="hover:text-leaf-100 transition-colors">
-          Tasa y Productos
-        </Link>
-        <Link href="/admin/pedidos" className="hover:text-leaf-100 transition-colors">
-          Pedidos
-        </Link>
-        <Link href="/admin/mensajes" className="hover:text-leaf-100 transition-colors">
-          Mensajes
-        </Link>
-      </nav>
+      <AdminNav />
       <div className="max-w-4xl mx-auto px-4 py-6">{children}</div>
     </div>
   );
