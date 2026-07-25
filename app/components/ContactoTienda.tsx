@@ -33,7 +33,7 @@ function formatearTelParaLlamar(telefono: string): string {
   return `+58${limpio}`;
 }
 
-export default function ContactoTienda() {
+export default function ContactoTienda({ hidden = false }: { hidden?: boolean } = {}) {
   const [telefonoTienda, setTelefonoTienda] = useState<string | null>(null);
   const [chatAbierto, setChatAbierto] = useState(false);
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
@@ -99,6 +99,12 @@ export default function ContactoTienda() {
       setEnviando(false);
     }
   }
+
+  useEffect(() => {
+    if (hidden) setChatAbierto(false);
+  }, [hidden]);
+
+  if (hidden) return null;
 
   return (
     <>

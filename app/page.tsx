@@ -126,17 +126,37 @@ export default function CatalogPage() {
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-4 pb-32">
-      <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-4 flex items-center justify-between">
-        <h1 className="font-display text-2xl text-leaf-800">Tienda</h1>
-        <div className="flex items-center gap-4">
+    <main className="max-w-3xl mx-auto px-4 pb-36">
+      <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <img
+          src="/branding/logo-pay-express.png"
+          alt="Pay Express Supermarket"
+          className="h-11 sm:h-14 w-auto shrink-0 object-contain"
+        />
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
           {cliente && (
-            <Link href="/cliente/pedidos" className="text-sm text-leaf-600 underline">
-              Ver pedidos
+            <Link
+              href="/cliente/pedidos"
+              className="shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-white border border-leaf-100 text-leaf-700 text-xs sm:text-sm font-medium hover:bg-leaf-50 active:scale-95 transition-all whitespace-nowrap"
+            >
+              📦 Pedidos
             </Link>
           )}
-          <Link href={cliente ? "/cliente" : "/cliente/login"} className="text-sm text-leaf-600 underline">
-            {cliente ? `Hola, ${cliente.nombre.split(" ")[0]}` : "Iniciar sesión"}
+          <Link
+            href={cliente ? "/cliente" : "/cliente/login"}
+            className="shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-leaf-600 text-white text-xs sm:text-sm font-medium hover:bg-leaf-800 active:scale-95 transition-all whitespace-nowrap max-w-[9rem] sm:max-w-none truncate"
+          >
+            {cliente ? (
+              <>
+                <span className="sm:hidden">👋 {cliente.nombre.split(" ")[0]}</span>
+                <span className="hidden sm:inline">👋 Hola, {cliente.nombre.split(" ")[0]}</span>
+              </>
+            ) : (
+              <>
+                <span className="sm:hidden">Entrar</span>
+                <span className="hidden sm:inline">Iniciar sesión</span>
+              </>
+            )}
           </Link>
         </div>
       </header>
@@ -208,17 +228,17 @@ export default function CatalogPage() {
                   return (
                     <li
                       key={p.id}
-                      className="flex items-center justify-between bg-white rounded-lg border border-leaf-100 px-4 py-3"
+                      className="flex items-center justify-between gap-3 bg-white rounded-lg border border-leaf-100 px-4 py-3"
                     >
-                      <div>
-                        <p className="font-medium">{p.nombre}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{p.nombre}</p>
                         <p className="text-sm text-ink/60">Bs {precioBs}</p>
                       </div>
                       {line ? (
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                           <button
                             onClick={() => removeFromCart(p.id)}
-                            className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold"
+                            className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold active:scale-95 transition-transform"
                             aria-label={`Quitar una unidad de ${p.nombre}`}
                           >
                             −
@@ -226,7 +246,7 @@ export default function CatalogPage() {
                           <span className="w-4 text-center">{line.cantidad}</span>
                           <button
                             onClick={() => addToCart(p.id)}
-                            className="w-8 h-8 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold"
+                            className="w-8 h-8 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold active:scale-95 transition-transform"
                             aria-label={`Agregar una unidad de ${p.nombre}`}
                           >
                             +
@@ -235,7 +255,7 @@ export default function CatalogPage() {
                       ) : (
                         <button
                           onClick={() => addToCart(p.id)}
-                          className="px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm hover:bg-leaf-800 transition-colors"
+                          className="shrink-0 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm hover:bg-leaf-800 active:scale-95 transition-all"
                         >
                           Agregar
                         </button>
@@ -254,11 +274,11 @@ export default function CatalogPage() {
       )}
 
       {totalItems > 0 && (
-        <div className="fixed bottom-0 inset-x-0 z-10">
+        <div className="fixed bottom-0 inset-x-0 z-20">
           {/* Lista editable del carrito: sumar, restar o quitar sin tener
               que scrollear el catálogo para encontrar lo seleccionado. */}
           {mostrarResumen && (
-            <div className="bg-white border-t border-leaf-100 shadow-[0_-2px_8px_rgba(0,0,0,0.06)] max-h-64 overflow-y-auto">
+            <div className="bg-white border-t border-leaf-100 shadow-[0_-2px_8px_rgba(0,0,0,0.06)] max-h-64 overflow-y-auto overscroll-contain">
               <div className="max-w-3xl mx-auto px-4 py-3">
                 <p className="text-xs uppercase tracking-wide text-ink/50 mb-2">Tu selección</p>
                 <ul className="divide-y divide-leaf-50">
@@ -266,12 +286,12 @@ export default function CatalogPage() {
                     const p = products.find((pr) => pr.id === line.productId);
                     if (!p) return null;
                     return (
-                      <li key={line.productId} className="flex items-center justify-between gap-3 py-2">
-                        <span className="text-sm text-ink flex-1 truncate">{p.nombre}</span>
-                        <div className="flex items-center gap-2 shrink-0">
+                      <li key={line.productId} className="flex items-center justify-between gap-2 py-2">
+                        <span className="text-sm text-ink flex-1 min-w-0 truncate">{p.nombre}</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                           <button
                             onClick={() => removeFromCart(p.id)}
-                            className="w-7 h-7 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold text-sm"
+                            className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold active:scale-95 transition-transform"
                             aria-label={`Quitar una unidad de ${p.nombre}`}
                           >
                             −
@@ -279,14 +299,14 @@ export default function CatalogPage() {
                           <span className="w-4 text-center text-sm">{line.cantidad}</span>
                           <button
                             onClick={() => addToCart(p.id)}
-                            className="w-7 h-7 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold text-sm"
+                            className="w-8 h-8 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold active:scale-95 transition-transform"
                             aria-label={`Agregar una unidad de ${p.nombre}`}
                           >
                             +
                           </button>
                           <button
                             onClick={() => quitarLineaCompleta(p.id)}
-                            className="ml-1 text-alert-600 text-xs underline"
+                            className="ml-0.5 px-2.5 py-1.5 rounded-md text-alert-600 text-xs font-medium hover:bg-alert-50 active:scale-95 transition-all"
                             aria-label={`Quitar ${p.nombre} del carrito`}
                           >
                             Quitar
@@ -300,21 +320,21 @@ export default function CatalogPage() {
             </div>
           )}
 
-          <div className="bg-leaf-800 text-white px-4 py-4">
+          <div className="bg-leaf-800 text-white px-4 py-3.5 sm:py-4 pb-[calc(0.875rem+env(safe-area-inset-bottom))]">
             <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
               <button
                 onClick={() => setMostrarResumen((v) => !v)}
-                className="text-left"
+                className="text-left min-w-0"
                 aria-expanded={mostrarResumen}
               >
-                <p className="text-sm text-leaf-100 underline decoration-dotted">
+                <p className="text-xs sm:text-sm text-leaf-100 underline decoration-dotted">
                   {totalItems} producto(s) {mostrarResumen ? "▲ ocultar" : "▼ editar"}
                 </p>
                 <p className="font-medium truncate">Bs {(totalUsd * tasaCambio).toFixed(2)}</p>
               </button>
               <button
                 onClick={() => router.push("/checkout")}
-                className="px-4 py-3 rounded-lg bg-clay-400 text-ink font-medium hover:opacity-90 transition-opacity whitespace-nowrap shrink-0"
+                className="shrink-0 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-lg bg-clay-400 text-ink text-sm sm:text-base font-medium hover:opacity-90 active:scale-95 transition-all whitespace-nowrap"
               >
                 Proceder con el pedido
               </button>
@@ -322,7 +342,7 @@ export default function CatalogPage() {
           </div>
         </div>
       )}
-      <ContactoTienda />
+      <ContactoTienda hidden={mostrarResumen} />
     </main>
   );
 }
