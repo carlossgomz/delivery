@@ -16,7 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const body = await req.json();
 
   // 1) Si el cliente está enviando su comprobante/referencia de pago desde la vista pública:
-  const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
+  const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "EN_CAMINO", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
 
   const tieneCamposCliente =
     body.comprobanteUrl !== undefined ||

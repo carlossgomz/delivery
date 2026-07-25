@@ -17,14 +17,15 @@ export async function GET() {
     cliente: {
       id: cliente.id,
       nombre: cliente.nombre,
+      cedula: cliente.cedula,
       telefono: cliente.telefono,
       direccion: cliente.direccion
     }
   });
 }
 
-// Editar nombre/dirección desde "Mi cuenta" (el teléfono no se cambia aquí
-// porque es el identificador de la cuenta).
+// Editar nombre/teléfono/dirección desde "Mi cuenta" (la cédula no se
+// cambia aquí porque es el identificador de la cuenta).
 export async function PATCH(req: NextRequest) {
   const clienteId = getClienteIdFromSession();
   if (!clienteId) {
@@ -36,6 +37,7 @@ export async function PATCH(req: NextRequest) {
     where: { id: clienteId },
     data: {
       ...(body.nombre !== undefined && { nombre: body.nombre }),
+      ...(body.telefono !== undefined && { telefono: body.telefono }),
       ...(body.direccion !== undefined && { direccion: body.direccion })
     }
   });
@@ -44,6 +46,7 @@ export async function PATCH(req: NextRequest) {
     cliente: {
       id: cliente.id,
       nombre: cliente.nombre,
+      cedula: cliente.cedula,
       telefono: cliente.telefono,
       direccion: cliente.direccion
     }

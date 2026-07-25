@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function ClienteLoginPage() {
   const router = useRouter();
-  const [telefono, setTelefono] = useState("");
+  const [cedula, setCedula] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -18,7 +18,7 @@ export default function ClienteLoginPage() {
       const res = await fetch("/api/clientes/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telefono, password })
+        body: JSON.stringify({ cedula, password })
       });
       const data = await res.json();
       if (!res.ok) {
@@ -38,9 +38,9 @@ export default function ClienteLoginPage() {
       <h1 className="font-display text-xl text-leaf-800 mb-6">Iniciar sesión</h1>
       <div className="space-y-3">
         <input
-          value={telefono}
-          onChange={(e) => setTelefono(e.target.value)}
-          placeholder="Teléfono"
+          value={cedula}
+          onChange={(e) => setCedula(e.target.value)}
+          placeholder="Cédula"
           className="w-full border border-leaf-100 rounded-lg px-3 py-3"
         />
         <input
@@ -53,7 +53,7 @@ export default function ClienteLoginPage() {
         />
         {error && <p className="text-alert-600 text-sm">{error}</p>}
         <button
-          disabled={!telefono || !password || enviando}
+          disabled={!cedula || !password || enviando}
           onClick={submit}
           className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
         >

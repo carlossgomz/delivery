@@ -106,9 +106,16 @@ export default function CatalogPage() {
     <main className="max-w-3xl mx-auto px-4 pb-32">
       <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-4 flex items-center justify-between">
         <h1 className="font-display text-2xl text-leaf-800">Tienda</h1>
-        <Link href={cliente ? "/cliente" : "/cliente/login"} className="text-sm text-leaf-600 underline">
-          {cliente ? `Hola, ${cliente.nombre.split(" ")[0]}` : "Iniciar sesión"}
-        </Link>
+        <div className="flex items-center gap-4">
+          {cliente && (
+            <Link href="/cliente/pedidos" className="text-sm text-leaf-600 underline">
+              Ver pedidos
+            </Link>
+          )}
+          <Link href={cliente ? "/cliente" : "/cliente/login"} className="text-sm text-leaf-600 underline">
+            {cliente ? `Hola, ${cliente.nombre.split(" ")[0]}` : "Iniciar sesión"}
+          </Link>
+        </div>
       </header>
 
       {/* --- BARRA DE BÚSQUEDA Y CATEGORÍAS --- */}

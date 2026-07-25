@@ -3,20 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { CLIENTE_COOKIE_NAME, verifyPassword } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
-  const { telefono, password } = await req.json();
-  if (!telefono || !password) {
+  const { cedula, password } = await req.json();
+  if (!cedula || !password) {
     return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
   }
 
-  const cliente = await prisma.cliente.findUnique({ where: { telefono } });
+  const cliente = await prisma.cliente.findUnique({ where: { cedula } });
   if (!cliente || !verifyPassword(password, cliente.passwordHash)) {
-    return NextResponse.json({ error: "Teléfono o contraseña incorrectos" }, { status: 401 });
+    return NextResponse.json({ error: "Cédula o contraseña incorrectos" }, { status: 401 });
   }
 
   const res = NextResponse.json({
     cliente: {
       id: cliente.id,
       nombre: cliente.nombre,
+      cedula: cliente.cedula,
       telefono: cliente.telefono,
       direccion: cliente.direccion
     }

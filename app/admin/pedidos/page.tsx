@@ -32,8 +32,21 @@ const ETIQUETAS: Record<string, string> = {
   PAGO_EN_REVISION: "Pago en revisión",
   CONFIRMADO: "Pago confirmado",
   EN_PREPARACION: "En preparación",
+  EN_CAMINO: "En camino",
   ENTREGADO: "Entregado",
   CANCELADO: "Cancelado"
+};
+
+const COLORES: Record<string, string> = {
+  PENDIENTE_VERIFICACION: "bg-clay-100 text-clay-600",
+  ESPERANDO_PAGO: "bg-clay-100 text-clay-600",
+  PAGO_RECIBIDO: "bg-amber-100 text-amber-800 border border-amber-200",
+  PAGO_EN_REVISION: "bg-amber-100 text-amber-800 border border-amber-200",
+  CONFIRMADO: "bg-emerald-100 text-emerald-800 border border-emerald-200",
+  EN_PREPARACION: "bg-sky-100 text-sky-800 border border-sky-200",
+  EN_CAMINO: "bg-indigo-100 text-indigo-800 border border-indigo-200",
+  ENTREGADO: "bg-leaf-100 text-leaf-800 border border-leaf-200",
+  CANCELADO: "bg-alert-100 text-alert-600 border border-alert-200"
 };
 
 function sonarAlerta() {
@@ -262,12 +275,7 @@ export default function AdminPedidosPage() {
                   </p>
                 </div>
                 <span
-                  className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${esRevisionPago
-                      ? "bg-amber-100 text-amber-800 border border-amber-200"
-                      : order.estado === "CONFIRMADO"
-                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                        : "bg-clay-100 text-clay-600"
-                    }`}
+                  className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${COLORES[order.estado] ?? "bg-clay-100 text-clay-600"}`}
                 >
                   {ETIQUETAS[order.estado] ?? order.estado}
                 </span>
@@ -388,6 +396,15 @@ export default function AdminPedidosPage() {
               )}
 
               {order.estado === "EN_PREPARACION" && (
+                <button
+                  onClick={() => cambiarEstado(order, "EN_CAMINO")}
+                  className="mt-3 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-700 transition-colors"
+                >
+                  Marcar como en camino
+                </button>
+              )}
+
+              {order.estado === "EN_CAMINO" && (
                 <button
                   onClick={() => cambiarEstado(order, "ENTREGADO")}
                   className="mt-3 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-700 transition-colors"

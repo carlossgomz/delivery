@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
-type Cliente = { id: string; nombre: string; telefono: string; direccion: string };
+type Cliente = { id: string; nombre: string; cedula: string; telefono: string; direccion: string };
 
 export default function MiCuentaPage() {
   const router = useRouter();
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(true);
   const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
@@ -25,6 +25,7 @@ export default function MiCuentaPage() {
       }
       setCliente(data.cliente);
       setNombre(data.cliente.nombre);
+      setTelefono(data.cliente.telefono);
       setDireccion(data.cliente.direccion);
       setLoading(false);
     }
@@ -37,7 +38,7 @@ export default function MiCuentaPage() {
     const res = await fetch("/api/clientes/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, direccion })
+      body: JSON.stringify({ nombre, telefono, direccion })
     });
     if (res.ok) {
       const data = await res.json();
@@ -72,11 +73,19 @@ export default function MiCuentaPage() {
           />
         </div>
         <div>
-          <label className="block text-sm text-ink/70 mb-1">Teléfono</label>
+          <label className="block text-sm text-ink/70 mb-1">Cédula</label>
           <input
-            value={cliente.telefono}
+            value={cliente.cedula}
             disabled
             className="w-full border border-leaf-100 rounded-lg px-3 py-3 bg-leaf-50 text-ink/50"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-ink/70 mb-1">Teléfono</label>
+          <input
+            value={telefono}
+            onChange={(e) => setTelefono(e.target.value)}
+            className="w-full border border-leaf-100 rounded-lg px-3 py-3"
           />
         </div>
         <div>
@@ -96,13 +105,6 @@ export default function MiCuentaPage() {
           {guardando ? "Guardando…" : "Guardar cambios"}
         </button>
       </div>
-
-      <Link
-        href="/cliente/pedidos"
-        className="block w-full text-center py-3 rounded-lg border border-leaf-100 text-leaf-800 font-medium mb-3"
-      >
-        Ver mis pedidos
-      </Link>
 
       <button
         onClick={cerrarSesion}

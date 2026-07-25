@@ -27,8 +27,21 @@ const ETIQUETAS: Record<string, string> = {
   PAGO_EN_REVISION: "Pago en revisión",
   CONFIRMADO: "Pago confirmado",
   EN_PREPARACION: "En preparación",
+  EN_CAMINO: "En camino",
   ENTREGADO: "Entregado",
   CANCELADO: "Cancelado"
+};
+
+const COLORES: Record<string, string> = {
+  PENDIENTE_VERIFICACION: "bg-clay-100 text-clay-600",
+  ESPERANDO_PAGO: "bg-clay-100 text-clay-600",
+  PAGO_RECIBIDO: "bg-amber-100 text-amber-800",
+  PAGO_EN_REVISION: "bg-amber-100 text-amber-800",
+  CONFIRMADO: "bg-emerald-100 text-emerald-800",
+  EN_PREPARACION: "bg-sky-100 text-sky-800",
+  EN_CAMINO: "bg-indigo-100 text-indigo-800",
+  ENTREGADO: "bg-leaf-100 text-leaf-800",
+  CANCELADO: "bg-alert-100 text-alert-600"
 };
 
 export default function MisPedidosPage() {
@@ -78,7 +91,9 @@ export default function MisPedidosPage() {
                   year: "numeric"
                 })}
               </p>
-              <span className="text-xs px-2 py-1 rounded-full bg-clay-100 text-clay-600">
+              <span
+                className={`text-xs px-2 py-1 rounded-full font-medium ${COLORES[order.estado] ?? "bg-clay-100 text-clay-600"}`}
+              >
                 {ETIQUETAS[order.estado] ?? order.estado}
               </span>
             </div>

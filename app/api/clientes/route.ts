@@ -5,14 +5,15 @@ import { CLIENTE_COOKIE_NAME, hashPassword } from "@/lib/auth";
 // Registro de cliente. Lo deja logueado de una vez (misma cookie que login).
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { nombre, telefono, direccion, password } = body as {
+  const { nombre, cedula, telefono, direccion, password } = body as {
     nombre: string;
+    cedula: string;
     telefono: string;
     direccion: string;
     password: string;
   };
 
-  if (!nombre || !telefono || !direccion || !password) {
+  if (!nombre || !cedula || !telefono || !direccion || !password) {
     return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
   }
   if (password.length < 6) {
@@ -22,22 +23,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const existente = await prisma.cliente.findUnique({ where: { telefono } });
+  const existente = await prisma.cliente.findUnique({ where: { cedula } });
   if (existente) {
     return NextResponse.json(
-      { error: "Ya existe una cuenta con ese número de teléfono" },
+      { error: "Ya existe una cuenta con esa cédula" },
       { status: 409 }
     );
   }
 
   const cliente = await prisma.cliente.create({
-    data: { nombre, telefono, direccion, passwordHash: hashPassword(password) }
+    data: { nombre, cedula, telefono, direccion, passwordHash: hashPassword(password) }
   });
 
   const res = NextResponse.json({
     cliente: {
       id: cliente.id,
       nombre: cliente.nombre,
+      cedula: cliente.cedula,
       telefono: cliente.telefono,
       direccion: cliente.direccion
     }

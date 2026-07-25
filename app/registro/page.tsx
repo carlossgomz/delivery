@@ -7,6 +7,7 @@ import Link from "next/link";
 export default function RegistroPage() {
   const router = useRouter();
   const [nombre, setNombre] = useState("");
+  const [cedula, setCedula] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +28,7 @@ export default function RegistroPage() {
       const res = await fetch("/api/clientes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, telefono, direccion, password })
+        body: JSON.stringify({ nombre, cedula, telefono, direccion, password })
       });
       const data = await res.json();
       if (!res.ok) {
@@ -57,6 +58,15 @@ export default function RegistroPage() {
             onChange={(e) => setNombre(e.target.value)}
             className="w-full border border-leaf-100 rounded-lg px-3 py-3"
             placeholder="Tu nombre completo"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-ink/70 mb-1">Cédula</label>
+          <input
+            value={cedula}
+            onChange={(e) => setCedula(e.target.value)}
+            className="w-full border border-leaf-100 rounded-lg px-3 py-3"
+            placeholder="V-12345678"
           />
         </div>
         <div>
@@ -101,7 +111,7 @@ export default function RegistroPage() {
         {error && <p className="text-alert-600 text-sm">{error}</p>}
 
         <button
-          disabled={!nombre || !telefono || !direccion || !password || !confirmar || enviando}
+          disabled={!nombre || !cedula || !telefono || !direccion || !password || !confirmar || enviando}
           onClick={submit}
           className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
         >
