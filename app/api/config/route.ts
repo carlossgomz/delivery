@@ -12,6 +12,7 @@ export async function GET() {
   return NextResponse.json({
     tasaCambio: config.tasaCambio,
     telefonoTienda: config.telefonoTienda,
+    pedidosHabilitados: config.pedidosHabilitados,
     updatedAt: config.updatedAt
   });
 }
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const data: { tasaCambio?: number; telefonoTienda?: string } = {};
+  const data: { tasaCambio?: number; telefonoTienda?: string; pedidosHabilitados?: boolean } = {};
 
   if (body.tasaCambio !== undefined) {
     const tasaCambio = Number(body.tasaCambio);
@@ -36,14 +37,24 @@ export async function POST(req: NextRequest) {
     data.telefonoTienda = String(body.telefonoTienda).trim();
   }
 
+  if (body.pedidosHabilitados !== undefined) {
+    data.pedidosHabilitados = Boolean(body.pedidosHabilitados);
+  }
+
   const config = await prisma.config.upsert({
     where: { id: 1 },
     update: data,
-    create: { id: 1, tasaCambio: data.tasaCambio ?? 1, telefonoTienda: data.telefonoTienda }
+    create: {
+      id: 1,
+      tasaCambio: data.tasaCambio ?? 1,
+      telefonoTienda: data.telefonoTienda,
+      pedidosHabilitados: data.pedidosHabilitados ?? true
+    }
   });
 
   return NextResponse.json({
     tasaCambio: config.tasaCambio,
-    telefonoTienda: config.telefonoTienda
+    telefonoTienda: config.telefonoTienda,
+    pedidosHabilitados: config.pedidosHabilitados
   });
 }

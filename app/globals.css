@@ -10,3 +10,48 @@
   outline: 2px solid #3C6B37;
   outline-offset: 2px;
 }
+
+/* --- Animación de celebración (Confetti.tsx) --- */
+
+.confetti-caida {
+  position: absolute;
+  top: -12px;
+  opacity: 0.95;
+  animation-name: confetti-caida;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-caida {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(var(--rot-final, 360deg));
+    opacity: 0;
+  }
+}
+
+.confetti-estallido {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  border-radius: 50%;
+  opacity: 1;
+  animation-name: confetti-estallido;
+  animation-duration: 0.85s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-estallido {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3);
+    opacity: 0;
+  }
+}

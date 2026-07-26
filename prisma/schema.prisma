@@ -87,6 +87,11 @@ model Config {
   // Número que usa el botón "Llamar a la tienda" y el que se muestra en el
   // chat. Se edita desde el mismo panel donde se edita la tasa.
   telefonoTienda String?  @default("04266215863")
+  // Interruptor desde el admin para cerrar la tienda temporalmente: al
+  // ponerlo en false se sigue mostrando el catálogo y se puede registrar
+  // un cliente nuevo, pero no se pueden crear pedidos (ni desde el
+  // catálogo ni por la API) hasta que se vuelva a activar.
+  pedidosHabilitados Boolean @default(true)
   updatedAt      DateTime @updatedAt
 }
 

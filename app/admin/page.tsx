@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Product = {
   id: string;
   nombre: string;
   precioUsd: number;
+  categoria: string;
+  activo: boolean;
   imagenUrl?: string | null;
 };
 
@@ -16,6 +18,8 @@ export default function AdminHomePage() {
   const [nuevoTelefono, setNuevoTelefono] = useState<string>("");
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
+  const [pedidosHabilitados, setPedidosHabilitados] = useState<boolean>(true);
+  const [cambiandoPedidos, setCambiandoPedidos] = useState(false);
 
   // Estados para productos
   const [products, setProducts] = useState<Product[]>([]);
@@ -24,6 +28,12 @@ export default function AdminHomePage() {
     Record<string, { nombre: string; precioUsd: string }>
   >({});
   const [guardandoProductoId, setGuardandoProductoId] = useState<string | null>(null);
+  const [cambiandoDisponibilidadId, setCambiandoDisponibilidadId] = useState<string | null>(null);
+
+  // Estados para agregar un producto nuevo
+  const [nuevoProducto, setNuevoProducto] = useState({ nombre: "", precioUsd: "", categoria: "" });
+  const [agregandoProducto, setAgregandoProducto] = useState(false);
+  const [mensajeNuevoProducto, setMensajeNuevoProducto] = useState("");
 
   useEffect(() => {
     fetch("/api/config")
@@ -31,6 +41,7 @@ export default function AdminHomePage() {
       .then((d) => {
         setTasaCambio(d.tasaCambio);
         setTelefonoTienda(d.telefonoTienda ?? "");
+        setPedidosHabilitados(d.pedidosHabilitados ?? true);
       });
 
     cargarProductos();
@@ -94,6 +105,35 @@ export default function AdminHomePage() {
     setGuardando(false);
   }
 
+  async function alternarPedidos() {
+    const nuevoValor = !pedidosHabilitados;
+    setCambiandoPedidos(true);
+    setMensaje("");
+    try {
+      const res = await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pedidosHabilitados: nuevoValor })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPedidosHabilitados(data.pedidosHabilitados);
+        setMensaje(
+          data.pedidosHabilitados
+            ? "Pedidos habilitados: los clientes ya pueden pedir."
+            : "Pedidos deshabilitados: los clientes verán el aviso de horario y no podrán pedir."
+        );
+      } else {
+        setMensaje("No se pudo actualizar el interruptor de pedidos.");
+      }
+    } catch (e) {
+      console.error("Error al actualizar pedidosHabilitados:", e);
+      setMensaje("No se pudo actualizar el interruptor de pedidos.");
+    } finally {
+      setCambiandoPedidos(false);
+    }
+  }
+
   // El precio final ya viene cargado directamente, sin costo ni margen.
   function calcularPrecioBs(precioUsdStr: string): string {
     const precioUsd = parseFloat(precioUsdStr);
@@ -145,6 +185,82 @@ export default function AdminHomePage() {
     }
   }
 
+  // Marca un producto como "sin stock" (o lo reactiva). Sigue apareciendo
+  // en el catálogo del cliente, pero como no disponible y sin poder
+  // agregarlo al carrito, en vez de desaparecer por completo.
+  async function toggleDisponibilidad(product: Product) {
+    setCambiandoDisponibilidadId(product.id);
+    try {
+      const res = await fetch(`/api/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activo: !product.activo }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const prodActualizado = data.product || data;
+        setProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, ...prodActualizado } : p)));
+      } else {
+        alert("No se pudo cambiar la disponibilidad del producto.");
+      }
+    } catch (e) {
+      console.error("Error al cambiar disponibilidad:", e);
+    } finally {
+      setCambiandoDisponibilidadId(null);
+    }
+  }
+
+  async function agregarProducto() {
+    const nombre = nuevoProducto.nombre.trim();
+    const categoria = nuevoProducto.categoria.trim();
+    const precioUsd = parseFloat(nuevoProducto.precioUsd);
+
+    if (!nombre || !categoria) {
+      setMensajeNuevoProducto("Completa el nombre y la categoría.");
+      return;
+    }
+    if (isNaN(precioUsd) || precioUsd <= 0) {
+      setMensajeNuevoProducto("Escribe un precio válido en dólares.");
+      return;
+    }
+
+    setAgregandoProducto(true);
+    setMensajeNuevoProducto("");
+
+    try {
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, precioUsd, categoria }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const producto: Product = data.product;
+        setProducts((prev) => [...prev, producto]);
+        setEditingValues((prev) => ({
+          ...prev,
+          [producto.id]: { nombre: producto.nombre, precioUsd: producto.precioUsd.toString() },
+        }));
+        setNuevoProducto({ nombre: "", precioUsd: "", categoria: "" });
+        setMensajeNuevoProducto(`"${producto.nombre}" agregado al catálogo.`);
+      } else {
+        setMensajeNuevoProducto("No se pudo agregar el producto.");
+      }
+    } catch (e) {
+      console.error("Error al agregar producto:", e);
+      setMensajeNuevoProducto("No se pudo agregar el producto.");
+    } finally {
+      setAgregandoProducto(false);
+    }
+  }
+
+  const categoriasExistentes = useMemo(
+    () => Array.from(new Set(products.map((p) => p.categoria).filter(Boolean))),
+    [products]
+  );
+
   const productosFiltrados = products.filter((p) => {
     const edit = editingValues[p.id];
     const nombreBuscar = edit?.nombre ?? p.nombre;
@@ -153,6 +269,42 @@ export default function AdminHomePage() {
 
   return (
     <div>
+      {/* INTERRUPTOR: ABRIR/CERRAR PEDIDOS */}
+      <h1 className="font-display text-xl text-leaf-800 mb-4">Estado de la tienda</h1>
+      <div
+        className={`flex items-center justify-between gap-4 rounded-lg border p-4 mb-8 ${
+          pedidosHabilitados
+            ? "bg-leaf-50 border-leaf-100"
+            : "bg-alert-50 border-alert-200"
+        }`}
+      >
+        <div>
+          <p className={`font-medium ${pedidosHabilitados ? "text-leaf-800" : "text-alert-700"}`}>
+            {pedidosHabilitados ? "Recibiendo pedidos" : "Pedidos deshabilitados"}
+          </p>
+          <p className="text-xs text-ink/60 mt-0.5">
+            {pedidosHabilitados
+              ? "Los clientes pueden agregar productos y completar el pago."
+              : "Los clientes verán el aviso de horario y no podrán completar un pedido. El catálogo y el registro de cuentas nuevas siguen funcionando."}
+          </p>
+        </div>
+        <button
+          onClick={alternarPedidos}
+          disabled={cambiandoPedidos}
+          role="switch"
+          aria-checked={pedidosHabilitados}
+          className={`shrink-0 relative w-14 h-8 rounded-full transition-colors disabled:opacity-50 ${
+            pedidosHabilitados ? "bg-leaf-600" : "bg-ink/20"
+          }`}
+        >
+          <span
+            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${
+              pedidosHabilitados ? "translate-x-6" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </div>
+
       <h1 className="font-display text-xl text-leaf-800 mb-4">Tasa de Cambio</h1>
 
       <div className="bg-white border border-leaf-100 rounded-lg p-6 mb-4">
@@ -206,13 +358,16 @@ export default function AdminHomePage() {
         </button>
       </div>
 
-      {/* SECCIÓN DE PRODUCTOS EDITABLES */}
+      {/* SECCIÓN DE PRODUCTOS */}
       <hr className="border-leaf-100 my-8" />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <h2 className="font-display text-xl text-leaf-800">Productos</h2>
-          <p className="text-xs text-ink/50">Edita el precio final ($) de cada producto</p>
+          <p className="text-xs text-ink/50">
+            Edita el nombre y el precio final ($), marca lo que no tengas en stock, o agrega
+            productos nuevos.
+          </p>
         </div>
 
         {/* BARRA DE BÚSQUEDA */}
@@ -235,78 +390,142 @@ export default function AdminHomePage() {
         </div>
       </div>
 
-      <div className="bg-white border border-leaf-100 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-leaf-100 bg-leaf-50/50 text-xs font-semibold text-leaf-800">
-                <th className="py-3 px-4">Producto</th>
-                <th className="py-3 px-3 w-32">Precio Final ($)</th>
-                <th className="py-3 px-3 w-36 text-right">Precio Cliente (Bs)</th>
-                <th className="py-3 px-4 w-24 text-right">Acción</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-leaf-100/50">
-              {productosFiltrados.map((product) => {
-                const edit = editingValues[product.id] || {
-                  nombre: product.nombre,
-                  precioUsd: product.precioUsd?.toString() ?? "",
-                };
-
-                const precioBs = calcularPrecioBs(edit.precioUsd);
-                const estaGuardando = guardandoProductoId === product.id;
-
-                return (
-                  <tr key={product.id} className="hover:bg-leaf-50/20">
-                    <td className="py-2 px-4">
-                      <input
-                        type="text"
-                        value={edit.nombre}
-                        onChange={(e) => handleProductChange(product.id, "nombre", e.target.value)}
-                        className="w-full border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-2 py-1 focus:bg-white focus:outline-none"
-                      />
-                    </td>
-                    <td className="py-2 px-3">
-                      <div className="relative flex items-center">
-                        <span className="absolute left-2 text-xs text-ink/40">$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          value={edit.precioUsd}
-                          onChange={(e) => handleProductChange(product.id, "precioUsd", e.target.value)}
-                          className="w-full pl-5 pr-1 py-1 border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded focus:bg-white focus:outline-none"
-                        />
-                      </div>
-                    </td>
-                    <td className="py-2 px-3 text-right">
-                      <span className="font-semibold text-leaf-800">
-                        {precioBs} Bs
-                      </span>
-                    </td>
-                    <td className="py-2 px-4 text-right">
-                      <button
-                        onClick={() => guardarProducto(product.id)}
-                        disabled={estaGuardando}
-                        className="px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-xs font-medium disabled:opacity-40 hover:bg-leaf-700"
-                      >
-                        {estaGuardando ? "..." : "Guardar"}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {productosFiltrados.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="py-6 text-center text-xs text-ink/50">
-                    {searchTerm ? "No se encontraron productos." : "No hay productos disponibles."}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      {/* AGREGAR PRODUCTO NUEVO */}
+      <div className="bg-leaf-50/60 border border-leaf-100 rounded-lg p-4 mb-4">
+        <p className="text-sm font-medium text-leaf-800 mb-3">➕ Agregar producto nuevo</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_140px_180px_auto] gap-2.5">
+          <input
+            type="text"
+            placeholder="Nombre del producto"
+            value={nuevoProducto.nombre}
+            onChange={(e) => setNuevoProducto((prev) => ({ ...prev, nombre: e.target.value }))}
+            className="border border-leaf-100 rounded-lg px-3 py-2.5 bg-white"
+          />
+          <div className="relative flex items-center">
+            <span className="absolute left-3 text-xs text-ink/40">$</span>
+            <input
+              type="number"
+              step="0.01"
+              placeholder="Precio"
+              value={nuevoProducto.precioUsd}
+              onChange={(e) => setNuevoProducto((prev) => ({ ...prev, precioUsd: e.target.value }))}
+              className="w-full pl-6 pr-3 py-2.5 border border-leaf-100 rounded-lg bg-white"
+            />
+          </div>
+          <input
+            type="text"
+            list="categorias-existentes"
+            placeholder="Categoría (ej: Lácteos)"
+            value={nuevoProducto.categoria}
+            onChange={(e) => setNuevoProducto((prev) => ({ ...prev, categoria: e.target.value }))}
+            className="border border-leaf-100 rounded-lg px-3 py-2.5 bg-white"
+          />
+          <datalist id="categorias-existentes">
+            {categoriasExistentes.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
+          <button
+            onClick={agregarProducto}
+            disabled={agregandoProducto}
+            className="px-4 py-2.5 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40 hover:bg-leaf-700 transition-colors whitespace-nowrap"
+          >
+            {agregandoProducto ? "Agregando..." : "Agregar"}
+          </button>
         </div>
+        {mensajeNuevoProducto && (
+          <p className="text-xs mt-2.5 text-leaf-700">{mensajeNuevoProducto}</p>
+        )}
+      </div>
+
+      {/* LISTA DE PRODUCTOS: una tarjeta por producto, con el nombre en su
+          propia línea completa y el precio debajo, para que se pueda leer
+          bien sin que el nombre se corte (antes iba en una tabla angosta). */}
+      <div className="bg-white border border-leaf-100 rounded-lg divide-y divide-leaf-100/70 overflow-hidden">
+        {productosFiltrados.map((product) => {
+          const edit = editingValues[product.id] || {
+            nombre: product.nombre,
+            precioUsd: product.precioUsd?.toString() ?? "",
+          };
+
+          const precioBs = calcularPrecioBs(edit.precioUsd);
+          const estaGuardando = guardandoProductoId === product.id;
+          const cambiandoDisponibilidad = cambiandoDisponibilidadId === product.id;
+
+          return (
+            <div key={product.id} className={`p-4 ${!product.activo ? "bg-alert-50/30" : ""}`}>
+              {/* Línea 1: nombre completo, sin cortar */}
+              <input
+                type="text"
+                value={edit.nombre}
+                onChange={(e) => handleProductChange(product.id, "nombre", e.target.value)}
+                className="w-full font-medium text-ink border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-2 py-1.5 focus:bg-leaf-50/40 focus:outline-none"
+              />
+
+              <div className="flex flex-wrap items-center gap-2 mt-1.5 px-2">
+                <span className="text-xs text-ink/50 bg-leaf-50 px-2 py-0.5 rounded-full">
+                  {product.categoria}
+                </span>
+                {!product.activo && (
+                  <span className="text-xs font-medium text-alert-600 bg-alert-100 px-2 py-0.5 rounded-full">
+                    Sin stock — el cliente lo ve como no disponible
+                  </span>
+                )}
+              </div>
+
+              {/* Línea 2: precio y acciones */}
+              <div className="flex flex-wrap items-center justify-between gap-3 mt-3">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex items-center">
+                    <span className="absolute left-2.5 text-xs text-ink/40">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={edit.precioUsd}
+                      onChange={(e) => handleProductChange(product.id, "precioUsd", e.target.value)}
+                      className="w-28 pl-6 pr-2 py-1.5 border border-leaf-100 rounded-lg focus:border-leaf-500 focus:outline-none"
+                    />
+                  </div>
+                  <span className="text-sm font-semibold text-leaf-800 whitespace-nowrap">
+                    = Bs {precioBs}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => guardarProducto(product.id)}
+                    disabled={estaGuardando}
+                    className="px-3.5 py-2 rounded-lg bg-leaf-600 text-white text-xs font-medium disabled:opacity-40 hover:bg-leaf-700 transition-colors"
+                  >
+                    {estaGuardando ? "Guardando..." : "Guardar"}
+                  </button>
+                  <button
+                    onClick={() => toggleDisponibilidad(product)}
+                    disabled={cambiandoDisponibilidad}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-medium disabled:opacity-40 border transition-colors ${
+                      product.activo
+                        ? "border-alert-600 text-alert-600 hover:bg-alert-50"
+                        : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
+                    }`}
+                  >
+                    {cambiandoDisponibilidad
+                      ? "..."
+                      : product.activo
+                      ? "Marcar sin stock"
+                      : "Marcar disponible"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {productosFiltrados.length === 0 && (
+          <p className="py-6 text-center text-xs text-ink/50">
+            {searchTerm ? "No se encontraron productos." : "No hay productos disponibles."}
+          </p>
+        )}
       </div>
     </div>
   );
