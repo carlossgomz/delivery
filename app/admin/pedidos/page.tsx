@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatCantidad } from "@/lib/peso";
 
 type OrderItem = {
   id: string;
   cantidad: number;
   precioUsd: number;
   disponible: boolean | null;
-  product: { nombre: string };
+  product: { nombre: string; porPeso?: boolean };
 };
 
 type Order = {
@@ -320,7 +321,10 @@ export default function AdminPedidosPage() {
                 {items.map((item) => (
                   <li key={item.id} className="flex items-center justify-between py-2">
                     <span>
-                      {item.cantidad}× {item.product?.nombre ?? "Producto"}
+                      {item.product?.porPeso
+                        ? formatCantidad(item.cantidad, true)
+                        : `${item.cantidad}×`}{" "}
+                      {item.product?.nombre ?? "Producto"}
                     </span>
                     {order.estado === "PENDIENTE_VERIFICACION" ? (
                       <label className="flex items-center gap-2 cursor-pointer">

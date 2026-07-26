@@ -21,6 +21,11 @@ model Product {
   categoria        String
   imagenUrl        String?
   activo           Boolean     @default(true)
+  // Si es true, el producto se vende por peso (ej. carnes, quesos,
+  // vegetales "X KILO"): precioUsd es el precio por KILOGRAMO y el
+  // cliente elige cuántos kg quiere en vez de un número de unidades.
+  // Si es false (default), se vende por unidad como siempre.
+  porPeso          Boolean     @default(false)
   createdAt        DateTime    @default(now())
   OrderItem        OrderItem[]
 }
@@ -74,7 +79,10 @@ model OrderItem {
   id         String   @id @default(cuid())
   orderId    String
   productId  String
-  cantidad   Int
+  // Para productos por unidad es un número entero de unidades (1, 2, 3...).
+  // Para productos por peso (Product.porPeso = true) son los kilogramos
+  // pedidos y puede traer decimales (0.5, 1.25, etc.), por eso es Float.
+  cantidad   Float
   precioUsd  Float
   disponible Boolean?
   product    Product  @relation(fields: [productId], references: [id])

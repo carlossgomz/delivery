@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { formatCantidad } from "@/lib/peso";
 
 type OrderItem = {
   id: string;
   cantidad: number;
   precioUsd: number;
-  product: { nombre: string };
+  product: { nombre: string; porPeso?: boolean };
 };
 
 type Order = {
@@ -117,7 +118,10 @@ export default function MisPedidosPage() {
             <ul className="text-sm text-ink/80 space-y-1 mb-2">
               {order.items.map((item) => (
                 <li key={item.id}>
-                  {item.cantidad}× {item.product.nombre}
+                  {item.product?.porPeso
+                    ? formatCantidad(item.cantidad, true)
+                    : `${item.cantidad}×`}{" "}
+                  {item.product.nombre}
                 </li>
               ))}
             </ul>

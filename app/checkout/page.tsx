@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import Confetti from "@/app/components/Confetti";
+import { formatCantidad } from "@/lib/peso";
 
-type Product = { id: string; nombre: string; precioUsd: number };
+type Product = { id: string; nombre: string; precioUsd: number; porPeso?: boolean };
 type CartLine = { productId: string; cantidad: number };
 type Cliente = { id: string; nombre: string; telefono: string; direccion: string };
 type OrderData = {
@@ -18,7 +19,7 @@ type OrderData = {
     productId: string;
     cantidad: number;
     disponible?: boolean | null;
-    product?: { nombre: string };
+    product?: { nombre: string; porPeso?: boolean };
   }[];
 };
 
@@ -402,7 +403,9 @@ export default function CheckoutPage() {
                 {(order?.items || []).map((it, idx) => (
                   <li key={idx} className="flex items-center justify-between py-1.5">
                     <span>{it.product?.nombre ?? "Producto"}</span>
-                    <span className="text-ink/60">×{it.cantidad}</span>
+                    <span className="text-ink/60">
+                      {it.product?.porPeso ? formatCantidad(it.cantidad, true) : `×${it.cantidad}`}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -422,7 +425,10 @@ export default function CheckoutPage() {
                 <ul className="text-sm text-ink/80 space-y-1">
                   {itemsDisponibles.map((it) => (
                     <li key={it.productId}>
-                      {it.cantidad}× {it.product?.nombre ?? "Producto"}
+                      {it.product?.porPeso
+                        ? formatCantidad(it.cantidad, true)
+                        : `${it.cantidad}×`}{" "}
+                      {it.product?.nombre ?? "Producto"}
                     </li>
                   ))}
                 </ul>
@@ -434,7 +440,10 @@ export default function CheckoutPage() {
               <ul className="text-sm text-ink/80 space-y-1">
                 {itemsNoDisponibles.map((it) => (
                   <li key={it.productId}>
-                    {it.cantidad}× {it.product?.nombre ?? "Producto"}
+                    {it.product?.porPeso
+                      ? formatCantidad(it.cantidad, true)
+                      : `${it.cantidad}×`}{" "}
+                    {it.product?.nombre ?? "Producto"}
                   </li>
                 ))}
               </ul>
@@ -493,7 +502,9 @@ export default function CheckoutPage() {
                 {itemsDisponibles.map((it, idx) => (
                   <li key={idx} className="flex items-center justify-between py-1.5">
                     <span>{it.product?.nombre ?? "Producto"}</span>
-                    <span className="text-ink/60">×{it.cantidad}</span>
+                    <span className="text-ink/60">
+                      {it.product?.porPeso ? formatCantidad(it.cantidad, true) : `×${it.cantidad}`}
+                    </span>
                   </li>
                 ))}
               </ul>

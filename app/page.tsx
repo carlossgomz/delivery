@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
+import { PESOS_SUGERIDOS, PESO_INICIAL } from "@/lib/peso";
 
 type Product = {
   id: string;
@@ -11,6 +12,10 @@ type Product = {
   precioUsd: number;
   categoria: string;
   activo: boolean;
+  // Si es true, precioUsd es el precio POR KILO y "cantidad" en el carrito
+  // se interpreta como kilogramos (puede traer decimales) en vez de
+  // unidades.
+  porPeso: boolean;
 };
 
 type Cliente = { id: string; nombre: string };
@@ -191,7 +196,35 @@ export default function CatalogPage() {
     setCart((prev) => prev.filter((l) => l.productId !== productId));
   }
 
-  const totalItems = cart.reduce((sum, l) => sum + l.cantidad, 0);
+  // --- Carrito para productos por peso (kg) ---
+  // fijarPeso deja la cantidad en un valor exacto (usado por los botones de
+  // peso sugerido y por el input manual). ajustarPeso suma/resta un delta
+  // (usado por los botones +/- del resumen del carrito).
+  function fijarPeso(productId: string, kilos: number) {
+    setCart((prev) => {
+      const limpio = Math.round(kilos * 100) / 100;
+      if (limpio <= 0) return prev.filter((l) => l.productId !== productId);
+      const existing = prev.find((l) => l.productId === productId);
+      if (existing) {
+        return prev.map((l) => (l.productId === productId ? { ...l, cantidad: limpio } : l));
+      }
+      return [...prev, { productId, cantidad: limpio }];
+    });
+    setMostrarResumen(true);
+  }
+
+  function ajustarPeso(productId: string, delta: number) {
+    const actual = cart.find((l) => l.productId === productId)?.cantidad ?? 0;
+    fijarPeso(productId, actual + delta);
+  }
+
+  // Total para el badge "N producto(s)": suma unidades normalmente, pero
+  // un producto por peso cuenta como 1 (no se suman kilos como si fueran
+  // unidades, "0.5 producto(s)" no tendría sentido).
+  const totalItems = cart.reduce((sum, l) => {
+    const p = products.find((pr) => pr.id === l.productId);
+    return sum + (p?.porPeso ? 1 : l.cantidad);
+  }, 0);
   const totalUsd = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
     return sum + (p ? p.precioUsd * l.cantidad : 0);
@@ -343,12 +376,15 @@ export default function CatalogPage() {
 
                       <div className="flex items-center justify-between gap-3">
                         {p.activo ? (
-                          <p className="text-sm text-ink/60">Bs {precioBs}</p>
+                          <p className="text-sm text-ink/60">
+                            Bs {precioBs}
+                            {p.porPeso && <span className="text-ink/40"> /kg</span>}
+                          </p>
                         ) : (
                           <p className="text-sm font-medium text-alert-600">No disponible</p>
                         )}
 
-                        {p.activo &&
+                        {p.activo && !p.porPeso &&
                           (line ? (
                             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                               <button
@@ -376,6 +412,59 @@ export default function CatalogPage() {
                             </button>
                           ))}
                       </div>
+
+                      {/* Selector de peso: reemplaza el stepper de unidades
+                          en productos que se venden por kilo (ej. carnes,
+                          quesos). Los botones fijan un peso exacto y el
+                          input permite un valor a medida. */}
+                      {p.activo && p.porPeso && (
+                        <div className="flex flex-col items-end gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                            {PESOS_SUGERIDOS.map((peso) => (
+                              <button
+                                key={peso}
+                                onClick={() => fijarPeso(p.id, peso)}
+                                className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                                  line?.cantidad === peso
+                                    ? "bg-leaf-600 text-white border-leaf-600"
+                                    : "border-leaf-200 text-ink/70 hover:bg-leaf-50"
+                                }`}
+                              >
+                                {peso < 1 ? `${peso * 1000}g` : `${peso}kg`}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {line && (
+                              <button
+                                onClick={() => quitarLineaCompleta(p.id)}
+                                className="text-xs text-alert-600 underline"
+                              >
+                                Quitar
+                              </button>
+                            )}
+                            <input
+                              type="number"
+                              min={0.05}
+                              step={0.05}
+                              placeholder="kg"
+                              value={line ? line.cantidad : ""}
+                              onChange={(e) => fijarPeso(p.id, parseFloat(e.target.value) || 0)}
+                              className="w-16 text-sm border border-leaf-100 rounded-lg px-2 py-1.5 text-right focus:outline-none focus:border-leaf-500"
+                              aria-label={`Peso en kilos de ${p.nombre}`}
+                            />
+                            <span className="text-xs text-ink/50">kg</span>
+                            {!line && (
+                              <button
+                                onClick={() => fijarPeso(p.id, PESO_INICIAL)}
+                                className="shrink-0 px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-xs hover:bg-leaf-800 active:scale-95 transition-all"
+                              >
+                                Agregar
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </li>
                   );
                 })}
@@ -406,17 +495,23 @@ export default function CatalogPage() {
                         <span className="text-sm text-ink flex-1 min-w-0 truncate">{p.nombre}</span>
                         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                           <button
-                            onClick={() => removeFromCart(p.id)}
+                            onClick={() =>
+                              p.porPeso ? ajustarPeso(p.id, -0.25) : removeFromCart(p.id)
+                            }
                             className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold active:scale-95 transition-transform"
-                            aria-label={`Quitar una unidad de ${p.nombre}`}
+                            aria-label={`Quitar ${p.porPeso ? "250g" : "una unidad"} de ${p.nombre}`}
                           >
                             −
                           </button>
-                          <span className="w-4 text-center text-sm">{line.cantidad}</span>
+                          <span className="min-w-[3rem] text-center text-sm">
+                            {p.porPeso ? `${line.cantidad}kg` : line.cantidad}
+                          </span>
                           <button
-                            onClick={() => addToCart(p.id)}
+                            onClick={() =>
+                              p.porPeso ? ajustarPeso(p.id, 0.25) : addToCart(p.id)
+                            }
                             className="w-8 h-8 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold active:scale-95 transition-transform"
-                            aria-label={`Agregar una unidad de ${p.nombre}`}
+                            aria-label={`Agregar ${p.porPeso ? "250g" : "una unidad"} de ${p.nombre}`}
                           >
                             +
                           </button>

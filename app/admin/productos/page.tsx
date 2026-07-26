@@ -10,6 +10,7 @@ type Product = {
   margenPorcentaje?: number | null;
   imagenUrl?: string | null;
   activo: boolean;
+  porPeso: boolean;
 };
 
 export default function AdminHomePage() {
@@ -22,7 +23,7 @@ export default function AdminHomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingValues, setEditingValues] = useState<
-    Record<string, { nombre: string; precioUsd: string }>
+    Record<string, { nombre: string; precioUsd: string; porPeso: boolean }>
   >({});
   const [guardandoProductoId, setGuardandoProductoId] = useState<string | null>(null);
   const [cambiandoDisponibilidadId, setCambiandoDisponibilidadId] = useState<string | null>(null);
@@ -45,11 +46,12 @@ export default function AdminHomePage() {
       const lista = Array.isArray(data.products) ? data.products : Array.isArray(data) ? data : [];
       setProducts(lista);
 
-      const iniciales: Record<string, { nombre: string; precioUsd: string }> = {};
+      const iniciales: Record<string, { nombre: string; precioUsd: string; porPeso: boolean }> = {};
       lista.forEach((p: Product) => {
         iniciales[p.id] = {
           nombre: p.nombre,
           precioUsd: p.precioUsd?.toString() ?? "0",
+          porPeso: Boolean(p.porPeso),
         };
       });
       setEditingValues(iniciales);
@@ -86,13 +88,17 @@ export default function AdminHomePage() {
     return (precioUsd * tasaCambio).toFixed(2);
   }
 
-  function handleProductChange(id: string, field: "nombre" | "precioUsd", value: string) {
+  function handleProductChange(
+    id: string,
+    field: "nombre" | "precioUsd" | "porPeso",
+    value: string | boolean
+  ) {
     setEditingValues((prev) => ({
       ...prev,
       [id]: {
         ...prev[id],
         [field]: value,
-      },
+      } as { nombre: string; precioUsd: string; porPeso: boolean },
     }));
   }
 
@@ -108,6 +114,7 @@ export default function AdminHomePage() {
       const bodyPayload = {
         nombre: val.nombre,
         precioUsd,
+        porPeso: val.porPeso,
       };
 
       const res = await fetch(`/api/products/${id}`, {
@@ -228,6 +235,7 @@ export default function AdminHomePage() {
               <thead>
                 <tr className="border-b border-leaf-100 bg-leaf-50/50 text-xs font-semibold text-leaf-800">
                   <th className="py-3 px-4">Producto</th>
+                  <th className="py-3 px-3 w-24 text-center">Por peso</th>
                   <th className="py-3 px-3 w-28">Precio ($)</th>
                   <th className="py-3 px-3 w-36 text-right">Precio Cliente (Bs)</th>
                   <th className="py-3 px-3 w-28 text-center">Estado</th>
@@ -239,6 +247,7 @@ export default function AdminHomePage() {
                   const edit = editingValues[product.id] || {
                     nombre: product.nombre,
                     precioUsd: product.precioUsd?.toString() ?? "0",
+                    porPeso: Boolean(product.porPeso),
                   };
 
                   const precioBs = calcularPrecioBs(edit.precioUsd);
@@ -256,6 +265,17 @@ export default function AdminHomePage() {
                         />
                       </td>
 
+                      {/* POR PESO (KG) */}
+                      <td className="py-2 px-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={edit.porPeso}
+                          onChange={(e) => handleProductChange(product.id, "porPeso", e.target.checked)}
+                          className="w-4 h-4 accent-leaf-600 cursor-pointer"
+                          title="Se vende por kilogramo (el precio es por kg)"
+                        />
+                      </td>
+
                       {/* PRECIO ($) */}
                       <td className="py-2 px-3">
                         <div className="relative flex items-center">
@@ -268,13 +288,16 @@ export default function AdminHomePage() {
                             onChange={(e) => handleProductChange(product.id, "precioUsd", e.target.value)}
                             className="w-full pl-5 pr-1 py-1 border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded focus:bg-white focus:outline-none"
                           />
+                          {edit.porPeso && (
+                            <span className="absolute right-1 text-[10px] text-ink/40">/kg</span>
+                          )}
                         </div>
                       </td>
 
                       {/* PRECIO CLIENTE EN BS */}
                       <td className="py-2 px-3 text-right">
                         <span className="font-semibold text-leaf-800">
-                          {precioBs} Bs
+                          {precioBs} Bs{edit.porPeso && <span className="text-ink/40 font-normal">/kg</span>}
                         </span>
                       </td>
 

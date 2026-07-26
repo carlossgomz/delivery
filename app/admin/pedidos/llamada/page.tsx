@@ -4,8 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { soloDigitos } from "@/lib/cedula";
+import { formatCantidad, PESOS_SUGERIDOS, PESO_INICIAL } from "@/lib/peso";
 
-type Product = { id: string; nombre: string; precioUsd: number; categoria: string; activo: boolean };
+type Product = {
+  id: string;
+  nombre: string;
+  precioUsd: number;
+  categoria: string;
+  activo: boolean;
+  porPeso: boolean;
+};
 type Cliente = { id: string; nombre: string; cedula: string; telefono: string; direccion: string };
 type Linea = { productId: string; cantidad: number };
 
@@ -72,21 +80,41 @@ export default function PedidoPorLlamadaPage() {
   }
 
   function agregarProducto(productId: string) {
+    const producto = products.find((p) => p.id === productId);
+    const incremento = producto?.porPeso ? PESO_INICIAL : 1;
     setLineas((prev) => {
       const existente = prev.find((l) => l.productId === productId);
       if (existente) {
-        return prev.map((l) => (l.productId === productId ? { ...l, cantidad: l.cantidad + 1 } : l));
+        return prev.map((l) =>
+          l.productId === productId ? { ...l, cantidad: l.cantidad + incremento } : l
+        );
       }
-      return [...prev, { productId, cantidad: 1 }];
+      return [...prev, { productId, cantidad: incremento }];
     });
   }
 
   function cambiarCantidad(productId: string, cantidad: number) {
-    if (cantidad <= 0) {
+    const limpio = Math.round(cantidad * 100) / 100;
+    if (limpio <= 0) {
       setLineas((prev) => prev.filter((l) => l.productId !== productId));
       return;
     }
-    setLineas((prev) => prev.map((l) => (l.productId === productId ? { ...l, cantidad } : l)));
+    setLineas((prev) => prev.map((l) => (l.productId === productId ? { ...l, cantidad: limpio } : l)));
+  }
+
+  function fijarPeso(productId: string, kilos: number) {
+    const limpio = Math.round(kilos * 100) / 100;
+    if (limpio <= 0) {
+      setLineas((prev) => prev.filter((l) => l.productId !== productId));
+      return;
+    }
+    setLineas((prev) => {
+      const existente = prev.find((l) => l.productId === productId);
+      if (existente) {
+        return prev.map((l) => (l.productId === productId ? { ...l, cantidad: limpio } : l));
+      }
+      return [...prev, { productId, cantidad: limpio }];
+    });
   }
 
   const productosFiltrados = products.filter((p) =>
@@ -276,7 +304,11 @@ export default function PedidoPorLlamadaPage() {
             {productosFiltrados.map((p) => (
               <li key={p.id} className="flex items-center justify-between py-1.5 text-sm">
                 <span className="truncate">
-                  {p.nombre} <span className="text-ink/40">(${p.precioUsd.toFixed(2)})</span>
+                  {p.nombre}{" "}
+                  <span className="text-ink/40">
+                    (${p.precioUsd.toFixed(2)}
+                    {p.porPeso ? "/kg" : ""})
+                  </span>
                 </span>
                 <button
                   onClick={() => agregarProducto(p.id)}
@@ -295,6 +327,42 @@ export default function PedidoPorLlamadaPage() {
                 {lineas.map((l) => {
                   const p = products.find((pr) => pr.id === l.productId);
                   if (!p) return null;
+                  if (p.porPeso) {
+                    return (
+                      <li key={l.productId} className="py-1.5 text-sm">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="truncate flex-1">{p.nombre}</span>
+                          <span className="text-ink/50 text-xs shrink-0">
+                            {formatCantidad(l.cantidad, true)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {PESOS_SUGERIDOS.map((peso) => (
+                            <button
+                              key={peso}
+                              onClick={() => fijarPeso(l.productId, peso)}
+                              className={`px-2 py-0.5 rounded-full text-xs border ${
+                                l.cantidad === peso
+                                  ? "bg-leaf-600 text-white border-leaf-600"
+                                  : "border-leaf-200 text-ink/70"
+                              }`}
+                            >
+                              {peso < 1 ? `${peso * 1000}g` : `${peso}kg`}
+                            </button>
+                          ))}
+                          <input
+                            type="number"
+                            min={0.05}
+                            step={0.05}
+                            value={l.cantidad}
+                            onChange={(e) => fijarPeso(l.productId, parseFloat(e.target.value) || 0)}
+                            className="w-16 text-xs border border-leaf-100 rounded px-1.5 py-1 text-right"
+                          />
+                          <span className="text-xs text-ink/40">kg</span>
+                        </div>
+                      </li>
+                    );
+                  }
                   return (
                     <li key={l.productId} className="flex items-center justify-between py-1.5 text-sm">
                       <span className="truncate flex-1">{p.nombre}</span>

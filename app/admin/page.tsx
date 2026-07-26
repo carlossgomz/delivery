@@ -9,6 +9,7 @@ type Product = {
   categoria: string;
   activo: boolean;
   imagenUrl?: string | null;
+  porPeso: boolean;
 };
 
 export default function AdminHomePage() {
@@ -25,13 +26,18 @@ export default function AdminHomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingValues, setEditingValues] = useState<
-    Record<string, { nombre: string; precioUsd: string }>
+    Record<string, { nombre: string; precioUsd: string; porPeso: boolean }>
   >({});
   const [guardandoProductoId, setGuardandoProductoId] = useState<string | null>(null);
   const [cambiandoDisponibilidadId, setCambiandoDisponibilidadId] = useState<string | null>(null);
 
   // Estados para agregar un producto nuevo
-  const [nuevoProducto, setNuevoProducto] = useState({ nombre: "", precioUsd: "", categoria: "" });
+  const [nuevoProducto, setNuevoProducto] = useState({
+    nombre: "",
+    precioUsd: "",
+    categoria: "",
+    porPeso: false,
+  });
   const [agregandoProducto, setAgregandoProducto] = useState(false);
   const [mensajeNuevoProducto, setMensajeNuevoProducto] = useState("");
 
@@ -54,11 +60,12 @@ export default function AdminHomePage() {
       const lista = Array.isArray(data.products) ? data.products : Array.isArray(data) ? data : [];
       setProducts(lista);
 
-      const iniciales: Record<string, { nombre: string; precioUsd: string }> = {};
+      const iniciales: Record<string, { nombre: string; precioUsd: string; porPeso: boolean }> = {};
       lista.forEach((p: Product) => {
         iniciales[p.id] = {
           nombre: p.nombre,
           precioUsd: p.precioUsd?.toString() ?? "",
+          porPeso: Boolean(p.porPeso),
         };
       });
       setEditingValues(iniciales);
@@ -141,13 +148,17 @@ export default function AdminHomePage() {
     return (precioUsd * tasaCambio).toFixed(2);
   }
 
-  function handleProductChange(id: string, field: "nombre" | "precioUsd", value: string) {
+  function handleProductChange(
+    id: string,
+    field: "nombre" | "precioUsd" | "porPeso",
+    value: string | boolean
+  ) {
     setEditingValues((prev) => ({
       ...prev,
       [id]: {
         ...prev[id],
         [field]: value,
-      },
+      } as { nombre: string; precioUsd: string; porPeso: boolean },
     }));
   }
 
@@ -163,6 +174,7 @@ export default function AdminHomePage() {
       const bodyPayload = {
         nombre: val.nombre,
         precioUsd,
+        porPeso: val.porPeso,
       };
 
       const res = await fetch(`/api/products/${id}`, {
@@ -232,7 +244,7 @@ export default function AdminHomePage() {
       const res = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, precioUsd, categoria }),
+        body: JSON.stringify({ nombre, precioUsd, categoria, porPeso: nuevoProducto.porPeso }),
       });
 
       if (res.ok) {
@@ -241,9 +253,13 @@ export default function AdminHomePage() {
         setProducts((prev) => [...prev, producto]);
         setEditingValues((prev) => ({
           ...prev,
-          [producto.id]: { nombre: producto.nombre, precioUsd: producto.precioUsd.toString() },
+          [producto.id]: {
+            nombre: producto.nombre,
+            precioUsd: producto.precioUsd.toString(),
+            porPeso: Boolean(producto.porPeso),
+          },
         }));
-        setNuevoProducto({ nombre: "", precioUsd: "", categoria: "" });
+        setNuevoProducto({ nombre: "", precioUsd: "", categoria: "", porPeso: false });
         setMensajeNuevoProducto(`"${producto.nombre}" agregado al catálogo.`);
       } else {
         setMensajeNuevoProducto("No se pudo agregar el producto.");
@@ -433,6 +449,15 @@ export default function AdminHomePage() {
             {agregandoProducto ? "Agregando..." : "Agregar"}
           </button>
         </div>
+        <label className="flex items-center gap-2 mt-2.5 text-xs text-ink/70 select-none">
+          <input
+            type="checkbox"
+            checked={nuevoProducto.porPeso}
+            onChange={(e) => setNuevoProducto((prev) => ({ ...prev, porPeso: e.target.checked }))}
+            className="w-4 h-4 accent-leaf-600 cursor-pointer"
+          />
+          Se vende por peso (kg) — el precio de arriba es por kilogramo, no por unidad
+        </label>
         {mensajeNuevoProducto && (
           <p className="text-xs mt-2.5 text-leaf-700">{mensajeNuevoProducto}</p>
         )}
@@ -446,6 +471,7 @@ export default function AdminHomePage() {
           const edit = editingValues[product.id] || {
             nombre: product.nombre,
             precioUsd: product.precioUsd?.toString() ?? "",
+            porPeso: Boolean(product.porPeso),
           };
 
           const precioBs = calcularPrecioBs(edit.precioUsd);
@@ -471,6 +497,15 @@ export default function AdminHomePage() {
                     Sin stock — el cliente lo ve como no disponible
                   </span>
                 )}
+                <label className="flex items-center gap-1.5 text-xs text-ink/60 select-none ml-auto">
+                  <input
+                    type="checkbox"
+                    checked={edit.porPeso}
+                    onChange={(e) => handleProductChange(product.id, "porPeso", e.target.checked)}
+                    className="w-3.5 h-3.5 accent-leaf-600 cursor-pointer"
+                  />
+                  Se vende por kilo
+                </label>
               </div>
 
               {/* Línea 2: precio y acciones */}
@@ -486,9 +521,13 @@ export default function AdminHomePage() {
                       onChange={(e) => handleProductChange(product.id, "precioUsd", e.target.value)}
                       className="w-28 pl-6 pr-2 py-1.5 border border-leaf-100 rounded-lg focus:border-leaf-500 focus:outline-none"
                     />
+                    {edit.porPeso && (
+                      <span className="absolute right-2 text-[10px] text-ink/40">/kg</span>
+                    )}
                   </div>
                   <span className="text-sm font-semibold text-leaf-800 whitespace-nowrap">
                     = Bs {precioBs}
+                    {edit.porPeso && <span className="text-ink/40 font-normal">/kg</span>}
                   </span>
                 </div>
 

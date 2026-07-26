@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
       nombre: body.nombre,
       precioUsd,
       categoria: body.categoria,
-      imagenUrl: body.imagenUrl ?? null
+      imagenUrl: body.imagenUrl ?? null,
+      porPeso: Boolean(body.porPeso)
     }
   });
 
