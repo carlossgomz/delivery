@@ -300,6 +300,37 @@ export default function CheckoutPage() {
     }
   }
 
+  // El cliente confirma que ya recibió el pedido, sin esperar a que la
+  // tienda lo marque como entregado (la tienda también puede hacerlo desde
+  // el admin; cualquiera de las dos formas llega al mismo estado final).
+  async function confirmarRecibido() {
+    if (!orderId) return;
+    setEnviando(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "confirmar_recibido" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "No se pudo confirmar la recepción del pedido.");
+      }
+
+      if (data?.order) {
+        setOrder(data.order);
+        setEstado(data.order.estado);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al confirmar la recepción del pedido");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   // El cliente tiene crédito autorizado por la tienda: recibe el pedido
   // ya mismo y lo paga después, sin subir comprobante. Al quedar
   // "CONFIRMADO" de una vez, esta pantalla deja de bloquear el checkout
@@ -802,12 +833,20 @@ export default function CheckoutPage() {
         {estado === "EN_CAMINO" && (
           <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4 shadow-sm">
             <p className="text-leaf-600 font-medium">🛵 ¡Tu pedido va en camino!</p>
+            {errorMsg && <p className="text-sm text-alert-600">{errorMsg}</p>}
+            <button
+              onClick={confirmarRecibido}
+              disabled={enviando}
+              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-50"
+            >
+              {enviando ? "Confirmando…" : "✓ Ya recibí mi pedido"}
+            </button>
             <button
               onClick={() => {
                 localStorage.removeItem(ACTIVE_ORDER_KEY);
                 router.push("/");
               }}
-              className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors"
+              className="w-full py-3 rounded-lg border border-leaf-100 text-ink/80 font-medium hover:bg-leaf-50 transition-colors"
             >
               Volver al catálogo
             </button>

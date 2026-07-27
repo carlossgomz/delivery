@@ -78,6 +78,33 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     await emitirEventoPedido("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
+  // 0.6) El cliente confirma que ya recibió su pedido (solo disponible
+  // mientras está "En camino"). Es la otra mitad de la confirmación de
+  // entrega: la tienda también puede marcarlo "Entregado" directo desde el
+  // admin (paso 6 más abajo) — cualquiera de las dos formas llega al mismo
+  // estado final.
+  if (body.action === "confirmar_recibido") {
+    const existente = await prisma.order.findUnique({ where: { id: params.id } });
+    if (!existente) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+    }
+    if (existente.estado !== "EN_CAMINO") {
+      return NextResponse.json(
+        { error: "Este pedido todavía no está en camino, no se puede confirmar la recepción" },
+        { status: 400 }
+      );
+    }
+
+    const order = await prisma.order.update({
+      where: { id: params.id },
+      data: { estado: "ENTREGADO" },
+      include: { items: { include: { product: true } } }
+    });
+
+    await emitirEventoPedido("pedido_actualizado", order);
+    return NextResponse.json({ order });
+  }
+
   const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "EN_CAMINO", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
 
   const tieneCamposCliente =

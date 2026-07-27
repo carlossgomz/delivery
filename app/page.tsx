@@ -182,10 +182,18 @@ export default function CatalogPage() {
 
   const categorias = useMemo(() => Array.from(new Set(products.map((p) => p.categoria))), [products]);
 
-  // Filtrado de productos basado en búsqueda y categoría seleccionada
+  // Filtrado de productos basado en búsqueda y categoría seleccionada.
+  // La búsqueda matchea tanto el nombre del producto como el nombre de su
+  // categoría: buscar "Refresco" trae los productos que se llaman así Y
+  // los que pertenecen a la categoría "Refrescos", aunque su nombre no
+  // contenga esa palabra.
   const filteredProducts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     return products.filter((p) => {
-      const matchesSearch = p.nombre.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch =
+        q === "" ||
+        p.nombre.toLowerCase().includes(q) ||
+        p.categoria.toLowerCase().includes(q);
       const matchesCategory = selectedCategory === "Todas" || p.categoria === selectedCategory;
       return matchesSearch && matchesCategory;
     });

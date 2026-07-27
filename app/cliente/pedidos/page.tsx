@@ -51,6 +51,31 @@ const COLORES: Record<string, string> = {
 export default function MisPedidosPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[] | null>(null);
+  const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
+
+  async function confirmarRecibido(orderId: string) {
+    setConfirmandoId(orderId);
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "confirmar_recibido" })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOrders((prev) =>
+          prev ? prev.map((o) => (o.id === orderId ? { ...o, estado: data.order.estado } : o)) : prev
+        );
+      } else {
+        alert("No se pudo confirmar la recepción. Intenta de nuevo.");
+      }
+    } catch (e) {
+      console.error("Error al confirmar recepción del pedido:", e);
+      alert("Ocurrió un error al confirmar la recepción.");
+    } finally {
+      setConfirmandoId(null);
+    }
+  }
 
   useEffect(() => {
     let activo = true;
@@ -152,6 +177,15 @@ export default function MisPedidosPage() {
               <p className="text-sm font-medium text-leaf-800">
                 Total: Bs {order.totalBs.toFixed(2)}
               </p>
+            )}
+            {order.estado === "EN_CAMINO" && (
+              <button
+                onClick={() => confirmarRecibido(order.id)}
+                disabled={confirmandoId === order.id}
+                className="mt-3 w-full px-4 py-2.5 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-800 active:scale-95 transition-all disabled:opacity-50"
+              >
+                {confirmandoId === order.id ? "Confirmando…" : "✓ Ya recibí mi pedido"}
+              </button>
             )}
           </div>
         ))}
