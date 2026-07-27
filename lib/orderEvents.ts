@@ -1,11 +1,34 @@
-import { EventEmitter } from "events";
+import { redis } from "@/lib/redis";
 
-// Vive mientras el proceso de Next.js esté corriendo (npm run dev / npm start).
-// Sirve para un solo servidor. Si el día de mañana se despliega en varias
-// instancias (ej. serverless con autoescalado), esto habría que moverlo a
-// algo compartido como Redis pub/sub — para el tamaño de esta tienda, esto alcanza.
-const globalForEvents = globalThis as unknown as { orderEvents?: EventEmitter };
+// Antes esto era un EventEmitter en memoria. Funcionaba en local (un solo
+// proceso de Node) pero en Vercel cada request puede caer en una instancia
+// (lambda) distinta: el emit() de un POST /api/orders no le llegaba al
+// listener de la conexión SSE del panel de admin si esta vivía en otra
+// instancia — por eso a veces no sonaba la alerta de pedido nuevo.
+//
+// Ahora usamos el pub/sub de Upstash Redis (HTTP streaming, no requiere una
+// conexión TCP persistente), que es compartido por todas las instancias.
+const CANAL_PEDIDOS = "pedidos";
 
-export const orderEvents = globalForEvents.orderEvents ?? new EventEmitter();
+export type EventoPedido = "nuevo_pedido" | "pedido_actualizado";
 
-if (process.env.NODE_ENV !== "production") globalForEvents.orderEvents = orderEvents;
+export type MensajePedido = {
+  evento: EventoPedido;
+  data: unknown;
+};
+
+export async function emitirEventoPedido(evento: EventoPedido, data: unknown) {
+  try {
+    await redis.publish(CANAL_PEDIDOS, { evento, data } satisfies MensajePedido);
+  } catch (e) {
+    // Igual que antes: si falla la notificación en vivo, no debe tumbar la
+    // operación principal (crear/actualizar el pedido ya se guardó en la BD).
+    console.error("Error al publicar evento de pedido en Redis:", e);
+  }
+}
+
+// Devuelve un Subscriber (ver @upstash/redis) al que hay que engancharle
+// .on("message", ...) y, al terminar, llamarle .unsubscribe().
+export function suscribirseAPedidos() {
+  return redis.subscribe([CANAL_PEDIDOS]);
+}

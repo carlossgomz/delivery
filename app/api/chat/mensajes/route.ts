@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { chatEvents } from "@/lib/chatEvents";
+import { emitirNuevoMensaje } from "@/lib/chatEvents";
 
 // El cliente no tiene login: se identifica con un "clienteId" aleatorio que
 // el navegador genera una sola vez y guarda en localStorage. Cualquiera con
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     }
   });
 
-  chatEvents.emit("nuevo_mensaje", { conversacionId: conversacion.id, remitente: "CLIENTE" });
+  await emitirNuevoMensaje({ conversacionId: conversacion.id, remitente: "CLIENTE" });
 
   return NextResponse.json({ mensaje });
 }

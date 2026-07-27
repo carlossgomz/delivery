@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { isAdminAuthed } from "@/lib/auth";
-import { orderEvents } from "@/lib/orderEvents";
+import { suscribirseAPedidos, type MensajePedido } from "@/lib/orderEvents";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
 
   let heartbeat: NodeJS.Timeout | null = null;
   let isClosed = false;
+  const subscriber = suscribirseAPedidos();
 
   const stream = new ReadableStream({
     start(controller) {
@@ -37,12 +38,13 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      function onNewOrder(order: unknown) {
-        send("nuevo_pedido", order);
+      function onMessage({ message }: { message: MensajePedido }) {
+        if (message.evento === "nuevo_pedido") send("nuevo_pedido", message.data);
+        if (message.evento === "pedido_actualizado") send("pedido_actualizado", message.data);
       }
 
-      function onOrderUpdated(order: unknown) {
-        send("pedido_actualizado", order);
+      function onError(err: unknown) {
+        console.error("Error en suscripción Redis (pedidos):", err);
       }
 
       function cleanup() {
@@ -51,8 +53,10 @@ export async function GET(req: NextRequest) {
 
         if (heartbeat) clearInterval(heartbeat);
 
-        orderEvents.off("nuevo_pedido", onNewOrder);
-        orderEvents.off("pedido_actualizado", onOrderUpdated);
+        // Cierra el stream HTTP de la suscripción en Redis. No hace falta
+        // desenganchar los listeners a mano: una vez desuscritos no llega
+        // nada más y el objeto se descarta junto con el resto del closure.
+        subscriber.unsubscribe();
 
         try {
           controller.close();
@@ -64,9 +68,10 @@ export async function GET(req: NextRequest) {
       // Enviar mensaje inicial de conexión
       send("connected", { ok: true });
 
-      // Suscribir a los eventos globales de pedidos
-      orderEvents.on("nuevo_pedido", onNewOrder);
-      orderEvents.on("pedido_actualizado", onOrderUpdated);
+      // Suscribir al canal de pedidos en Redis (compartido entre todas las
+      // instancias serverless, no solo el proceso actual)
+      subscriber.on("message", onMessage);
+      subscriber.on("error", onError);
 
       // Latido constante cada 20s para mantener viva la conexión HTTP
       heartbeat = setInterval(sendPing, 20000);
@@ -81,6 +86,7 @@ export async function GET(req: NextRequest) {
     cancel() {
       isClosed = true;
       if (heartbeat) clearInterval(heartbeat);
+      subscriber.unsubscribe();
     }
   });
 

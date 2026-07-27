@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed, getClienteIdFromSession } from "@/lib/auth";
-import { orderEvents } from "@/lib/orderEvents";
+import { emitirEventoPedido } from "@/lib/orderEvents";
 
 // El cliente crea el pedido ANTES de pagar. El estado arranca en
 // PENDIENTE_VERIFICACION hasta que el personal de tienda marca
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     include: { items: { include: { product: true } } }
   });
 
-  orderEvents.emit("nuevo_pedido", order);
+  await emitirEventoPedido("nuevo_pedido", order);
 
   return NextResponse.json({ order });
 }

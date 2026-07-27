@@ -1,9 +1,24 @@
-import { EventEmitter } from "events";
+import { redis } from "@/lib/redis";
 
-// Mismo patrón que orderEvents.ts: vive mientras el proceso de Next.js esté
-// corriendo, alcanza para un solo servidor.
-const globalForEvents = globalThis as unknown as { chatEvents?: EventEmitter };
+// Mismo cambio que en orderEvents.ts: de EventEmitter en memoria a pub/sub
+// de Upstash Redis, para que funcione entre distintas instancias serverless.
+const CANAL_CHAT = "chat";
 
-export const chatEvents = globalForEvents.chatEvents ?? new EventEmitter();
+export type MensajeChat = {
+  conversacionId: string;
+  remitente: "CLIENTE" | "TIENDA";
+};
 
-if (process.env.NODE_ENV !== "production") globalForEvents.chatEvents = chatEvents;
+export async function emitirNuevoMensaje(payload: MensajeChat) {
+  try {
+    await redis.publish(CANAL_CHAT, payload);
+  } catch (e) {
+    console.error("Error al publicar evento de chat en Redis:", e);
+  }
+}
+
+// Subscriber de @upstash/redis: usar .on("message", ...) y .unsubscribe()
+// al terminar.
+export function suscribirseAChat() {
+  return redis.subscribe([CANAL_CHAT]);
+}

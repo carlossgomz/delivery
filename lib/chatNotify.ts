@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { chatEvents } from "@/lib/chatEvents";
+import { emitirNuevoMensaje } from "@/lib/chatEvents";
 
 // Envía un mensaje automático de "TIENDA" a la conversación de un cliente
 // con cuenta (mismo chat que usa el botón "💬 Contacto"). Se usa para
@@ -24,7 +24,7 @@ export async function notificarClientePorChat(clienteId: string, texto: string) 
       }
     });
 
-    chatEvents.emit("nuevo_mensaje", { conversacionId: conversacion.id, remitente: "TIENDA" });
+    await emitirNuevoMensaje({ conversacionId: conversacion.id, remitente: "TIENDA" });
   } catch (e) {
     // Si esto falla, no debe tumbar la operación principal (ej. guardar el
     // ajuste de un pedido) — el aviso por chat es un plus, no algo crítico.

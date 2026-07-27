@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed, hashPassword } from "@/lib/auth";
-import { orderEvents } from "@/lib/orderEvents";
+import { emitirEventoPedido } from "@/lib/orderEvents";
 
 // Pedido tomado por teléfono por el personal de tienda. Siempre queda
 // enlazado a una cuenta de Cliente (identificada por cédula) para no
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     include: { items: { include: { product: true } } }
   });
 
-  orderEvents.emit("nuevo_pedido", order);
+  await emitirEventoPedido("nuevo_pedido", order);
 
   return NextResponse.json({
     order,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed, getClienteIdFromSession } from "@/lib/auth";
-import { orderEvents } from "@/lib/orderEvents";
+import { emitirEventoPedido } from "@/lib/orderEvents";
 import { notificarClientePorChat } from "@/lib/chatNotify";
 import { formatCantidad } from "@/lib/peso";
 
@@ -41,7 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { items: { include: { product: true } } }
     });
 
-    orderEvents.emit("pedido_actualizado", order);
+    await emitirEventoPedido("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
 
@@ -75,7 +75,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { items: { include: { product: true } } }
     });
 
-    orderEvents.emit("pedido_actualizado", order);
+    await emitirEventoPedido("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
   const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "EN_CAMINO", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
@@ -104,7 +104,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { items: { include: { product: true } } }
     });
 
-    orderEvents.emit("pedido_actualizado", order);
+    await emitirEventoPedido("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
 
@@ -165,7 +165,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { items: { include: { product: true } } }
     });
 
-    orderEvents.emit("pedido_actualizado", updated);
+    await emitirEventoPedido("pedido_actualizado", updated);
 
     // Aviso por chat si hubo ajustes de cantidad/peso: el cliente lo ve la
     // próxima vez que abra "Contacto", y además la propia pantalla de
@@ -200,7 +200,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { items: { include: { product: true } } }
     });
 
-    orderEvents.emit("pedido_actualizado", order);
+    await emitirEventoPedido("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
 
@@ -213,7 +213,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { items: { include: { product: true } } }
     });
 
-    orderEvents.emit("pedido_actualizado", order);
+    await emitirEventoPedido("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
 
@@ -225,7 +225,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       include: { items: { include: { product: true } } }
     });
 
-    orderEvents.emit("pedido_actualizado", order);
+    await emitirEventoPedido("pedido_actualizado", order);
     return NextResponse.json({ order });
   }
 

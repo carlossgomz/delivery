@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed } from "@/lib/auth";
-import { chatEvents } from "@/lib/chatEvents";
+import { emitirNuevoMensaje } from "@/lib/chatEvents";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   if (!isAdminAuthed()) {
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     data: { updatedAt: new Date() }
   });
 
-  chatEvents.emit("nuevo_mensaje", { conversacionId: conversacion.id, remitente: "TIENDA" });
+  await emitirNuevoMensaje({ conversacionId: conversacion.id, remitente: "TIENDA" });
 
   return NextResponse.json({ mensaje });
 }

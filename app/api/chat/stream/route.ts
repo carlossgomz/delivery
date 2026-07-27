@@ -1,39 +1,61 @@
 import { NextRequest } from "next/server";
 import { isAdminAuthed } from "@/lib/auth";
-import { chatEvents } from "@/lib/chatEvents";
+import { suscribirseAChat, type MensajeChat } from "@/lib/chatEvents";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   if (!isAdminAuthed()) {
     return new Response("No autorizado", { status: 401 });
   }
 
+  const subscriber = suscribirseAChat();
+  let heartbeat: NodeJS.Timeout | null = null;
+  let isClosed = false;
+
   const stream = new ReadableStream({
     start(controller) {
       const encoder = new TextEncoder();
 
       function send(event: string, data: unknown) {
+        if (isClosed) return;
         controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+      }
+
+      function cleanup() {
+        if (isClosed) return;
+        isClosed = true;
+        if (heartbeat) clearInterval(heartbeat);
+        subscriber.unsubscribe();
+        try {
+          controller.close();
+        } catch {
+          // Si el controlador ya fue cerrado por el runtime
+        }
       }
 
       send("connected", { ok: true });
 
-      function onNuevoMensaje(payload: unknown) {
-        send("nuevo_mensaje", payload);
-      }
+      subscriber.on("message", ({ message }: { message: MensajeChat }) => {
+        send("nuevo_mensaje", message);
+      });
 
-      chatEvents.on("nuevo_mensaje", onNuevoMensaje);
+      subscriber.on("error", (err: unknown) => {
+        console.error("Error en suscripción Redis (chat):", err);
+      });
 
-      const heartbeat = setInterval(() => {
+      heartbeat = setInterval(() => {
+        if (isClosed) return;
         controller.enqueue(encoder.encode(`: ping\n\n`));
       }, 20000);
 
-      req.signal.addEventListener("abort", () => {
-        clearInterval(heartbeat);
-        chatEvents.off("nuevo_mensaje", onNuevoMensaje);
-        controller.close();
-      });
+      req.signal.addEventListener("abort", cleanup, { once: true });
+    },
+    cancel() {
+      isClosed = true;
+      if (heartbeat) clearInterval(heartbeat);
+      subscriber.unsubscribe();
     }
   });
 
