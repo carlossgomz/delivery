@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
-import { PESO_INICIAL, formatCantidad } from "@/lib/peso";
+import { formatCantidad } from "@/lib/peso";
 
 type Product = {
   id: string;
@@ -12,6 +12,7 @@ type Product = {
   precioUsd: number;
   categoria: string;
   activo: boolean;
+  imagenUrl?: string | null;
   // Si es true, precioUsd es el precio POR KILO y "cantidad" en el carrito
   // se interpreta como kilogramos (puede traer decimales) en vez de
   // unidades.
@@ -46,6 +47,9 @@ export default function CatalogPage() {
   const [tasaCambio, setTasaCambio] = useState<number>(0);
   const [pedidosHabilitados, setPedidosHabilitados] = useState<boolean>(true);
   const [cart, setCart] = useState<CartLine[]>([]);
+  // Peso que el cliente está escribiendo para un producto por kilo, pero
+  // que todavía no confirmó (no se agrega al carrito hasta que confirme).
+  const [pesoDrafts, setPesoDrafts] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [cartCargado, setCartCargado] = useState(false);
   const [cliente, setCliente] = useState<Cliente | null>(null);
@@ -410,7 +414,22 @@ export default function CatalogPage() {
                       {/* Nombre en su propia línea completa: con muchos
                           productos parecidos, cortarlo a la mitad hacía
                           imposible distinguir cuál era cuál. */}
-                      <p className="font-medium leading-snug">{p.nombre}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="shrink-0 w-12 h-12 rounded-lg border border-leaf-100 bg-leaf-50 overflow-hidden flex items-center justify-center">
+                          {p.imagenUrl ? (
+                            <img
+                              src={p.imagenUrl}
+                              alt={p.nombre}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-leaf-300 text-xl" aria-hidden="true">
+                              🛒
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-medium leading-snug">{p.nombre}</p>
+                      </div>
 
                       <div className="flex items-center justify-between gap-3">
                         {p.activo ? (
@@ -453,57 +472,79 @@ export default function CatalogPage() {
 
                       {/* Selector de peso: reemplaza el stepper de unidades
                           en productos que se venden por kilo (ej. carnes,
-                          quesos). Un único campo libre para que el cliente
-                          escriba exactamente el peso que quiere, sin
-                          botones de peso predeterminados. */}
-                      {p.activo && p.porPeso && (
-                        <div className="flex flex-col items-end gap-1.5">
-                          <div className="flex items-center gap-2">
-                            {line && (
-                              <button
-                                onClick={() => quitarLineaCompleta(p.id)}
-                                className="text-xs text-alert-600 underline"
-                              >
-                                Quitar
-                              </button>
-                            )}
-                            <input
-                              type="number"
-                              min={0.05}
-                              step={0.05}
-                              placeholder="kg"
-                              value={line ? line.cantidad : ""}
-                              onChange={(e) => fijarPeso(p.id, parseFloat(e.target.value) || 0)}
-                              onBlur={(e) => {
-                                const kilos = parseFloat(e.target.value) || 0;
-                                if (kilos > 0) {
-                                  notificarAgregado(
-                                    p.id,
-                                    `✓ Agregado: ${formatCantidad(kilos, true)} de ${p.nombre}`
-                                  );
+                          quesos). El cliente escribe el peso, ve el precio
+                          calculado, y recién se agrega al carrito cuando
+                          confirma con el botón (antes se agregaba solo
+                          mientras escribía). */}
+                      {p.activo && p.porPeso && (() => {
+                        const draftRaw = pesoDrafts[p.id];
+                        const draftValue =
+                          draftRaw !== undefined ? draftRaw : line ? String(line.cantidad) : "";
+                        const kilosDraft = parseFloat(draftValue) || 0;
+                        const precioEstimadoBs = (kilosDraft * p.precioUsd * tasaCambio).toFixed(2);
+
+                        function limpiarDraft() {
+                          setPesoDrafts((prev) => {
+                            const next = { ...prev };
+                            delete next[p.id];
+                            return next;
+                          });
+                        }
+
+                        function confirmarPeso() {
+                          if (kilosDraft > 0) {
+                            fijarPeso(p.id, kilosDraft);
+                            notificarAgregado(
+                              p.id,
+                              `✓ ${line ? "Actualizado" : "Agregado"}: ${formatCantidad(kilosDraft, true)} de ${p.nombre}`
+                            );
+                          } else if (line) {
+                            quitarLineaCompleta(p.id);
+                          }
+                          limpiarDraft();
+                        }
+
+                        return (
+                          <div className="flex flex-col items-end gap-1.5">
+                            <div className="flex items-center gap-2">
+                              {line && (
+                                <button
+                                  onClick={() => {
+                                    quitarLineaCompleta(p.id);
+                                    limpiarDraft();
+                                  }}
+                                  className="text-xs text-alert-600 underline"
+                                >
+                                  Quitar
+                                </button>
+                              )}
+                              <input
+                                type="number"
+                                min={0.05}
+                                step={0.05}
+                                placeholder="kg"
+                                value={draftValue}
+                                onChange={(e) =>
+                                  setPesoDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
                                 }
-                              }}
-                              className="w-20 text-sm border border-leaf-100 rounded-lg px-2 py-1.5 text-right focus:outline-none focus:border-leaf-500"
-                              aria-label={`Peso en kilos de ${p.nombre}`}
-                            />
-                            <span className="text-xs text-ink/50">kg</span>
-                            {!line && (
+                                className="w-20 text-sm border border-leaf-100 rounded-lg px-2 py-1.5 text-right focus:outline-none focus:border-leaf-500"
+                                aria-label={`Peso en kilos de ${p.nombre}`}
+                              />
+                              <span className="text-xs text-ink/50">kg</span>
                               <button
-                                onClick={() => {
-                                  fijarPeso(p.id, PESO_INICIAL);
-                                  notificarAgregado(
-                                    p.id,
-                                    `✓ Agregado: ${formatCantidad(PESO_INICIAL, true)} de ${p.nombre}`
-                                  );
-                                }}
-                                className="shrink-0 px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-xs hover:bg-leaf-800 active:scale-95 transition-all"
+                                onClick={confirmarPeso}
+                                disabled={kilosDraft <= 0 && !line}
+                                className="shrink-0 px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-xs hover:bg-leaf-800 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                               >
-                                Agregar
+                                {line ? "Actualizar" : "Agregar"}
                               </button>
+                            </div>
+                            {kilosDraft > 0 && (
+                              <p className="text-xs text-ink/50">≈ Bs {precioEstimadoBs}</p>
                             )}
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </li>
                   );
                 })}

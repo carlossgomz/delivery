@@ -27,6 +27,42 @@ export default function AdminHomePage() {
   >({});
   const [guardandoProductoId, setGuardandoProductoId] = useState<string | null>(null);
   const [cambiandoDisponibilidadId, setCambiandoDisponibilidadId] = useState<string | null>(null);
+  const [subiendoImagenId, setSubiendoImagenId] = useState<string | null>(null);
+
+  async function subirImagen(product: Product, file: File) {
+    setSubiendoImagenId(product.id);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("carpeta", "productos");
+
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!uploadRes.ok) {
+        alert("No se pudo subir la imagen.");
+        return;
+      }
+      const { url } = await uploadRes.json();
+
+      const patchRes = await fetch(`/api/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imagenUrl: url }),
+      });
+
+      if (patchRes.ok) {
+        const data = await patchRes.json();
+        const prodActualizado = data.product || data;
+        setProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, ...prodActualizado } : p)));
+      } else {
+        alert("La imagen se subió pero no se pudo asociar al producto.");
+      }
+    } catch (e) {
+      console.error("Error al subir imagen de producto:", e);
+      alert("Ocurrió un error al subir la imagen.");
+    } finally {
+      setSubiendoImagenId(null);
+    }
+  }
 
   useEffect(() => {
     // Cargar Tasa Actual
@@ -234,6 +270,7 @@ export default function AdminHomePage() {
             <table className="w-full text-left border-collapse text-sm">
               <thead>
                 <tr className="border-b border-leaf-100 bg-leaf-50/50 text-xs font-semibold text-leaf-800">
+                  <th className="py-3 px-3 w-16 text-center">Imagen</th>
                   <th className="py-3 px-4">Producto</th>
                   <th className="py-3 px-3 w-24 text-center">Por peso</th>
                   <th className="py-3 px-3 w-28">Precio ($)</th>
@@ -255,6 +292,36 @@ export default function AdminHomePage() {
 
                   return (
                     <tr key={product.id} className={`hover:bg-leaf-50/20 ${!product.activo ? "opacity-50" : ""}`}>
+                      {/* IMAGEN */}
+                      <td className="py-2 px-3">
+                        <label className="relative block w-11 h-11 rounded-lg border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group mx-auto">
+                          {product.imagenUrl ? (
+                            <img
+                              src={product.imagenUrl}
+                              alt={product.nombre}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="w-full h-full flex items-center justify-center text-leaf-300 text-lg">
+                              🛒
+                            </span>
+                          )}
+                          <span className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center text-white text-[9px] font-medium opacity-0 group-hover:opacity-100">
+                            {subiendoImagenId === product.id ? "..." : "Cambiar"}
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={subiendoImagenId === product.id}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) subirImagen(product, file);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+                      </td>
                       {/* NOMBRE */}
                       <td className="py-2 px-4">
                         <input
@@ -345,7 +412,7 @@ export default function AdminHomePage() {
 
                 {productosFiltrados.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-6 text-center text-xs text-ink/50">
+                    <td colSpan={7} className="py-6 text-center text-xs text-ink/50">
                       {searchTerm ? "No se encontraron productos." : "No hay productos disponibles."}
                     </td>
                   </tr>

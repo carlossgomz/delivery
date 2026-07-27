@@ -148,9 +148,9 @@ export default function MisPedidosPage() {
                 </li>
               ))}
             </ul>
-            {order.totalUsd != null && (
+            {order.totalBs != null && (
               <p className="text-sm font-medium text-leaf-800">
-                Total: ${order.totalUsd.toFixed(2)} · Bs {order.totalBs?.toFixed(2)}
+                Total: Bs {order.totalBs.toFixed(2)}
               </p>
             )}
           </div>

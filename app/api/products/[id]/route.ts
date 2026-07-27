@@ -14,7 +14,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       ...(body.precioUsd !== undefined && { precioUsd: Number(body.precioUsd) }),
       ...(body.categoria !== undefined && { categoria: body.categoria }),
       ...(body.activo !== undefined && { activo: Boolean(body.activo) }),
-      ...(body.porPeso !== undefined && { porPeso: Boolean(body.porPeso) })
+      ...(body.porPeso !== undefined && { porPeso: Boolean(body.porPeso) }),
+      ...(body.imagenUrl !== undefined && { imagenUrl: body.imagenUrl })
     }
   });
   return NextResponse.json({ product });

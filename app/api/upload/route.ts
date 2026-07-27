@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
-// Guarda la imagen del comprobante en Vercel Blob. A diferencia de escribir
-// en /public, esto sobrevive entre despliegues y funciona igual en local
-// que en producción (usa el mismo BLOB_READ_WRITE_TOKEN en ambos lados).
+// Guarda el archivo en Vercel Blob. A diferencia de escribir en /public,
+// esto sobrevive entre despliegues y funciona igual en local que en
+// producción (usa el mismo BLOB_READ_WRITE_TOKEN en ambos lados).
+//
+// "carpeta" es opcional (default "comprobantes", el uso original de este
+// endpoint); el admin de productos manda carpeta=productos para las
+// imágenes de producto.
+const CARPETAS_PERMITIDAS = ["comprobantes", "productos"];
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
+    const carpetaSolicitada = (formData.get("carpeta") as string | null) ?? "comprobantes";
+    const carpeta = CARPETAS_PERMITIDAS.includes(carpetaSolicitada) ? carpetaSolicitada : "comprobantes";
 
     if (!file) {
       return NextResponse.json({ error: "No se recibió archivo" }, { status: 400 });
@@ -22,7 +30,8 @@ export async function POST(req: NextRequest) {
     }
 
     const ext = file.name.split(".").pop() || "jpg";
-    const filename = `comprobantes/comprobante-${Date.now()}.${ext}`;
+    const prefijo = carpeta === "productos" ? "producto" : "comprobante";
+    const filename = `${carpeta}/${prefijo}-${Date.now()}.${ext}`;
 
     const blob = await put(filename, file, { access: "public" });
 
