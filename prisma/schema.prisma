@@ -26,6 +26,11 @@ model Product {
   // cliente elige cuántos kg quiere en vez de un número de unidades.
   // Si es false (default), se vende por unidad como siempre.
   porPeso          Boolean     @default(false)
+  // Orden manual del producto dentro de su categoría (menor = aparece
+  // primero). Todos los productos existentes arrancan en 0 y se
+  // desempatan por fecha de creación, así que no cambia nada hasta que el
+  // admin reordene explícitamente desde el panel.
+  orden            Int         @default(0)
   createdAt        DateTime    @default(now())
   OrderItem        OrderItem[]
 }

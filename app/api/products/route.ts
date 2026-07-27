@@ -10,7 +10,7 @@ import { isAdminAuthed } from "@/lib/auth";
 // (así el cliente sabe que existen y puede preguntar cuándo vuelven).
 export async function GET() {
   const products = await prisma.product.findMany({
-    orderBy: { categoria: "asc" }
+    orderBy: [{ categoria: "asc" }, { orden: "asc" }, { createdAt: "asc" }]
   });
 
   return NextResponse.json({ products });

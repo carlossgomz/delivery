@@ -1,44 +1,71 @@
-# Tanda 3 de cambios: puntos 1 y 2
+# Tanda 4 de cambios: punto 4 (categorías + orden)
 
-Copiá cada archivo sobre el mismo path en tu repo. No hace falta
-`npm install` ni migración de base de datos para esta tanda — el punto 2
-reutiliza el estado "ENTREGADO" que ya existía.
+Esta tanda SÍ requiere aplicar una migración a la base de datos. Es
+aditiva (agrega una columna nueva con default 0) — no borra ni modifica
+datos existentes.
 
-## Archivos modificados
+## Pasos para aplicar
 
-- `app/page.tsx` — **Punto 1**: el buscador del catálogo ahora también
-  matchea por nombre de categoría. Buscar "Refresco" trae los productos
-  que se llaman así Y los que pertenecen a la categoría "Refrescos",
-  aunque el nombre del producto no contenga esa palabra.
+1. Copiá estos archivos sobre el mismo path en tu repo:
+   - `prisma/schema.prisma`
+   - `prisma/migrations/20260727000000_add_orden_a_product/migration.sql`
+     (creá la carpeta si no existe)
+   - `app/api/products/route.ts`
+   - `app/api/products/[id]/route.ts`
+   - `app/api/categorias/renombrar/route.ts` (archivo nuevo — creá también
+     las carpetas `app/api/categorias/renombrar/`)
+   - `app/admin/productos/page.tsx`
 
-- `app/api/orders/[id]/route.ts` — **Punto 2**: nueva acción
-  `confirmar_recibido` (no requiere sesión de admin). Solo funciona
-  mientras el pedido está "En camino"; al confirmar, pasa a "Entregado" —
-  el mismo estado final al que llega la tienda si lo marca manualmente
-  desde el admin. Quedan las dos formas de confirmar, como pediste.
+2. Aplicá la migración contra tu base de Supabase:
+   ```
+   npx prisma migrate deploy
+   ```
+   (o `npx prisma migrate dev` si querés hacerlo desde tu entorno local de
+   desarrollo; con `deploy` no te pide confirmación ni genera archivos
+   nuevos, solo aplica los que ya existen — ideal para no tocar nada más).
 
-- `app/cliente/pedidos/page.tsx` y `app/checkout/page.tsx` — se agregó el
-  botón "✓ Ya recibí mi pedido" en la pantalla de seguimiento (aparece
-  solo cuando el pedido está "En camino"). `checkout/page.tsx` es la
-  pantalla que ven los pedidos de invitados sin cuenta; `cliente/pedidos`
-  es la de "Mis pedidos" para cuentas registradas — agregué el botón en
-  ambas para cubrir los dos casos.
+3. Regenerá el cliente de Prisma (por si el paso anterior no lo hizo solo):
+   ```
+   npx prisma generate
+   ```
+
+4. `npm run build` para confirmar que compila.
+
+## Qué cambia
+
+- **Nueva sección "Categorías"** arriba de la tabla de productos: lista
+  cada categoría existente con un campo de texto — cambiás el nombre y
+  tocás "Guardar", y se renombra en TODOS los productos que la tenían
+  asignada, de una sola vez (antes había que editar producto por
+  producto).
+
+- **Columna "Categoría"** en la tabla de productos: cada fila tiene su
+  propio campo (con autocompletado de categorías existentes) para mover
+  ESE producto en particular a otra categoría, sin afectar al resto.
+  Se guarda con el mismo botón "Guardar" de siempre.
+
+- **Tabla agrupada por categoría**, con un encabezado por grupo mostrando
+  el nombre y la cantidad de productos.
+
+- **Flechas ▲▼** junto al nombre de cada producto para moverlo arriba/abajo
+  dentro de su categoría. Están deshabilitadas mientras hay una búsqueda
+  activa (para no desordenar productos que en ese momento están ocultos
+  por el filtro) — el mensaje arriba de la tabla te avisa cuando pasa eso.
+
+- El catálogo del cliente (`app/page.tsx`, ya en un zip anterior) y el
+  admin ahora muestran los productos en ese mismo orden manual dentro de
+  cada categoría.
 
 ## Para probar
 
-1. `npm run build` para confirmar que compila.
-2. Buscador: escribir el nombre de una categoría (ej. "Refrescos") y
-   confirmar que trae todos los productos de esa categoría, no solo los
-   que tienen esa palabra en el nombre.
-3. Llevar un pedido de prueba hasta "En camino" desde el admin, y
-   confirmar que en la pantalla del cliente aparece el botón y que al
-   tocarlo el pedido pasa a "Entregado" (y desaparece de "pedidos
-   pendientes").
-4. Confirmar que la tienda TODAVÍA puede marcarlo "Entregado" manualmente
-   desde el admin sin depender del cliente.
+1. En "Categorías", renombrar una y confirmar que TODOS sus productos
+   quedan con el nombre nuevo (tanto en el admin como en el catálogo del
+   cliente).
+2. Mover un producto a otra categoría usando el campo "Categoría" de su
+   fila, y confirmar que aparece en el grupo correcto.
+3. Usar las flechas ▲▼ para reordenar productos dentro de una categoría, y
+   confirmar que el catálogo del cliente respeta ese orden.
 
-## Pendientes
+## Pendiente
 
-- Punto 4: editar categorías y ordenar productos (esperando tu
-  confirmación sobre la migración de base de datos).
-- Punto 6b: rediseño visual más grande del catálogo.
+- Punto 6b: rediseño visual más grande del catálogo (el único que queda).
