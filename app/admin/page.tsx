@@ -26,10 +26,11 @@ export default function AdminHomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingValues, setEditingValues] = useState<
-    Record<string, { nombre: string; precioUsd: string; porPeso: boolean }>
+    Record<string, { nombre: string; precioUsd: string; porPeso: boolean; categoria: string }>
   >({});
   const [guardandoProductoId, setGuardandoProductoId] = useState<string | null>(null);
   const [cambiandoDisponibilidadId, setCambiandoDisponibilidadId] = useState<string | null>(null);
+  const [subiendoImagenId, setSubiendoImagenId] = useState<string | null>(null);
 
   // Estados para agregar un producto nuevo
   const [nuevoProducto, setNuevoProducto] = useState({
@@ -65,12 +66,13 @@ export default function AdminHomePage() {
       const lista = Array.isArray(data.products) ? data.products : Array.isArray(data) ? data : [];
       setProducts(lista);
 
-      const iniciales: Record<string, { nombre: string; precioUsd: string; porPeso: boolean }> = {};
+      const iniciales: Record<string, { nombre: string; precioUsd: string; porPeso: boolean; categoria: string }> = {};
       lista.forEach((p: Product) => {
         iniciales[p.id] = {
           nombre: p.nombre,
           precioUsd: p.precioUsd?.toString() ?? "",
           porPeso: Boolean(p.porPeso),
+          categoria: p.categoria,
         };
       });
       setEditingValues(iniciales);
@@ -155,7 +157,7 @@ export default function AdminHomePage() {
 
   function handleProductChange(
     id: string,
-    field: "nombre" | "precioUsd" | "porPeso",
+    field: "nombre" | "precioUsd" | "porPeso" | "categoria",
     value: string | boolean
   ) {
     setEditingValues((prev) => ({
@@ -163,7 +165,7 @@ export default function AdminHomePage() {
       [id]: {
         ...prev[id],
         [field]: value,
-      } as { nombre: string; precioUsd: string; porPeso: boolean },
+      } as { nombre: string; precioUsd: string; porPeso: boolean; categoria: string },
     }));
   }
 
@@ -180,6 +182,7 @@ export default function AdminHomePage() {
         nombre: val.nombre,
         precioUsd,
         porPeso: val.porPeso,
+        categoria: val.categoria,
       };
 
       const res = await fetch(`/api/products/${id}`, {
@@ -225,6 +228,43 @@ export default function AdminHomePage() {
       console.error("Error al cambiar disponibilidad:", e);
     } finally {
       setCambiandoDisponibilidadId(null);
+    }
+  }
+
+  // Sube (o reemplaza) la imagen de un producto YA EXISTENTE, sin tener
+  // que borrarlo y crearlo de nuevo.
+  async function subirImagenProducto(product: Product, file: File) {
+    setSubiendoImagenId(product.id);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("carpeta", "productos");
+
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!uploadRes.ok) {
+        alert("No se pudo subir la imagen.");
+        return;
+      }
+      const { url } = await uploadRes.json();
+
+      const patchRes = await fetch(`/api/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imagenUrl: url }),
+      });
+
+      if (patchRes.ok) {
+        const data = await patchRes.json();
+        const prodActualizado = data.product || data;
+        setProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, ...prodActualizado } : p)));
+      } else {
+        alert("La imagen se subió pero no se pudo asociar al producto.");
+      }
+    } catch (e) {
+      console.error("Error al subir imagen de producto:", e);
+      alert("Ocurrió un error al subir la imagen.");
+    } finally {
+      setSubiendoImagenId(null);
     }
   }
 
@@ -280,6 +320,7 @@ export default function AdminHomePage() {
             nombre: producto.nombre,
             precioUsd: producto.precioUsd.toString(),
             porPeso: Boolean(producto.porPeso),
+            categoria: producto.categoria,
           },
         }));
         setNuevoProducto({ nombre: "", precioUsd: "", categoria: "", porPeso: false });
@@ -526,32 +567,83 @@ export default function AdminHomePage() {
 
           return (
             <div key={product.id} className={`p-4 ${!product.activo ? "bg-alert-50/30" : ""}`}>
-              {/* Línea 1: nombre completo, sin cortar */}
-              <input
-                type="text"
-                value={edit.nombre}
-                onChange={(e) => handleProductChange(product.id, "nombre", e.target.value)}
-                className="w-full font-medium text-ink border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-2 py-1.5 focus:bg-leaf-50/40 focus:outline-none"
-              />
-
-              <div className="flex flex-wrap items-center gap-2 mt-1.5 px-2">
-                <span className="text-xs text-ink/50 bg-leaf-50 px-2 py-0.5 rounded-full">
-                  {product.categoria}
-                </span>
-                {!product.activo && (
-                  <span className="text-xs font-medium text-alert-600 bg-alert-100 px-2 py-0.5 rounded-full">
-                    Sin stock — el cliente lo ve como no disponible
+              <div className="flex items-start gap-3">
+                {/* Imagen del producto: tocar la miniatura para subir o
+                    cambiar la foto sin tener que borrar y recrear el
+                    producto. */}
+                <label
+                  className="relative shrink-0 w-14 h-14 rounded-lg border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group"
+                  title="Cambiar imagen del producto"
+                >
+                  {product.imagenUrl ? (
+                    <img
+                      src={product.imagenUrl}
+                      alt={product.nombre}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="w-full h-full flex items-center justify-center text-leaf-300 text-xl">
+                      🛒
+                    </span>
+                  )}
+                  <span className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center text-white text-[9px] font-medium opacity-0 group-hover:opacity-100">
+                    {subiendoImagenId === product.id ? "..." : "Cambiar"}
                   </span>
-                )}
-                <label className="flex items-center gap-1.5 text-xs text-ink/60 select-none ml-auto">
+                  <span
+                    className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-leaf-600 text-white flex items-center justify-center text-[8px] shadow-sm border border-white"
+                    aria-hidden="true"
+                  >
+                    📷
+                  </span>
                   <input
-                    type="checkbox"
-                    checked={edit.porPeso}
-                    onChange={(e) => handleProductChange(product.id, "porPeso", e.target.checked)}
-                    className="w-3.5 h-3.5 accent-leaf-600 cursor-pointer"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={subiendoImagenId === product.id}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) subirImagenProducto(product, file);
+                      e.target.value = "";
+                    }}
                   />
-                  Se vende por kilo
                 </label>
+
+                <div className="flex-1 min-w-0">
+                  {/* Línea 1: nombre completo, sin cortar */}
+                  <input
+                    type="text"
+                    value={edit.nombre}
+                    onChange={(e) => handleProductChange(product.id, "nombre", e.target.value)}
+                    className="w-full font-medium text-ink border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-2 py-1.5 focus:bg-leaf-50/40 focus:outline-none"
+                  />
+
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5 px-2">
+                    {/* Categoría editable: escribe una existente (sugerida
+                        por el datalist) o una nueva, y toca "Guardar". */}
+                    <input
+                      type="text"
+                      list="categorias-existentes"
+                      value={edit.categoria}
+                      onChange={(e) => handleProductChange(product.id, "categoria", e.target.value)}
+                      title="Escribe una categoría existente o una nueva, y toca Guardar"
+                      className="text-xs text-ink/70 bg-leaf-50 hover:bg-leaf-100/70 focus:bg-white border border-transparent focus:border-leaf-500 px-2 py-0.5 rounded-full focus:outline-none w-32"
+                    />
+                    {!product.activo && (
+                      <span className="text-xs font-medium text-alert-600 bg-alert-100 px-2 py-0.5 rounded-full">
+                        Sin stock — el cliente lo ve como no disponible
+                      </span>
+                    )}
+                    <label className="flex items-center gap-1.5 text-xs text-ink/60 select-none ml-auto">
+                      <input
+                        type="checkbox"
+                        checked={edit.porPeso}
+                        onChange={(e) => handleProductChange(product.id, "porPeso", e.target.checked)}
+                        className="w-3.5 h-3.5 accent-leaf-600 cursor-pointer"
+                      />
+                      Se vende por kilo
+                    </label>
+                  </div>
+                </div>
               </div>
 
               {/* Línea 2: precio y acciones */}
