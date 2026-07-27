@@ -50,6 +50,13 @@ model Order {
   // llamó por teléfono). Sirve para no perder el registro de esas ventas
   // y para distinguirlas de un vistazo en /admin/pedidos.
   origen          String      @default("WEB")
+  // Sistema de crédito autorizado por la tienda: si es true, este pedido
+  // se entregó/confirmó sin exigir comprobante de pago inmediato porque el
+  // cliente tiene crédito habilitado (Cliente.creditoAutorizado). Queda
+  // como deuda hasta que la tienda marca creditoPagado = true a mano
+  // cuando cobra. No afecta el flujo de preparación/entrega del pedido.
+  esCredito       Boolean     @default(false)
+  creditoPagado   Boolean     @default(false)
   createdAt       DateTime    @default(now())
   items           OrderItem[]
 
@@ -71,6 +78,10 @@ model Cliente {
   telefono     String
   direccion    String
   passwordHash String
+  // Interruptor que solo la tienda puede activar (desde /admin/clientes):
+  // permite que este cliente reciba pedidos "a crédito" (pagar después) en
+  // el checkout, en vez de tener que subir comprobante de pago de una vez.
+  creditoAutorizado Boolean @default(false)
   createdAt    DateTime @default(now())
   orders       Order[]
 }
@@ -83,6 +94,13 @@ model OrderItem {
   // Para productos por peso (Product.porPeso = true) son los kilogramos
   // pedidos y puede traer decimales (0.5, 1.25, etc.), por eso es Float.
   cantidad   Float
+  // Si la tienda ajusta la cantidad/peso real disponible (ej. pidieron 3
+  // mayonesas y solo hay 1, o pidieron 200g de queso y al pesar salieron
+  // 220g), aquí queda la cantidad que el cliente pidió ORIGINALMENTE antes
+  // del ajuste. "cantidad" pasa a ser la cantidad real/confirmada (así el
+  // resto de la app -que ya lee "cantidad" para totales y listados- no
+  // necesita cambiar). Queda en null mientras no se haya ajustado nada.
+  cantidadOriginal Float?
   precioUsd  Float
   disponible Boolean?
   product    Product  @relation(fields: [productId], references: [id])

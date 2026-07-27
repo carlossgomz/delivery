@@ -6,6 +6,7 @@ import { formatCantidad } from "@/lib/peso";
 type OrderItem = {
   id: string;
   cantidad: number;
+  cantidadOriginal?: number | null;
   precioUsd: number;
   disponible: boolean | null;
   product: { nombre: string; porPeso?: boolean };
@@ -24,6 +25,8 @@ type Order = {
   nota?: string | null;
   referencia?: string | null;
   origen?: string;
+  esCredito?: boolean;
+  creditoPagado?: boolean;
   items?: OrderItem[];
 };
 
@@ -95,6 +98,13 @@ export default function AdminPedidosPage() {
   // (polling cada 6s, o un pedido nuevo llegando por el stream) no los
   // pise, que era la causa de que el checkbox pareciera "desmarcarse solo".
   const [cambiosSinGuardar, setCambiosSinGuardar] = useState<Record<string, Record<string, boolean>>>({});
+
+  // Igual que cambiosSinGuardar pero para la cantidad/peso real que el
+  // admin corrige cuando el stock real no coincide con lo pedido (ej.
+  // pidieron 3 mayonesas y solo hay 1, o pidieron 200g de queso y al pesar
+  // salieron 220g). Se guarda aparte por la misma razón: que el refresco
+  // automático no pise un cambio que el admin todavía no guardó.
+  const [cambiosCantidad, setCambiosCantidad] = useState<Record<string, Record<string, number>>>({});
 
   // Carga de pedidos desactivando el caché HTTP
   async function cargar() {
@@ -188,17 +198,33 @@ export default function AdminPedidosPage() {
     return pendiente !== undefined ? pendiente : !!item.disponible;
   }
 
+  function actualizarCantidad(order: Order, itemId: string, value: number) {
+    setCambiosCantidad((prev) => ({
+      ...prev,
+      [order.id]: { ...(prev[order.id] || {}), [itemId]: value }
+    }));
+  }
+
+  // Cantidad/peso real a mostrar en el campo editable: prioriza el cambio
+  // sin guardar sobre lo pedido originalmente, igual que con "disponible".
+  function cantidadMostrada(order: Order, item: OrderItem): number {
+    const pendiente = cambiosCantidad[order.id]?.[item.id];
+    return pendiente !== undefined ? pendiente : item.cantidad;
+  }
+
   async function guardarDisponibilidad(order: Order) {
     try {
       const itemsList = order.items || [];
-      const pendientes = cambiosSinGuardar[order.id] || {};
+      const pendientesDisponible = cambiosSinGuardar[order.id] || {};
+      const pendientesCantidad = cambiosCantidad[order.id] || {};
       await fetch(`/api/orders/${order.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: itemsList.map((i) => ({
             id: i.id,
-            disponible: pendientes[i.id] !== undefined ? pendientes[i.id] : !!i.disponible
+            disponible: pendientesDisponible[i.id] !== undefined ? pendientesDisponible[i.id] : !!i.disponible,
+            cantidad: pendientesCantidad[i.id] !== undefined ? pendientesCantidad[i.id] : i.cantidad
           }))
         })
       });
@@ -212,6 +238,10 @@ export default function AdminPedidosPage() {
       // Ya se guardó en el servidor: soltamos los cambios pendientes de
       // este pedido para que vuelva a reflejar lo que diga el servidor.
       setCambiosSinGuardar((prev) => {
+        const { [order.id]: _quitar, ...resto } = prev;
+        return resto;
+      });
+      setCambiosCantidad((prev) => {
         const { [order.id]: _quitar, ...resto } = prev;
         return resto;
       });
@@ -276,6 +306,32 @@ export default function AdminPedidosPage() {
     }
   }
 
+  // Pedido a crédito: la tienda marca que ya cobró la deuda. No cambia el
+  // estado de preparación/entrega, es solo un registro de cobranza.
+  async function marcarCreditoPagado(order: Order) {
+    setOrders((prev) =>
+      (prev || []).map((o) => (o.id === order.id ? { ...o, creditoPagado: true } : o))
+    );
+
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "marcar_credito_pagado" })
+      });
+      const data = await res.json();
+
+      if (data.order) {
+        setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
+      } else {
+        cargar();
+      }
+    } catch (e) {
+      console.error("Error al marcar el crédito como pagado:", e);
+      cargar();
+    }
+  }
+
   const safeOrders = Array.isArray(orders) ? orders : [];
 
   return (
@@ -305,6 +361,17 @@ export default function AdminPedidosPage() {
                         📞 Por llamada
                       </span>
                     )}
+                    {order.esCredito && (
+                      <span
+                        className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                          order.creditoPagado
+                            ? "bg-leaf-100 text-leaf-700"
+                            : "bg-clay-100 text-clay-600"
+                        }`}
+                      >
+                        {order.creditoPagado ? "🤝 Crédito cobrado" : "🤝 Crédito pendiente"}
+                      </span>
+                    )}
                   </p>
                   <p className="text-sm text-ink/60">
                     {order.clienteTelefono} · {order.direccion}
@@ -317,27 +384,66 @@ export default function AdminPedidosPage() {
                 </span>
               </div>
 
+              {order.esCredito && !order.creditoPagado && (
+                <button
+                  onClick={() => marcarCreditoPagado(order)}
+                  className="mb-2 px-3 py-1.5 rounded-lg border border-clay-600 text-clay-600 text-xs font-medium hover:bg-clay-100 transition-colors"
+                >
+                  💵 Marcar crédito cobrado
+                </button>
+              )}
+
               <ul className="text-sm divide-y divide-leaf-50">
                 {items.map((item) => (
-                  <li key={item.id} className="flex items-center justify-between py-2">
-                    <span>
+                  <li key={item.id} className="flex items-center justify-between py-2 gap-2">
+                    <span className="min-w-0">
                       {item.product?.porPeso
                         ? formatCantidad(item.cantidad, true)
                         : `${item.cantidad}×`}{" "}
                       {item.product?.nombre ?? "Producto"}
+                      {item.cantidadOriginal != null && (
+                        <span className="block text-[10px] text-clay-600">
+                          Ajustado (pedido:{" "}
+                          {item.product?.porPeso
+                            ? formatCantidad(item.cantidadOriginal, true)
+                            : `${item.cantidadOriginal}×`}
+                          )
+                        </span>
+                      )}
                     </span>
                     {order.estado === "PENDIENTE_VERIFICACION" ? (
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={disponibleMostrado(order, item)}
-                          onChange={(e) => toggleDisponible(order, item.id, e.target.checked)}
-                          className="rounded text-leaf-600 focus:ring-leaf-500"
-                        />
-                        <span className="text-xs">Disponible</span>
-                      </label>
+                      <div className="shrink-0 flex items-center gap-2 sm:gap-3">
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={disponibleMostrado(order, item)}
+                            onChange={(e) => toggleDisponible(order, item.id, e.target.checked)}
+                            className="rounded text-leaf-600 focus:ring-leaf-500"
+                          />
+                          <span className="text-xs">Disponible</span>
+                        </label>
+                        {disponibleMostrado(order, item) && (
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="number"
+                              min={0}
+                              step={item.product?.porPeso ? 0.05 : 1}
+                              value={cantidadMostrada(order, item)}
+                              onChange={(e) =>
+                                actualizarCantidad(order, item.id, parseFloat(e.target.value) || 0)
+                              }
+                              className="w-16 text-xs border border-leaf-100 rounded px-1.5 py-1 text-right focus:outline-none focus:border-leaf-500"
+                              aria-label={`Cantidad real disponible de ${item.product?.nombre}`}
+                              title="Editar si la cantidad/peso real disponible es distinta a lo pedido"
+                            />
+                            <span className="text-[10px] text-ink/40">
+                              {item.product?.porPeso ? "kg" : "uds"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     ) : (
-                      <span className={item.disponible ? "text-leaf-600 font-medium" : "text-alert-600 font-medium"}>
+                      <span className={item.disponible ? "text-leaf-600 font-medium shrink-0" : "text-alert-600 font-medium shrink-0"}>
                         {item.disponible ? "Disponible" : "No disponible"}
                       </span>
                     )}

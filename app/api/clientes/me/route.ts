@@ -19,7 +19,8 @@ export async function GET() {
       nombre: cliente.nombre,
       cedula: cliente.cedula,
       telefono: cliente.telefono,
-      direccion: cliente.direccion
+      direccion: cliente.direccion,
+      creditoAutorizado: (cliente as any).creditoAutorizado ?? false
     }
   });
 }
@@ -48,7 +49,8 @@ export async function PATCH(req: NextRequest) {
       nombre: cliente.nombre,
       cedula: cliente.cedula,
       telefono: cliente.telefono,
-      direccion: cliente.direccion
+      direccion: cliente.direccion,
+      creditoAutorizado: (cliente as any).creditoAutorizado ?? false
     }
   });
 }

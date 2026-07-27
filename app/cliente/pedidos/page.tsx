@@ -8,6 +8,7 @@ import { formatCantidad } from "@/lib/peso";
 type OrderItem = {
   id: string;
   cantidad: number;
+  cantidadOriginal?: number | null;
   precioUsd: number;
   product: { nombre: string; porPeso?: boolean };
 };
@@ -18,6 +19,8 @@ type Order = {
   totalUsd: number | null;
   totalBs: number | null;
   createdAt: string;
+  esCredito?: boolean;
+  creditoPagado?: boolean;
   items: OrderItem[];
 };
 
@@ -109,11 +112,22 @@ export default function MisPedidosPage() {
                   year: "numeric"
                 })}
               </p>
-              <span
-                className={`text-xs px-2 py-1 rounded-full font-medium ${COLORES[order.estado] ?? "bg-clay-100 text-clay-600"}`}
-              >
-                {ETIQUETAS[order.estado] ?? order.estado}
-              </span>
+              <div className="flex items-center gap-1.5">
+                {order.esCredito && (
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full font-medium ${
+                      order.creditoPagado ? "bg-leaf-100 text-leaf-700" : "bg-clay-100 text-clay-600"
+                    }`}
+                  >
+                    {order.creditoPagado ? "🤝 Crédito pagado" : "🤝 Crédito"}
+                  </span>
+                )}
+                <span
+                  className={`text-xs px-2 py-1 rounded-full font-medium ${COLORES[order.estado] ?? "bg-clay-100 text-clay-600"}`}
+                >
+                  {ETIQUETAS[order.estado] ?? order.estado}
+                </span>
+              </div>
             </div>
             <ul className="text-sm text-ink/80 space-y-1 mb-2">
               {order.items.map((item) => (
@@ -122,6 +136,15 @@ export default function MisPedidosPage() {
                     ? formatCantidad(item.cantidad, true)
                     : `${item.cantidad}×`}{" "}
                   {item.product.nombre}
+                  {item.cantidadOriginal != null && (
+                    <span className="block text-xs text-clay-600">
+                      La tienda ajustó la cantidad (pediste{" "}
+                      {item.product?.porPeso
+                        ? formatCantidad(item.cantidadOriginal, true)
+                        : `${item.cantidadOriginal}×`}
+                      )
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

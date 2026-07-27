@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthed } from "@/lib/auth";
+import { isAdminAuthed, getClienteIdFromSession } from "@/lib/auth";
 import { orderEvents } from "@/lib/orderEvents";
+import { notificarClientePorChat } from "@/lib/chatNotify";
+import { formatCantidad } from "@/lib/peso";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const order = await prisma.order.findUnique({
@@ -43,7 +45,39 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ order });
   }
 
-  // 1) Si el cliente está enviando su comprobante/referencia de pago desde la vista pública:
+  // 0.5) El cliente elige pagar después (crédito autorizado por la tienda)
+  // en vez de subir comprobante ya mismo. No requiere sesión de admin,
+  // pero sí que el pedido sea del cliente logueado y que la tienda le haya
+  // habilitado el crédito de antemano — nunca se confía en un flag que
+  // mande el propio navegador para esto.
+  if (body.action === "usar_credito") {
+    const clienteId = getClienteIdFromSession();
+    if (!clienteId) {
+      return NextResponse.json({ error: "Debes iniciar sesión para usar crédito" }, { status: 401 });
+    }
+
+    const cliente = await prisma.cliente.findUnique({ where: { id: clienteId } });
+    if (!cliente || !(cliente as any).creditoAutorizado) {
+      return NextResponse.json({ error: "No tienes crédito autorizado por la tienda" }, { status: 403 });
+    }
+
+    const existente = await prisma.order.findUnique({ where: { id: params.id } });
+    if (!existente || existente.clienteId !== clienteId) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+    }
+    if (existente.estado !== "ESPERANDO_PAGO") {
+      return NextResponse.json({ error: "Este pedido no está listo para pagar" }, { status: 400 });
+    }
+
+    const order = await prisma.order.update({
+      where: { id: params.id },
+      data: { estado: "CONFIRMADO", esCredito: true, creditoPagado: false } as any,
+      include: { items: { include: { product: true } } }
+    });
+
+    orderEvents.emit("pedido_actualizado", order);
+    return NextResponse.json({ order });
+  }
   const esEstadoAdmin = ["CONFIRMADO", "EN_PREPARACION", "EN_CAMINO", "ENTREGADO", "CANCELADO", "ESPERANDO_PAGO"].includes(body.estado);
 
   const tieneCamposCliente =
@@ -79,10 +113,32 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // 3) El personal marca disponible/no disponible producto por producto.
+  // 3) El personal marca disponible/no disponible producto por producto, y
+  // opcionalmente corrige la cantidad real (ej. pidieron 3 mayonesas y solo
+  // hay 1, o pidieron 200g de queso y al pesar salieron 220g). La primera
+  // vez que se ajusta, se guarda la cantidad que el cliente pidió
+  // originalmente en "cantidadOriginal" para poder mostrarle el cambio; si
+  // se vuelve a ajustar antes de confirmar, esa cantidad original no se
+  // pisa (siempre refleja lo que el cliente pidió de entrada).
   if (body.items) {
-    for (const it of body.items as { id: string; disponible: boolean }[]) {
-      await prisma.orderItem.update({ where: { id: it.id }, data: { disponible: it.disponible } });
+    const idsRecibidos = (body.items as { id: string }[]).map((it) => it.id);
+    const existentes = await prisma.orderItem.findMany({ where: { id: { in: idsRecibidos } } });
+
+    for (const it of body.items as { id: string; disponible: boolean; cantidad?: number }[]) {
+      const actual = existentes.find((e) => e.id === it.id);
+      const data: Record<string, unknown> = { disponible: it.disponible };
+
+      if (
+        actual &&
+        typeof it.cantidad === "number" &&
+        it.cantidad > 0 &&
+        it.cantidad !== actual.cantidad
+      ) {
+        data.cantidadOriginal = (actual as any).cantidadOriginal ?? actual.cantidad;
+        data.cantidad = it.cantidad;
+      }
+
+      await prisma.orderItem.update({ where: { id: it.id }, data: data as any });
     }
     return NextResponse.json({ ok: true });
   }
@@ -91,7 +147,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (body.action === "confirmar_disponibilidad") {
     const order = await prisma.order.findUnique({
       where: { id: params.id },
-      include: { items: true }
+      include: { items: { include: { product: true } } }
     });
     if (!order) return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
 
@@ -110,6 +166,25 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     });
 
     orderEvents.emit("pedido_actualizado", updated);
+
+    // Aviso por chat si hubo ajustes de cantidad/peso: el cliente lo ve la
+    // próxima vez que abra "Contacto", y además la propia pantalla de
+    // checkout/pedidos ya le muestra el cambio para que lo confirme antes
+    // de pagar. Solo aplica a cuentas registradas (ver notificarClientePorChat).
+    const itemsAjustados = disponibles.filter((i: any) => i.cantidadOriginal != null);
+    if (updated.clienteId && itemsAjustados.length > 0) {
+      const detalle = itemsAjustados
+        .map(
+          (i: any) =>
+            `${i.product.nombre}: pediste ${formatCantidad(i.cantidadOriginal, i.product.porPeso)}, quedó en ${formatCantidad(i.cantidad, i.product.porPeso)}`
+        )
+        .join(" · ");
+      await notificarClientePorChat(
+        updated.clienteId,
+        `📝 Ajustamos tu pedido según el stock real disponible: ${detalle}. Revisa el detalle antes de pagar.`
+      );
+    }
+
     return NextResponse.json({ order: updated });
   }
 
@@ -122,6 +197,19 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         comprobanteUrl: null,
         notaPago: null
       },
+      include: { items: { include: { product: true } } }
+    });
+
+    orderEvents.emit("pedido_actualizado", order);
+    return NextResponse.json({ order });
+  }
+
+  // 5.5) La tienda marca un pedido a crédito como ya cobrado (solo lleva
+  // registro de la deuda; no cambia el estado de preparación/entrega).
+  if (body.action === "marcar_credito_pagado") {
+    const order = await prisma.order.update({
+      where: { id: params.id },
+      data: { creditoPagado: true } as any,
       include: { items: { include: { product: true } } }
     });
 

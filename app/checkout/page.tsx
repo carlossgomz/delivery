@@ -9,15 +9,27 @@ import { formatCantidad } from "@/lib/peso";
 
 type Product = { id: string; nombre: string; precioUsd: number; porPeso?: boolean };
 type CartLine = { productId: string; cantidad: number };
-type Cliente = { id: string; nombre: string; telefono: string; direccion: string };
+type Cliente = {
+  id: string;
+  nombre: string;
+  telefono: string;
+  direccion: string;
+  creditoAutorizado?: boolean;
+};
 type OrderData = {
   id: string;
   estado: string;
   totalUsd: number | null;
   totalBs: number | null;
+  tasaCambio?: number;
+  esCredito?: boolean;
   items?: {
     productId: string;
     cantidad: number;
+    // Cantidad que el cliente pidió originalmente, si la tienda la tuvo
+    // que ajustar por diferencia de stock real (ver lib/peso + admin/pedidos).
+    cantidadOriginal?: number | null;
+    precioUsd?: number;
     disponible?: boolean | null;
     product?: { nombre: string; porPeso?: boolean };
   }[];
@@ -173,12 +185,18 @@ export default function CheckoutPage() {
 
   // Una vez la tienda confirma disponibilidad, si algún artículo no estaba
   // disponible mostramos primero un resumen de qué sí / qué no llegó,
-  // antes de dejar pasar a la pantalla de pago.
+  // antes de dejar pasar a la pantalla de pago. Lo mismo si algún artículo
+  // sigue disponible pero la tienda tuvo que ajustar la cantidad/peso real
+  // (ej. pidieron 3 y solo había 1, o pidieron 200g y salieron 220g): el
+  // cliente también debe verlo y confirmarlo antes de pagar.
   const itemsNoDisponibles = (order?.items ?? []).filter((it) => it.disponible === false);
   const itemsDisponibles = (order?.items ?? []).filter((it) => it.disponible !== false);
+  const itemsAjustados = itemsDisponibles.filter((it) => it.cantidadOriginal != null);
+  const itemsSinCambios = itemsDisponibles.filter((it) => it.cantidadOriginal == null);
   const hayNoDisponibles = itemsNoDisponibles.length > 0;
+  const hayAjustes = itemsAjustados.length > 0;
   const mostrarVerificacionParcial =
-    estado === "ESPERANDO_PAGO" && hayNoDisponibles && !continuarConParcial;
+    estado === "ESPERANDO_PAGO" && (hayNoDisponibles || hayAjustes) && !continuarConParcial;
 
   async function enviarPedido() {
     if (!pedidosHabilitados) {
@@ -277,6 +295,40 @@ export default function CheckoutPage() {
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Error al procesar el pago");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  // El cliente tiene crédito autorizado por la tienda: recibe el pedido
+  // ya mismo y lo paga después, sin subir comprobante. Al quedar
+  // "CONFIRMADO" de una vez, esta pantalla deja de bloquear el checkout
+  // (se limpia el pedido activo) y el cliente puede armar otro pedido
+  // nuevo sin tener que resolver este primero.
+  async function procesarCredito() {
+    if (!orderId) return;
+    setEnviando(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "usar_credito" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "No se pudo procesar el pedido a crédito.");
+      }
+
+      if (data?.order) {
+        setOrder(data.order);
+        setEstado(data.order.estado);
+      }
+      localStorage.removeItem(ACTIVE_ORDER_KEY);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al procesar el pedido a crédito");
     } finally {
       setEnviando(false);
     }
@@ -392,38 +444,85 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {estado === "PENDIENTE_VERIFICACION" && (
-          <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-3 shadow-sm">
-            <p className="text-clay-600 animate-pulse text-center">
-              La tienda está confirmando qué productos tiene disponibles…
-            </p>
-            <div>
-              <p className="text-xs font-semibold text-ink/60 mb-1">Tu pedido:</p>
-              <ul className="text-sm text-ink/80 divide-y divide-leaf-50">
-                {(order?.items || []).map((it, idx) => (
-                  <li key={idx} className="flex items-center justify-between py-1.5">
-                    <span>{it.product?.nombre ?? "Producto"}</span>
-                    <span className="text-ink/60">
-                      {it.product?.porPeso ? formatCantidad(it.cantidad, true) : `×${it.cantidad}`}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+        {estado === "PENDIENTE_VERIFICACION" && (() => {
+          const items = order?.items ?? [];
+          const totalEstimadoUsd = items.reduce(
+            (sum, it) => sum + (it.precioUsd ?? 0) * it.cantidad,
+            0
+          );
+          const totalEstimadoBs = totalEstimadoUsd * (order?.tasaCambio ?? tasaCambio);
+
+          return (
+            <div className="text-left bg-white rounded-lg border border-leaf-100 shadow-sm overflow-hidden">
+              <p className="text-clay-600 animate-pulse text-center text-sm py-2.5 bg-clay-100/50 border-b border-dashed border-leaf-200">
+                🔎 La tienda está confirmando qué productos tiene disponibles…
+              </p>
+
+              {/* Estética de ticket/factura de supermercado */}
+              <div className="font-mono px-4 py-4">
+                <div className="text-center mb-3">
+                  <p className="font-bold tracking-wide text-ink">DAY EXPRESS SUPERMARKET</p>
+                  <p className="text-[11px] text-ink/50">Comprobante de verificación de stock</p>
+                  <p className="text-[11px] text-ink/50">Pedido #{(order?.id ?? "").slice(0, 8) || orderId?.slice(0, 8)}</p>
+                </div>
+
+                <div className="border-t border-dashed border-ink/30 my-2" />
+
+                <ul className="text-xs sm:text-sm divide-y divide-dashed divide-ink/10">
+                  {items.map((it, idx) => {
+                    const cantidadTexto = it.product?.porPeso
+                      ? formatCantidad(it.cantidad, true)
+                      : `${it.cantidad}×`;
+                    const lineaUsd = (it.precioUsd ?? 0) * it.cantidad;
+                    return (
+                      <li key={idx} className="py-1.5">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="text-ink/80 truncate">
+                            {cantidadTexto} {it.product?.nombre ?? "Producto"}
+                          </span>
+                          <span className="text-ink/60 whitespace-nowrap">
+                            ${lineaUsd.toFixed(2)}
+                          </span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <div className="border-t border-dashed border-ink/30 my-2" />
+
+                <div className="flex items-center justify-between text-sm font-bold text-ink">
+                  <span>TOTAL ESTIMADO</span>
+                  <span>${totalEstimadoUsd.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-ink/50">
+                  <span>Bs (referencial)</span>
+                  <span>Bs {totalEstimadoBs.toFixed(2)}</span>
+                </div>
+                <p className="text-[10px] text-ink/40 mt-2 text-center">
+                  * El total puede variar si algún producto no está disponible o si su
+                  cantidad/peso real difiere de lo pedido.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {mostrarVerificacionParcial && (
           <div className="text-left bg-white rounded-lg border border-leaf-100 p-4 space-y-4 shadow-sm">
             <p className="text-sm text-ink/80 font-medium">
-              La tienda ya revisó tu pedido. Algunos artículos no estaban disponibles:
+              {hayNoDisponibles && hayAjustes
+                ? "La tienda ya revisó tu pedido: algunos artículos no estaban disponibles y a otros les tuvo que ajustar la cantidad. Revisa los cambios:"
+                : hayAjustes
+                ? "La tienda ajustó la cantidad/peso de algunos artículos según el stock real. Revisa los cambios antes de pagar:"
+                : "La tienda ya revisó tu pedido. Algunos artículos no estaban disponibles:"}
             </p>
 
-            {itemsDisponibles.length > 0 && (
+            {itemsSinCambios.length > 0 && (
               <div>
                 <p className="text-xs font-semibold text-leaf-700 mb-1">✅ Sí están disponibles</p>
                 <ul className="text-sm text-ink/80 space-y-1">
-                  {itemsDisponibles.map((it) => (
+                  {itemsSinCambios.map((it) => (
                     <li key={it.productId}>
                       {it.product?.porPeso
                         ? formatCantidad(it.cantidad, true)
@@ -435,23 +534,53 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            <div>
-              <p className="text-xs font-semibold text-alert-600 mb-1">✖ No están disponibles</p>
-              <ul className="text-sm text-ink/80 space-y-1">
-                {itemsNoDisponibles.map((it) => (
-                  <li key={it.productId}>
-                    {it.product?.porPeso
-                      ? formatCantidad(it.cantidad, true)
-                      : `${it.cantidad}×`}{" "}
-                    {it.product?.nombre ?? "Producto"}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {itemsAjustados.length > 0 && (
+              <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-200">
+                <p className="text-xs font-semibold text-amber-800 mb-1">
+                  ⚠️ Cantidad/peso ajustado por la tienda
+                </p>
+                <ul className="text-sm text-ink/80 space-y-1.5">
+                  {itemsAjustados.map((it) => (
+                    <li key={it.productId}>
+                      <span className="font-medium">{it.product?.nombre ?? "Producto"}</span>
+                      <br />
+                      <span className="text-xs text-ink/60">
+                        Pediste{" "}
+                        {it.product?.porPeso
+                          ? formatCantidad(it.cantidadOriginal ?? 0, true)
+                          : `${it.cantidadOriginal}×`}
+                        {" → "}
+                        <span className="text-amber-800 font-semibold">
+                          {it.product?.porPeso
+                            ? formatCantidad(it.cantidad, true)
+                            : `${it.cantidad}×`}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {itemsNoDisponibles.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-alert-600 mb-1">✖ No están disponibles</p>
+                <ul className="text-sm text-ink/80 space-y-1">
+                  {itemsNoDisponibles.map((it) => (
+                    <li key={it.productId}>
+                      {it.product?.porPeso
+                        ? formatCantidad(it.cantidad, true)
+                        : `${it.cantidad}×`}{" "}
+                      {it.product?.nombre ?? "Producto"}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {itemsDisponibles.length > 0 && (
               <div className="p-3 bg-leaf-100/30 rounded-lg border border-leaf-100">
-                <p className="text-xs text-ink/60">Total si continúas solo con lo disponible:</p>
+                <p className="text-xs text-ink/60">Total si continúas con lo disponible:</p>
                 <p className="text-lg font-bold text-leaf-800">
                   Bs {(order?.totalBs ?? 0).toFixed(2)}
                 </p>
@@ -465,16 +594,18 @@ export default function CheckoutPage() {
                   onClick={() => setContinuarConParcial(true)}
                   className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-40"
                 >
-                  ✅ Continuar solo con lo disponible
+                  ✅ {hayAjustes && !hayNoDisponibles ? "Confirmar cambios y continuar" : "Continuar solo con lo disponible"}
                 </button>
               )}
-              <button
-                disabled={enviando}
-                onClick={reemplazarArticulo}
-                className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
-              >
-                🔄 Reemplazar artículo (volver al catálogo)
-              </button>
+              {hayNoDisponibles && (
+                <button
+                  disabled={enviando}
+                  onClick={reemplazarArticulo}
+                  className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
+                >
+                  🔄 Reemplazar artículo (volver al catálogo)
+                </button>
+              )}
               <button
                 disabled={enviando}
                 onClick={rechazarPedido}
@@ -562,6 +693,25 @@ export default function CheckoutPage() {
             >
               {enviando ? "Procesando pago…" : "Finalizar compra ✨"}
             </button>
+
+            {/* Crédito autorizado por la tienda: solo aparece si el admin
+                lo habilitó para esta cuenta desde /admin/clientes. Deja
+                pasar el pedido sin comprobante, como una deuda a cobrar
+                después. */}
+            {cliente?.creditoAutorizado && (
+              <div className="pt-1 border-t border-dashed border-leaf-200 mt-2 space-y-2">
+                <p className="text-xs text-ink/60 text-center pt-2">
+                  🤝 Tienes crédito autorizado por la tienda
+                </p>
+                <button
+                  disabled={enviando}
+                  onClick={procesarCredito}
+                  className="w-full py-3 rounded-lg border border-clay-600 text-clay-600 font-medium hover:bg-clay-100 transition-colors disabled:opacity-40"
+                >
+                  {enviando ? "Procesando…" : "Recibir ahora y pagar después"}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -627,7 +777,20 @@ export default function CheckoutPage() {
 
         {(estado === "CONFIRMADO" || estado === "EN_PREPARACION") && (
           <div className="bg-white rounded-lg border border-leaf-100 p-6 space-y-4 shadow-sm">
-            <p className="text-leaf-600 font-medium">✅ Pago confirmado. Tu pedido está en preparación.</p>
+            {order?.esCredito ? (
+              <>
+                <p className="text-clay-700 font-medium">
+                  🤝 Pedido recibido a crédito. Tu pedido está en preparación y queda pendiente de
+                  pago con la tienda.
+                </p>
+                <p className="text-xs text-ink/50">
+                  Puedes seguir haciendo más pedidos mientras tanto, no necesitas saldar este
+                  primero.
+                </p>
+              </>
+            ) : (
+              <p className="text-leaf-600 font-medium">✅ Pago confirmado. Tu pedido está en preparación.</p>
+            )}
             <button
               onClick={() => {
                 localStorage.removeItem(ACTIVE_ORDER_KEY);

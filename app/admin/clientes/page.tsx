@@ -9,6 +9,7 @@ type Cliente = {
   cedula: string;
   telefono: string;
   direccion: string;
+  creditoAutorizado?: boolean;
 };
 
 // Genera una contraseña temporal fácil de dictar por teléfono: 6 dígitos.
@@ -27,6 +28,37 @@ export default function AdminClientesPage() {
   const [guardando, setGuardando] = useState(false);
   const [passwordAsignada, setPasswordAsignada] = useState<string | null>(null);
   const [errorGuardar, setErrorGuardar] = useState<string | null>(null);
+
+  // Crédito autorizado por la tienda
+  const [guardandoCredito, setGuardandoCredito] = useState(false);
+  const [errorCredito, setErrorCredito] = useState<string | null>(null);
+
+  async function alternarCredito() {
+    if (!cliente) return;
+    const nuevoValor = !cliente.creditoAutorizado;
+    setGuardandoCredito(true);
+    setErrorCredito(null);
+
+    try {
+      const res = await fetch("/api/clientes/credito", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cedula: cliente.cedula, creditoAutorizado: nuevoValor })
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "No se pudo actualizar el crédito.");
+      }
+
+      const data = await res.json();
+      setCliente(data.cliente);
+    } catch (err: any) {
+      setErrorCredito(err.message || "No se pudo actualizar el crédito.");
+    } finally {
+      setGuardandoCredito(false);
+    }
+  }
 
   async function buscarCliente() {
     const cedulaLimpia = cedula.trim();
@@ -131,6 +163,38 @@ export default function AdminClientesPage() {
             <p className="text-sm text-ink/60">Cédula: {cliente.cedula}</p>
             <p className="text-sm text-ink/60">Teléfono: {cliente.telefono}</p>
             <p className="text-sm text-ink/60">Dirección: {cliente.direccion}</p>
+          </div>
+
+          <hr className="border-leaf-100" />
+
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-ink/80">🤝 Crédito autorizado</p>
+                <p className="text-xs text-ink/50 mt-0.5">
+                  Permite que este cliente reciba pedidos y los pague después, sin subir
+                  comprobante al momento.
+                </p>
+              </div>
+              <button
+                onClick={alternarCredito}
+                disabled={guardandoCredito}
+                aria-pressed={!!cliente.creditoAutorizado}
+                className={`shrink-0 relative w-12 h-7 rounded-full transition-colors disabled:opacity-40 ${
+                  cliente.creditoAutorizado ? "bg-leaf-600" : "bg-leaf-100"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                    cliente.creditoAutorizado ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+            {errorCredito && <p className="text-sm text-alert-600 mt-2">{errorCredito}</p>}
+            <p className={`text-xs mt-2 font-medium ${cliente.creditoAutorizado ? "text-leaf-700" : "text-ink/40"}`}>
+              {cliente.creditoAutorizado ? "✅ Crédito activado" : "Crédito desactivado"}
+            </p>
           </div>
 
           <hr className="border-leaf-100" />

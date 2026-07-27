@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
       nombre: cliente.nombre,
       cedula: cliente.cedula,
       telefono: cliente.telefono,
-      direccion: cliente.direccion
+      direccion: cliente.direccion,
+      creditoAutorizado: (cliente as any).creditoAutorizado ?? false
     }
   });
 }

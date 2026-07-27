@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
-import { PESOS_SUGERIDOS, PESO_INICIAL } from "@/lib/peso";
+import { PESO_INICIAL, formatCantidad } from "@/lib/peso";
 
 type Product = {
   id: string;
@@ -79,6 +79,30 @@ export default function CatalogPage() {
   // despliega junto a la barra inferior, para no tener que scrollear el
   // catálogo buscando lo que ya se seleccionó.
   const [mostrarResumen, setMostrarResumen] = useState(false);
+
+  // --- Feedback visual de "producto agregado" ---
+  // recienAgregadoId: id del producto cuya tarjeta debe mostrar el aro que
+  // "late" (se limpia solo con un timeout, por eso siempre se guarda el
+  // id del timeout anterior para poder cancelarlo si se agrega rápido dos
+  // veces el mismo producto).
+  const [recienAgregadoId, setRecienAgregadoId] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<{ id: number; texto: string }[]>([]);
+  const toastIdRef = useRef(0);
+  const pulsoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function notificarAgregado(productId: string, texto: string) {
+    setRecienAgregadoId(productId);
+    if (pulsoTimeoutRef.current) clearTimeout(pulsoTimeoutRef.current);
+    pulsoTimeoutRef.current = setTimeout(() => {
+      setRecienAgregadoId((prev) => (prev === productId ? null : prev));
+    }, 900);
+
+    const id = ++toastIdRef.current;
+    setToasts((prev) => [...prev, { id, texto }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 1700);
+  }
 
   async function cargarPedidosPendientes() {
     try {
@@ -182,6 +206,8 @@ export default function CatalogPage() {
     // Al agregar el primer artículo, se muestra el resumen automáticamente
     // para que quede a la vista sin tener que buscarlo.
     setMostrarResumen(true);
+    const nombre = products.find((p) => p.id === productId)?.nombre ?? "Producto";
+    notificarAgregado(productId, `✓ Agregado: ${nombre}`);
   }
 
   function removeFromCart(productId: string) {
@@ -216,6 +242,10 @@ export default function CatalogPage() {
   function ajustarPeso(productId: string, delta: number) {
     const actual = cart.find((l) => l.productId === productId)?.cantidad ?? 0;
     fijarPeso(productId, actual + delta);
+    if (delta > 0) {
+      const nombre = products.find((p) => p.id === productId)?.nombre ?? "Producto";
+      notificarAgregado(productId, `✓ Agregado: ${nombre}`);
+    }
   }
 
   // Total para el badge "N producto(s)": suma unidades normalmente, pero
@@ -365,10 +395,18 @@ export default function CatalogPage() {
                   return (
                     <li
                       key={p.id}
-                      className={`flex flex-col gap-2 bg-white rounded-lg border px-4 py-3 ${
+                      className={`relative flex flex-col gap-2 bg-white rounded-lg border px-4 py-3 ${
                         p.activo ? "border-leaf-100" : "border-leaf-100 opacity-60"
-                      }`}
+                      } ${recienAgregadoId === p.id ? "animate-agregado" : ""}`}
                     >
+                      {recienAgregadoId === p.id && (
+                        <span
+                          className="animate-agregado-badge pointer-events-none absolute -top-2.5 right-3 z-10 px-2 py-0.5 rounded-full bg-leaf-600 text-white text-[10px] font-bold shadow-sm"
+                          aria-hidden="true"
+                        >
+                          ✓ Agregado
+                        </span>
+                      )}
                       {/* Nombre en su propia línea completa: con muchos
                           productos parecidos, cortarlo a la mitad hacía
                           imposible distinguir cuál era cuál. */}
@@ -415,25 +453,11 @@ export default function CatalogPage() {
 
                       {/* Selector de peso: reemplaza el stepper de unidades
                           en productos que se venden por kilo (ej. carnes,
-                          quesos). Los botones fijan un peso exacto y el
-                          input permite un valor a medida. */}
+                          quesos). Un único campo libre para que el cliente
+                          escriba exactamente el peso que quiere, sin
+                          botones de peso predeterminados. */}
                       {p.activo && p.porPeso && (
                         <div className="flex flex-col items-end gap-1.5">
-                          <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                            {PESOS_SUGERIDOS.map((peso) => (
-                              <button
-                                key={peso}
-                                onClick={() => fijarPeso(p.id, peso)}
-                                className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
-                                  line?.cantidad === peso
-                                    ? "bg-leaf-600 text-white border-leaf-600"
-                                    : "border-leaf-200 text-ink/70 hover:bg-leaf-50"
-                                }`}
-                              >
-                                {peso < 1 ? `${peso * 1000}g` : `${peso}kg`}
-                              </button>
-                            ))}
-                          </div>
                           <div className="flex items-center gap-2">
                             {line && (
                               <button
@@ -450,13 +474,28 @@ export default function CatalogPage() {
                               placeholder="kg"
                               value={line ? line.cantidad : ""}
                               onChange={(e) => fijarPeso(p.id, parseFloat(e.target.value) || 0)}
-                              className="w-16 text-sm border border-leaf-100 rounded-lg px-2 py-1.5 text-right focus:outline-none focus:border-leaf-500"
+                              onBlur={(e) => {
+                                const kilos = parseFloat(e.target.value) || 0;
+                                if (kilos > 0) {
+                                  notificarAgregado(
+                                    p.id,
+                                    `✓ Agregado: ${formatCantidad(kilos, true)} de ${p.nombre}`
+                                  );
+                                }
+                              }}
+                              className="w-20 text-sm border border-leaf-100 rounded-lg px-2 py-1.5 text-right focus:outline-none focus:border-leaf-500"
                               aria-label={`Peso en kilos de ${p.nombre}`}
                             />
                             <span className="text-xs text-ink/50">kg</span>
                             {!line && (
                               <button
-                                onClick={() => fijarPeso(p.id, PESO_INICIAL)}
+                                onClick={() => {
+                                  fijarPeso(p.id, PESO_INICIAL);
+                                  notificarAgregado(
+                                    p.id,
+                                    `✓ Agregado: ${formatCantidad(PESO_INICIAL, true)} de ${p.nombre}`
+                                  );
+                                }}
                                 className="shrink-0 px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-xs hover:bg-leaf-800 active:scale-95 transition-all"
                               >
                                 Agregar
@@ -475,6 +514,26 @@ export default function CatalogPage() {
       ) : (
         <div className="text-center py-12 text-ink/60 text-sm">
           No se encontraron productos que coincidan con la búsqueda.
+        </div>
+      )}
+
+      {/* Toasts de confirmación: uno por cada producto agregado/editado,
+          apilados justo encima de la barra del carrito para que se note
+          incluso si el resumen de abajo está colapsado. */}
+      {toasts.length > 0 && (
+        <div
+          className={`fixed inset-x-0 z-30 flex flex-col items-center gap-1.5 px-4 pointer-events-none ${
+            totalItems > 0 ? "bottom-24 sm:bottom-28" : "bottom-4"
+          }`}
+        >
+          {toasts.map((t) => (
+            <div
+              key={t.id}
+              className="animate-toast-entrada max-w-full px-3.5 py-2 rounded-full bg-leaf-800 text-white text-xs sm:text-sm font-medium shadow-lg"
+            >
+              {t.texto}
+            </div>
+          ))}
         </div>
       )}
 
