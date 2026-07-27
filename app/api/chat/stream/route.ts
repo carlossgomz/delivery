@@ -37,7 +37,8 @@ export async function GET(req: NextRequest) {
 
       send("connected", { ok: true });
 
-      subscriber.on("message", ({ message }: { message: MensajeChat }) => {
+      subscriber.on("message", (data: { message: unknown }) => {
+        const message = data.message as MensajeChat;
         send("nuevo_mensaje", message);
       });
 

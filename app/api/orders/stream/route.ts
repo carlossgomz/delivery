@@ -38,7 +38,8 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      function onMessage({ message }: { message: MensajePedido }) {
+      function onMessage(data: { message: unknown }) {
+        const message = data.message as MensajePedido;
         if (message.evento === "nuevo_pedido") send("nuevo_pedido", message.data);
         if (message.evento === "pedido_actualizado") send("pedido_actualizado", message.data);
       }
