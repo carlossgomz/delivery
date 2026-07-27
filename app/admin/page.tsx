@@ -38,6 +38,11 @@ export default function AdminHomePage() {
     categoria: "",
     porPeso: false,
   });
+  // Imagen elegida para el producto nuevo: se sube recién cuando se
+  // confirma "Agregar" (junto con el resto de los datos), no apenas se
+  // selecciona el archivo.
+  const [nuevaImagenFile, setNuevaImagenFile] = useState<File | null>(null);
+  const [nuevaImagenPreview, setNuevaImagenPreview] = useState<string | null>(null);
   const [agregandoProducto, setAgregandoProducto] = useState(false);
   const [mensajeNuevoProducto, setMensajeNuevoProducto] = useState("");
 
@@ -241,10 +246,28 @@ export default function AdminHomePage() {
     setMensajeNuevoProducto("");
 
     try {
+      // Si el admin eligió una imagen, se sube primero: así el producto
+      // ya se crea con su foto en vez de tener que ir a buscarlo después
+      // para asociársela.
+      let imagenUrl: string | null = null;
+      if (nuevaImagenFile) {
+        const formData = new FormData();
+        formData.append("file", nuevaImagenFile);
+        formData.append("carpeta", "productos");
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        if (!uploadRes.ok) {
+          setMensajeNuevoProducto("No se pudo subir la imagen. Intenta agregar el producto de nuevo.");
+          setAgregandoProducto(false);
+          return;
+        }
+        const uploadData = await uploadRes.json();
+        imagenUrl = uploadData.url;
+      }
+
       const res = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, precioUsd, categoria, porPeso: nuevoProducto.porPeso }),
+        body: JSON.stringify({ nombre, precioUsd, categoria, porPeso: nuevoProducto.porPeso, imagenUrl }),
       });
 
       if (res.ok) {
@@ -260,6 +283,8 @@ export default function AdminHomePage() {
           },
         }));
         setNuevoProducto({ nombre: "", precioUsd: "", categoria: "", porPeso: false });
+        setNuevaImagenFile(null);
+        setNuevaImagenPreview(null);
         setMensajeNuevoProducto(`"${producto.nombre}" agregado al catálogo.`);
       } else {
         setMensajeNuevoProducto("No se pudo agregar el producto.");
@@ -288,11 +313,10 @@ export default function AdminHomePage() {
       {/* INTERRUPTOR: ABRIR/CERRAR PEDIDOS */}
       <h1 className="font-display text-xl text-leaf-800 mb-4">Estado de la tienda</h1>
       <div
-        className={`flex items-center justify-between gap-4 rounded-lg border p-4 mb-8 ${
-          pedidosHabilitados
+        className={`flex items-center justify-between gap-4 rounded-lg border p-4 mb-8 ${pedidosHabilitados
             ? "bg-leaf-50 border-leaf-100"
             : "bg-alert-50 border-alert-200"
-        }`}
+          }`}
       >
         <div>
           <p className={`font-medium ${pedidosHabilitados ? "text-leaf-800" : "text-alert-700"}`}>
@@ -309,14 +333,12 @@ export default function AdminHomePage() {
           disabled={cambiandoPedidos}
           role="switch"
           aria-checked={pedidosHabilitados}
-          className={`shrink-0 relative w-14 h-8 rounded-full transition-colors disabled:opacity-50 ${
-            pedidosHabilitados ? "bg-leaf-600" : "bg-ink/20"
-          }`}
+          className={`shrink-0 relative w-14 h-8 rounded-full transition-colors disabled:opacity-50 ${pedidosHabilitados ? "bg-leaf-600" : "bg-ink/20"
+            }`}
         >
           <span
-            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${
-              pedidosHabilitados ? "translate-x-6" : "translate-x-0"
-            }`}
+            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${pedidosHabilitados ? "translate-x-6" : "translate-x-0"
+              }`}
           />
         </button>
       </div>
@@ -409,45 +431,69 @@ export default function AdminHomePage() {
       {/* AGREGAR PRODUCTO NUEVO */}
       <div className="bg-leaf-50/60 border border-leaf-100 rounded-lg p-4 mb-4">
         <p className="text-sm font-medium text-leaf-800 mb-3">➕ Agregar producto nuevo</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_140px_180px_auto] gap-2.5">
-          <input
-            type="text"
-            placeholder="Nombre del producto"
-            value={nuevoProducto.nombre}
-            onChange={(e) => setNuevoProducto((prev) => ({ ...prev, nombre: e.target.value }))}
-            className="border border-leaf-100 rounded-lg px-3 py-2.5 bg-white"
-          />
-          <div className="relative flex items-center">
-            <span className="absolute left-3 text-xs text-ink/40">$</span>
+        <div className="flex flex-col sm:flex-row gap-2.5">
+          {/* Imagen del producto nuevo (opcional): se sube junto con el
+              resto de los datos al tocar "Agregar". */}
+          <label className="relative shrink-0 w-16 h-16 sm:w-[42px] sm:h-[42px] rounded-lg border border-dashed border-leaf-300 bg-white overflow-hidden cursor-pointer flex items-center justify-center mx-auto sm:mx-0">
+            {nuevaImagenPreview ? (
+              <img src={nuevaImagenPreview} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-leaf-400 text-lg" title="Agregar imagen (opcional)">
+                📷
+              </span>
+            )}
             <input
-              type="number"
-              step="0.01"
-              placeholder="Precio"
-              value={nuevoProducto.precioUsd}
-              onChange={(e) => setNuevoProducto((prev) => ({ ...prev, precioUsd: e.target.value }))}
-              className="w-full pl-6 pr-3 py-2.5 border border-leaf-100 rounded-lg bg-white"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                if (nuevaImagenPreview) URL.revokeObjectURL(nuevaImagenPreview);
+                setNuevaImagenFile(file);
+                setNuevaImagenPreview(file ? URL.createObjectURL(file) : null);
+              }}
             />
+          </label>
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_140px_180px_auto] gap-2.5">
+            <input
+              type="text"
+              placeholder="Nombre del producto"
+              value={nuevoProducto.nombre}
+              onChange={(e) => setNuevoProducto((prev) => ({ ...prev, nombre: e.target.value }))}
+              className="border border-leaf-100 rounded-lg px-3 py-2.5 bg-white"
+            />
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-xs text-ink/40">$</span>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Precio"
+                value={nuevoProducto.precioUsd}
+                onChange={(e) => setNuevoProducto((prev) => ({ ...prev, precioUsd: e.target.value }))}
+                className="w-full pl-6 pr-3 py-2.5 border border-leaf-100 rounded-lg bg-white"
+              />
+            </div>
+            <input
+              type="text"
+              list="categorias-existentes"
+              placeholder="Categoría (ej: Lácteos)"
+              value={nuevoProducto.categoria}
+              onChange={(e) => setNuevoProducto((prev) => ({ ...prev, categoria: e.target.value }))}
+              className="border border-leaf-100 rounded-lg px-3 py-2.5 bg-white"
+            />
+            <datalist id="categorias-existentes">
+              {categoriasExistentes.map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
+            <button
+              onClick={agregarProducto}
+              disabled={agregandoProducto}
+              className="px-4 py-2.5 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40 hover:bg-leaf-700 transition-colors whitespace-nowrap"
+            >
+              {agregandoProducto ? "Agregando..." : "Agregar"}
+            </button>
           </div>
-          <input
-            type="text"
-            list="categorias-existentes"
-            placeholder="Categoría (ej: Lácteos)"
-            value={nuevoProducto.categoria}
-            onChange={(e) => setNuevoProducto((prev) => ({ ...prev, categoria: e.target.value }))}
-            className="border border-leaf-100 rounded-lg px-3 py-2.5 bg-white"
-          />
-          <datalist id="categorias-existentes">
-            {categoriasExistentes.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
-          <button
-            onClick={agregarProducto}
-            disabled={agregandoProducto}
-            className="px-4 py-2.5 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40 hover:bg-leaf-700 transition-colors whitespace-nowrap"
-          >
-            {agregandoProducto ? "Agregando..." : "Agregar"}
-          </button>
         </div>
         <label className="flex items-center gap-2 mt-2.5 text-xs text-ink/70 select-none">
           <input
@@ -542,17 +588,16 @@ export default function AdminHomePage() {
                   <button
                     onClick={() => toggleDisponibilidad(product)}
                     disabled={cambiandoDisponibilidad}
-                    className={`px-3.5 py-2 rounded-lg text-xs font-medium disabled:opacity-40 border transition-colors ${
-                      product.activo
+                    className={`px-3.5 py-2 rounded-lg text-xs font-medium disabled:opacity-40 border transition-colors ${product.activo
                         ? "border-alert-600 text-alert-600 hover:bg-alert-50"
                         : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
-                    }`}
+                      }`}
                   >
                     {cambiandoDisponibilidad
                       ? "..."
                       : product.activo
-                      ? "Marcar sin stock"
-                      : "Marcar disponible"}
+                        ? "Marcar sin stock"
+                        : "Marcar disponible"}
                   </button>
                 </div>
               </div>
