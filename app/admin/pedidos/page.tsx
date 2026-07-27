@@ -54,40 +54,10 @@ const COLORES: Record<string, string> = {
   CANCELADO: "bg-alert-100 text-alert-600 border border-alert-200"
 };
 
-function sonarAlerta() {
-  if (typeof window === "undefined") return;
-
-  try {
-    const AudioContextClass =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass) return;
-
-    const ctx = new AudioContextClass();
-
-    if (ctx.state === "suspended") {
-      ctx.resume();
-    }
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.setValueAtTime(1174.66, ctx.currentTime + 0.15);
-
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
-  } catch {
-    // Silencia fallos en reproducción automática
-  }
-}
+// El sonido de alerta y las notificaciones de escritorio ahora viven en
+// AdminNav (barra superior, montada en toda la sección /admin), para que
+// avisen sin importar en qué pantalla del admin esté el personal. Aquí
+// solo queda la lógica propia de esta pantalla (cargar/editar pedidos).
 
 export default function AdminPedidosPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -137,12 +107,10 @@ export default function AdminPedidosPage() {
       });
 
       eventSource.addEventListener("nuevo_pedido", () => {
-        sonarAlerta();
         cargar();
       });
 
       eventSource.addEventListener("pedido_actualizado", (event: MessageEvent) => {
-        sonarAlerta();
         if (event.data) {
           try {
             const updatedOrder: Order = JSON.parse(event.data);
