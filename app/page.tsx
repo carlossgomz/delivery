@@ -277,153 +277,171 @@ export default function CatalogPage() {
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-4 pb-36">
-      <header className="sticky top-0 z-10 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 -mx-4 px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
-        <img
-          src="/branding/logo-day-express.png"
-          alt="Day Express Supermarket"
-          className="h-11 sm:h-14 w-auto shrink-0 object-contain"
-        />
-        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-          <Link
-            href="/mensajes"
-            className="relative shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-white border border-leaf-100 text-leaf-700 text-xs sm:text-sm font-medium hover:bg-leaf-50 active:scale-95 transition-all whitespace-nowrap"
-            aria-label="Escribir o llamar a la tienda"
-          >
-            💬 Contacto
-            {mensajesNoLeidos > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-alert-600 text-white text-[10px] font-bold flex items-center justify-center leading-none">
-                {mensajesNoLeidos > 9 ? "9+" : mensajesNoLeidos}
-              </span>
-            )}
-          </Link>
-          {cliente && (
+    <main className="max-w-6xl mx-auto pb-36">
+      {/* --- CABECERA + BUSCADOR + CATEGORÍAS: todo fijo mientras se
+          scrollea el catálogo, agrupado en un solo bloque sticky. --- */}
+      <div className="sticky top-0 z-20 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 shadow-[0_1px_0_rgba(38,68,35,0.04)]">
+        <header className="px-4 pt-3 sm:pt-4 pb-2 flex items-center justify-between gap-2">
+          <img
+            src="/branding/logo-day-express.png"
+            alt="Day Express Supermarket"
+            className="h-11 sm:h-14 w-auto shrink-0 object-contain"
+          />
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <Link
-              href="/cliente/pedidos"
+              href="/mensajes"
               className="relative shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-white border border-leaf-100 text-leaf-700 text-xs sm:text-sm font-medium hover:bg-leaf-50 active:scale-95 transition-all whitespace-nowrap"
+              aria-label="Escribir o llamar a la tienda"
             >
-              🛍️ Pedidos
-              {pedidosPendientes > 0 && (
+              💬 Contacto
+              {mensajesNoLeidos > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-alert-600 text-white text-[10px] font-bold flex items-center justify-center leading-none">
-                  {pedidosPendientes > 9 ? "9+" : pedidosPendientes}
+                  {mensajesNoLeidos > 9 ? "9+" : mensajesNoLeidos}
                 </span>
               )}
             </Link>
-          )}
-          <Link
-            href={cliente ? "/cliente" : "/cliente/login"}
-            className="shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-leaf-600 text-white text-xs sm:text-sm font-medium hover:bg-leaf-800 active:scale-95 transition-all whitespace-nowrap max-w-[9rem] sm:max-w-none truncate"
-          >
-            {cliente ? (
-              <>
-                <span className="sm:hidden">👋 {cliente.nombre.split(" ")[0]}</span>
-                <span className="hidden sm:inline">👋 Hola, {cliente.nombre.split(" ")[0]}</span>
-              </>
-            ) : (
-              <>
-                <span className="sm:hidden">Entrar</span>
-                <span className="hidden sm:inline">Iniciar sesión</span>
-              </>
+            {cliente && (
+              <Link
+                href="/cliente/pedidos"
+                className="relative shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-white border border-leaf-100 text-leaf-700 text-xs sm:text-sm font-medium hover:bg-leaf-50 active:scale-95 transition-all whitespace-nowrap"
+              >
+                🛍️ Pedidos
+                {pedidosPendientes > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-alert-600 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                    {pedidosPendientes > 9 ? "9+" : pedidosPendientes}
+                  </span>
+                )}
+              </Link>
             )}
-          </Link>
-        </div>
-      </header>
+            <Link
+              href={cliente ? "/cliente" : "/cliente/login"}
+              className="shrink-0 flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full bg-leaf-600 text-white text-xs sm:text-sm font-medium hover:bg-leaf-800 active:scale-95 transition-all whitespace-nowrap max-w-[9rem] sm:max-w-none truncate"
+            >
+              {cliente ? (
+                <>
+                  <span className="sm:hidden">👋 {cliente.nombre.split(" ")[0]}</span>
+                  <span className="hidden sm:inline">👋 Hola, {cliente.nombre.split(" ")[0]}</span>
+                </>
+              ) : (
+                <>
+                  <span className="sm:hidden">Entrar</span>
+                  <span className="hidden sm:inline">Iniciar sesión</span>
+                </>
+              )}
+            </Link>
+          </div>
+        </header>
 
-      {!pedidosHabilitados && (
-        <div className="my-4 bg-alert-50 border border-alert-200 rounded-lg px-4 py-3">
-          <p className="text-sm text-alert-700 font-medium">
-            🌙 En este momento no estamos atendiendo pedidos.
-          </p>
-          <p className="text-xs text-alert-700/80 mt-1">
-            Puedes seguir mirando el catálogo. Horario: {HORARIO_ATENCION.linea1} · {HORARIO_ATENCION.linea2}
-          </p>
-        </div>
-      )}
-
-      {pedidoActivoId && (
-        <div className="my-4 flex items-center justify-between gap-3 bg-clay-100 border border-clay-200 rounded-lg px-4 py-3">
-          <p className="text-sm text-ink/80">Tienes un pedido en curso.</p>
-          <button
-            onClick={() => router.push("/checkout")}
-            className="px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-800 transition-colors shrink-0"
-          >
-            Continuar pedido
-          </button>
-        </div>
-      )}
-
-      {/* --- BARRA DE BÚSQUEDA Y CATEGORÍAS --- */}
-      <div className="mb-6 space-y-4">
         {/* Input de Búsqueda */}
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Buscar productos..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-lg border border-leaf-100 bg-white text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-leaf-600 transition-all text-sm"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink/40 hover:text-ink/80"
+        <div className="px-4 pb-3">
+          <div className="relative">
+            <svg
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-leaf-600/60 pointer-events-none"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
             >
-              Limpiar
-            </button>
-          )}
-        </div>
+              <circle cx="9" cy="9" r="6.5" />
+              <path d="M17.5 17.5 13.5 13.5" strokeLinecap="round" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar productos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-16 py-2.5 sm:py-3 rounded-full border border-leaf-100 bg-white text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-leaf-600 transition-all text-sm shadow-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-leaf-700 font-medium hover:text-leaf-800"
+              >
+                Limpiar
+              </button>
+            )}
+          </div>
 
-        {/* Chips de Categorías */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {["Todas", ...categorias].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === cat
-                ? "bg-leaf-600 text-white"
-                : "bg-white text-ink/70 border border-leaf-100 hover:bg-leaf-100/50"
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
+          {/* Chips de Categorías */}
+          <div className="flex gap-2 overflow-x-auto pt-3 pb-0.5 scrollbar-none">
+            {["Todas", ...categorias].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${selectedCategory === cat
+                  ? "bg-leaf-600 text-white shadow-sm"
+                  : "bg-white text-ink/70 border border-leaf-100 hover:bg-leaf-100/50"
+                  }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       {/* --------------------------------------- */}
 
-      {/* Lista de Secciones por Categoría */}
-      {activeCategories.length > 0 ? (
-        activeCategories.map((cat) => {
-          const categoryProducts = filteredProducts.filter((p) => p.categoria === cat);
-          if (categoryProducts.length === 0) return null;
+      <div className="px-4">
+        {!pedidosHabilitados && (
+          <div className="mt-4 bg-alert-50 border border-alert-200 rounded-lg px-4 py-3">
+            <p className="text-sm text-alert-700 font-medium">
+              🌙 En este momento no estamos atendiendo pedidos.
+            </p>
+            <p className="text-xs text-alert-700/80 mt-1">
+              Puedes seguir mirando el catálogo. Horario: {HORARIO_ATENCION.linea1} · {HORARIO_ATENCION.linea2}
+            </p>
+          </div>
+        )}
 
-          return (
-            <section key={cat} className="mb-8">
-              <h2 className="text-sm uppercase tracking-wide text-leaf-600 mb-3">{cat}</h2>
-              <ul className="space-y-2">
-                {categoryProducts.map((p) => {
-                  const line = cart.find((l) => l.productId === p.id);
-                  const precioBs = (p.precioUsd * tasaCambio).toFixed(2);
-                  return (
-                    <li
-                      key={p.id}
-                      className={`relative flex flex-col gap-2 bg-white rounded-lg border px-4 py-3 ${
-                        p.activo ? "border-leaf-100" : "border-leaf-100 opacity-60"
-                      } ${recienAgregadoId === p.id ? "animate-agregado" : ""}`}
-                    >
-                      {recienAgregadoId === p.id && (
-                        <span
-                          className="animate-agregado-badge pointer-events-none absolute -top-2.5 right-3 z-10 px-2 py-0.5 rounded-full bg-leaf-600 text-white text-[10px] font-bold shadow-sm"
-                          aria-hidden="true"
-                        >
-                          ✓ Agregado
-                        </span>
-                      )}
-                      {/* Nombre en su propia línea completa: con muchos
-                          productos parecidos, cortarlo a la mitad hacía
-                          imposible distinguir cuál era cuál. */}
-                      <div className="flex items-center gap-3">
-                        <div className="shrink-0 w-12 h-12 rounded-lg border border-leaf-100 bg-leaf-50 overflow-hidden flex items-center justify-center">
+        {pedidoActivoId && (
+          <div className="mt-4 flex items-center justify-between gap-3 bg-clay-100 border border-clay-200 rounded-lg px-4 py-3">
+            <p className="text-sm text-ink/80">Tienes un pedido en curso.</p>
+            <button
+              onClick={() => router.push("/checkout")}
+              className="px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-800 transition-colors shrink-0"
+            >
+              Continuar pedido
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Catálogo en tarjetas: cuadrícula responsive agrupada por
+          categoría (imagen arriba, botón de agregar flotante sobre la
+          imagen, nombre y precio abajo). */}
+      <div className="px-4">
+        {activeCategories.length > 0 ? (
+          activeCategories.map((cat) => {
+            const categoryProducts = filteredProducts.filter((p) => p.categoria === cat);
+            if (categoryProducts.length === 0) return null;
+
+            return (
+              <section key={cat} className="mt-6 mb-8">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-leaf-700 mb-3">
+                  {cat}
+                </h2>
+                <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+                  {categoryProducts.map((p) => {
+                    const line = cart.find((l) => l.productId === p.id);
+                    const precioBs = (p.precioUsd * tasaCambio).toFixed(2);
+                    return (
+                      <li
+                        key={p.id}
+                        className={`relative flex flex-col bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-md transition-shadow ${p.activo ? "border-leaf-100" : "border-leaf-100 opacity-60"
+                          } ${recienAgregadoId === p.id ? "animate-agregado" : ""}`}
+                      >
+                        {recienAgregadoId === p.id && (
+                          <span
+                            className="animate-agregado-badge pointer-events-none absolute top-2 left-2 z-10 px-2 py-0.5 rounded-full bg-leaf-600 text-white text-[10px] font-bold shadow-sm"
+                            aria-hidden="true"
+                          >
+                            ✓ Agregado
+                          </span>
+                        )}
+
+                        {/* Imagen del producto */}
+                        <div className="relative aspect-square bg-leaf-50 overflow-hidden">
                           {p.imagenUrl ? (
                             <img
                               src={p.imagenUrl}
@@ -431,149 +449,173 @@ export default function CatalogPage() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className="text-leaf-300 text-xl" aria-hidden="true">
+                            <span
+                              className="w-full h-full flex items-center justify-center text-leaf-300 text-3xl sm:text-4xl"
+                              aria-hidden="true"
+                            >
                               🛒
                             </span>
                           )}
-                        </div>
-                        <p className="font-medium leading-snug">{p.nombre}</p>
-                      </div>
 
-                      <div className="flex items-center justify-between gap-3">
-                        {p.activo ? (
-                          <p className="text-sm text-ink/60">
-                            Bs {precioBs}
-                            {p.porPeso && <span className="text-ink/40"> /kg</span>}
-                          </p>
-                        ) : (
-                          <p className="text-sm font-medium text-alert-600">No disponible</p>
-                        )}
+                          {!p.activo && (
+                            <div className="absolute inset-0 bg-white/70 flex items-center justify-center px-2 text-center">
+                              <p className="text-xs font-semibold text-alert-600">No disponible</p>
+                            </div>
+                          )}
 
-                        {p.activo && !p.porPeso &&
-                          (line ? (
-                            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                              <button
-                                onClick={() => removeFromCart(p.id)}
-                                className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold active:scale-95 transition-transform"
-                                aria-label={`Quitar una unidad de ${p.nombre}`}
-                              >
-                                −
-                              </button>
-                              <span className="w-4 text-center">{line.cantidad}</span>
+                          {/* Botón flotante de agregar rápido, solo para
+                              productos por unidad (los que son por peso
+                              usan el selector de kg de abajo). */}
+                          {p.activo && !p.porPeso && (
+                            line ? (
+                              <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-white rounded-full shadow-md px-1 py-1">
+                                <button
+                                  onClick={() => removeFromCart(p.id)}
+                                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold text-sm active:scale-90 transition-transform"
+                                  aria-label={`Quitar una unidad de ${p.nombre}`}
+                                >
+                                  −
+                                </button>
+                                <span className="w-4 sm:w-5 text-center text-xs sm:text-sm font-medium">
+                                  {line.cantidad}
+                                </span>
+                                <button
+                                  onClick={() => addToCart(p.id)}
+                                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold text-sm active:scale-90 transition-transform"
+                                  aria-label={`Agregar una unidad de ${p.nombre}`}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            ) : (
                               <button
                                 onClick={() => addToCart(p.id)}
-                                className="w-8 h-8 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold active:scale-95 transition-transform"
-                                aria-label={`Agregar una unidad de ${p.nombre}`}
+                                className="absolute bottom-2 right-2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-leaf-600 text-white shadow-md flex items-center justify-center text-lg font-bold hover:bg-leaf-800 active:scale-90 transition-all"
+                                aria-label={`Agregar ${p.nombre} al carrito`}
                               >
                                 +
                               </button>
-                            </div>
+                            )
+                          )}
+                        </div>
+
+                        {/* Nombre y precio */}
+                        <div className="flex flex-col flex-1 gap-1 px-2.5 sm:px-3 pt-2 pb-2.5 sm:pb-3">
+                          <p className="text-xs sm:text-sm font-medium leading-snug line-clamp-2 min-h-[2.2em]">
+                            {p.nombre}
+                          </p>
+
+                          {p.activo ? (
+                            <p className="text-sm sm:text-base font-semibold text-ink">
+                              Bs {precioBs}
+                              {p.porPeso && <span className="text-ink/40 font-normal text-xs"> /kg</span>}
+                            </p>
                           ) : (
-                            <button
-                              onClick={() => addToCart(p.id)}
-                              className="shrink-0 px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm hover:bg-leaf-800 active:scale-95 transition-all"
-                            >
-                              Agregar
-                            </button>
-                          ))}
-                      </div>
+                            <p className="text-xs sm:text-sm font-medium text-alert-600">No disponible</p>
+                          )}
 
-                      {/* Selector de peso: reemplaza el stepper de unidades
-                          en productos que se venden por kilo (ej. carnes,
-                          quesos). El cliente escribe el peso, ve el precio
-                          calculado, y recién se agrega al carrito cuando
-                          confirma con el botón (antes se agregaba solo
-                          mientras escribía). */}
-                      {p.activo && p.porPeso && (() => {
-                        const draftRaw = pesoDrafts[p.id];
-                        const draftValue =
-                          draftRaw !== undefined ? draftRaw : line ? String(line.cantidad) : "";
-                        const kilosDraft = parseFloat(draftValue) || 0;
-                        const precioEstimadoBs = (kilosDraft * p.precioUsd * tasaCambio).toFixed(2);
+                          {/* Selector de peso: reemplaza el botón de
+                              agregar en productos que se venden por kilo
+                              (ej. carnes, quesos). El cliente escribe el
+                              peso, ve el precio calculado, y recién se
+                              agrega al carrito cuando confirma con el
+                              botón (antes se agregaba solo mientras
+                              escribía). */}
+                          {p.activo && p.porPeso && (() => {
+                            const draftRaw = pesoDrafts[p.id];
+                            const draftValue =
+                              draftRaw !== undefined ? draftRaw : line ? String(line.cantidad) : "";
+                            const kilosDraft = parseFloat(draftValue) || 0;
+                            const precioEstimadoBs = (kilosDraft * p.precioUsd * tasaCambio).toFixed(2);
 
-                        function limpiarDraft() {
-                          setPesoDrafts((prev) => {
-                            const next = { ...prev };
-                            delete next[p.id];
-                            return next;
-                          });
-                        }
+                            function limpiarDraft() {
+                              setPesoDrafts((prev) => {
+                                const next = { ...prev };
+                                delete next[p.id];
+                                return next;
+                              });
+                            }
 
-                        function confirmarPeso() {
-                          if (kilosDraft > 0) {
-                            fijarPeso(p.id, kilosDraft);
-                            notificarAgregado(
-                              p.id,
-                              `✓ ${line ? "Actualizado" : "Agregado"}: ${formatCantidad(kilosDraft, true)} de ${p.nombre}`
+                            function confirmarPeso() {
+                              if (kilosDraft > 0) {
+                                fijarPeso(p.id, kilosDraft);
+                                notificarAgregado(
+                                  p.id,
+                                  `✓ ${line ? "Actualizado" : "Agregado"}: ${formatCantidad(kilosDraft, true)} de ${p.nombre}`
+                                );
+                              } else if (line) {
+                                quitarLineaCompleta(p.id);
+                              }
+                              limpiarDraft();
+                            }
+
+                            return (
+                              <div className="flex flex-col gap-1 mt-0.5">
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="number"
+                                    min={0.05}
+                                    step={0.05}
+                                    placeholder="kg"
+                                    value={draftValue}
+                                    onChange={(e) =>
+                                      setPesoDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
+                                    }
+                                    className="w-full min-w-0 text-xs sm:text-sm border border-leaf-100 rounded-lg px-2 py-1.5 text-right focus:outline-none focus:border-leaf-500"
+                                    aria-label={`Peso en kilos de ${p.nombre}`}
+                                  />
+                                  <span className="shrink-0 text-[10px] sm:text-xs text-ink/50">kg</span>
+                                </div>
+                                <div className="flex items-center justify-between gap-1.5">
+                                  {line ? (
+                                    <button
+                                      onClick={() => {
+                                        quitarLineaCompleta(p.id);
+                                        limpiarDraft();
+                                      }}
+                                      className="text-[10px] sm:text-xs text-alert-600 underline"
+                                    >
+                                      Quitar
+                                    </button>
+                                  ) : (
+                                    <span />
+                                  )}
+                                  <button
+                                    onClick={confirmarPeso}
+                                    disabled={kilosDraft <= 0 && !line}
+                                    className="shrink-0 px-2.5 py-1.5 rounded-lg bg-leaf-600 text-white text-[11px] sm:text-xs hover:bg-leaf-800 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                                  >
+                                    {line ? "Actualizar" : "Agregar"}
+                                  </button>
+                                </div>
+                                {kilosDraft > 0 && (
+                                  <p className="text-[10px] sm:text-xs text-ink/50">≈ Bs {precioEstimadoBs}</p>
+                                )}
+                              </div>
                             );
-                          } else if (line) {
-                            quitarLineaCompleta(p.id);
-                          }
-                          limpiarDraft();
-                        }
-
-                        return (
-                          <div className="flex flex-col items-end gap-1.5">
-                            <div className="flex items-center gap-2">
-                              {line && (
-                                <button
-                                  onClick={() => {
-                                    quitarLineaCompleta(p.id);
-                                    limpiarDraft();
-                                  }}
-                                  className="text-xs text-alert-600 underline"
-                                >
-                                  Quitar
-                                </button>
-                              )}
-                              <input
-                                type="number"
-                                min={0.05}
-                                step={0.05}
-                                placeholder="kg"
-                                value={draftValue}
-                                onChange={(e) =>
-                                  setPesoDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
-                                }
-                                className="w-20 text-sm border border-leaf-100 rounded-lg px-2 py-1.5 text-right focus:outline-none focus:border-leaf-500"
-                                aria-label={`Peso en kilos de ${p.nombre}`}
-                              />
-                              <span className="text-xs text-ink/50">kg</span>
-                              <button
-                                onClick={confirmarPeso}
-                                disabled={kilosDraft <= 0 && !line}
-                                className="shrink-0 px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-xs hover:bg-leaf-800 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                              >
-                                {line ? "Actualizar" : "Agregar"}
-                              </button>
-                            </div>
-                            {kilosDraft > 0 && (
-                              <p className="text-xs text-ink/50">≈ Bs {precioEstimadoBs}</p>
-                            )}
-                          </div>
-                        );
-                      })()}
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          );
-        })
-      ) : (
-        <div className="text-center py-12 text-ink/60 text-sm">
-          No se encontraron productos que coincidan con la búsqueda.
-        </div>
-      )}
+                          })()}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            );
+          })
+        ) : (
+          <div className="text-center py-12 text-ink/60 text-sm">
+            No se encontraron productos que coincidan con la búsqueda.
+          </div>
+        )}
+      </div>
 
       {/* Toasts de confirmación: uno por cada producto agregado/editado,
           apilados justo encima de la barra del carrito para que se note
           incluso si el resumen de abajo está colapsado. */}
       {toasts.length > 0 && (
         <div
-          className={`fixed inset-x-0 z-30 flex flex-col items-center gap-1.5 px-4 pointer-events-none ${
-            totalItems > 0 ? "bottom-24 sm:bottom-28" : "bottom-4"
-          }`}
+          className={`fixed inset-x-0 z-30 flex flex-col items-center gap-1.5 px-4 pointer-events-none ${totalItems > 0 ? "bottom-24 sm:bottom-28" : "bottom-4"
+            }`}
         >
           {toasts.map((t) => (
             <div

@@ -449,7 +449,10 @@ export default function AdminHomePage() {
                         <tr key={product.id} className={`hover:bg-leaf-50/20 ${!product.activo ? "opacity-50" : ""}`}>
                           {/* IMAGEN */}
                           <td className="py-2 px-3">
-                            <label className="relative block w-11 h-11 rounded-lg border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group mx-auto">
+                            <label
+                              className="relative block w-11 h-11 rounded-lg border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group mx-auto"
+                              title="Cambiar imagen del producto"
+                            >
                               {product.imagenUrl ? (
                                 <img
                                   src={product.imagenUrl}
@@ -463,6 +466,16 @@ export default function AdminHomePage() {
                               )}
                               <span className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center text-white text-[9px] font-medium opacity-0 group-hover:opacity-100">
                                 {subiendoImagenId === product.id ? "..." : "Cambiar"}
+                              </span>
+                              {/* Insignia de cámara siempre visible (no solo
+                                  con hover), para que en móvil/táctil quede
+                                  claro que la miniatura se puede tocar para
+                                  cambiar la imagen. */}
+                              <span
+                                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-leaf-600 text-white flex items-center justify-center text-[8px] shadow-sm border border-white"
+                                aria-hidden="true"
+                              >
+                                📷
                               </span>
                               <input
                                 type="file"
@@ -563,8 +576,8 @@ export default function AdminHomePage() {
                           <td className="py-2 px-3 text-center">
                             <span
                               className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${product.activo
-                                  ? "bg-leaf-100 text-leaf-800"
-                                  : "bg-alert-100 text-alert-600"
+                                ? "bg-leaf-100 text-leaf-800"
+                                : "bg-alert-100 text-alert-600"
                                 }`}
                             >
                               {product.activo ? "Disponible" : "Sin stock"}
@@ -585,8 +598,8 @@ export default function AdminHomePage() {
                                 onClick={() => toggleDisponibilidad(product)}
                                 disabled={cambiandoDisponibilidadId === product.id}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-40 transition-colors border ${product.activo
-                                    ? "border-alert-600 text-alert-600 hover:bg-alert-50"
-                                    : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
+                                  ? "border-alert-600 text-alert-600 hover:bg-alert-50"
+                                  : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
                                   }`}
                               >
                                 {cambiandoDisponibilidadId === product.id
