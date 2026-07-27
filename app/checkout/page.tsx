@@ -473,7 +473,7 @@ export default function CheckoutPage() {
                     const cantidadTexto = it.product?.porPeso
                       ? formatCantidad(it.cantidad, true)
                       : `${it.cantidad}×`;
-                    const lineaUsd = (it.precioUsd ?? 0) * it.cantidad;
+                    const lineaBs = (it.precioUsd ?? 0) * it.cantidad * (order?.tasaCambio ?? tasaCambio);
                     return (
                       <li key={idx} className="py-1.5">
                         <div className="flex items-baseline justify-between gap-2">
@@ -481,7 +481,7 @@ export default function CheckoutPage() {
                             {cantidadTexto} {it.product?.nombre ?? "Producto"}
                           </span>
                           <span className="text-ink/60 whitespace-nowrap">
-                            ${lineaUsd.toFixed(2)}
+                            Bs {lineaBs.toFixed(2)}
                           </span>
                         </div>
                       </li>
@@ -493,10 +493,6 @@ export default function CheckoutPage() {
 
                 <div className="flex items-center justify-between text-sm font-bold text-ink">
                   <span>TOTAL ESTIMADO</span>
-                  <span>${totalEstimadoUsd.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-ink/50">
-                  <span>Bs (referencial)</span>
                   <span>Bs {totalEstimadoBs.toFixed(2)}</span>
                 </div>
                 <p className="text-[10px] text-ink/40 mt-2 text-center">
