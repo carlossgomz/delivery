@@ -659,228 +659,211 @@ export default function AdminProductosPage() {
           ))}
         </datalist>
 
-        {/* TABLA DE PRODUCTOS, AGRUPADA POR CATEGORÍA */}
+        {/* LISTADO DE PRODUCTOS, AGRUPADO POR CATEGORÍA. Se usan tarjetas
+            apiladas (nombre arriba, el resto de los campos abajo en una
+            cuadrícula) en vez de una tabla ancha, para que no haga falta
+            escrollear horizontalmente y los campos editables sean más
+            grandes y legibles. */}
         <div className="bg-white border border-leaf-100 rounded-lg overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-leaf-100 bg-leaf-50/50 text-xs font-semibold text-leaf-800">
-                  <th className="py-3 px-3 w-16 text-center">Imagen</th>
-                  <th className="py-3 px-4 min-w-[420px]">Producto</th>
-                  <th className="py-3 px-3 w-40">Categoría</th>
-                  <th className="py-3 px-3 w-24 text-center">Por peso</th>
-                  <th className="py-3 px-3 w-28">Precio ($)</th>
-                  <th className="py-3 px-3 w-36 text-right">Precio Cliente (Bs)</th>
-                  <th className="py-3 px-3 w-28 text-center">Estado</th>
-                  <th className="py-3 px-4 w-28 text-right">Acción</th>
-                </tr>
-              </thead>
+          {categoriasEnOrden.map((cat) => {
+            const productosCategoria = productosFiltrados.filter((p) => p.categoria === cat);
 
-              {categoriasEnOrden.map((cat) => {
-                const productosCategoria = productosFiltrados.filter((p) => p.categoria === cat);
+            return (
+              <div key={cat}>
+                <div className="py-1.5 px-4 text-[11px] font-semibold text-leaf-700 uppercase tracking-wide bg-leaf-50/70 border-b border-leaf-100">
+                  {cat} <span className="font-normal text-ink/40 normal-case">({productosCategoria.length})</span>
+                </div>
 
-                return (
-                  <tbody key={cat} className="divide-y divide-leaf-100/50">
-                    <tr className="bg-leaf-50/70">
-                      <td colSpan={8} className="py-1.5 px-4 text-[11px] font-semibold text-leaf-700 uppercase tracking-wide">
-                        {cat} <span className="font-normal text-ink/40 normal-case">({productosCategoria.length})</span>
-                      </td>
-                    </tr>
-                    {productosCategoria.map((product, idxEnCategoria) => {
-                      const edit = editingValues[product.id] || {
-                        nombre: product.nombre,
-                        precioUsd: product.precioUsd?.toString() ?? "0",
-                        porPeso: Boolean(product.porPeso),
-                        categoria: product.categoria,
-                      };
+                <div className="divide-y divide-leaf-100/50">
+                  {productosCategoria.map((product, idxEnCategoria) => {
+                    const edit = editingValues[product.id] || {
+                      nombre: product.nombre,
+                      precioUsd: product.precioUsd?.toString() ?? "0",
+                      porPeso: Boolean(product.porPeso),
+                      categoria: product.categoria,
+                    };
 
-                      const precioBs = calcularPrecioBs(edit.precioUsd);
-                      const estaGuardando = guardandoProductoId === product.id;
-                      const puedeReordenar = !searchTerm;
+                    const precioBs = calcularPrecioBs(edit.precioUsd);
+                    const estaGuardando = guardandoProductoId === product.id;
+                    const puedeReordenar = !searchTerm;
 
-                      return (
-                        <tr key={product.id} className={`hover:bg-leaf-50/20 ${!product.activo ? "opacity-50" : ""}`}>
-                          {/* IMAGEN */}
-                          <td className="py-2 px-3">
-                            <label
-                              className="relative block w-11 h-11 rounded-lg border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group mx-auto"
-                              title="Cambiar imagen del producto"
+                    return (
+                      <div key={product.id} className={`p-3 sm:p-4 hover:bg-leaf-50/20 ${!product.activo ? "opacity-50" : ""}`}>
+                        {/* FILA SUPERIOR: imagen + nombre (ocupa todo el ancho) + estado */}
+                        <div className="flex items-center gap-3 mb-3">
+                          <label
+                            className="relative shrink-0 block w-12 h-12 rounded-lg border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group"
+                            title="Cambiar imagen del producto"
+                          >
+                            {product.imagenUrl ? (
+                              <img
+                                src={product.imagenUrl}
+                                alt={product.nombre}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="w-full h-full flex items-center justify-center text-leaf-300 text-lg">
+                                🛒
+                              </span>
+                            )}
+                            <span className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center text-white text-[9px] font-medium opacity-0 group-hover:opacity-100">
+                              {subiendoImagenId === product.id ? "..." : "Cambiar"}
+                            </span>
+                            {/* Insignia de cámara siempre visible (no solo
+                                con hover), para que en móvil/táctil quede
+                                claro que la miniatura se puede tocar para
+                                cambiar la imagen. */}
+                            <span
+                              className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-leaf-600 text-white flex items-center justify-center text-[8px] shadow-sm border border-white"
+                              aria-hidden="true"
                             >
-                              {product.imagenUrl ? (
-                                <img
-                                  src={product.imagenUrl}
-                                  alt={product.nombre}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <span className="w-full h-full flex items-center justify-center text-leaf-300 text-lg">
-                                  🛒
-                                </span>
-                              )}
-                              <span className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center text-white text-[9px] font-medium opacity-0 group-hover:opacity-100">
-                                {subiendoImagenId === product.id ? "..." : "Cambiar"}
-                              </span>
-                              {/* Insignia de cámara siempre visible (no solo
-                                  con hover), para que en móvil/táctil quede
-                                  claro que la miniatura se puede tocar para
-                                  cambiar la imagen. */}
-                              <span
-                                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-leaf-600 text-white flex items-center justify-center text-[8px] shadow-sm border border-white"
-                                aria-hidden="true"
-                              >
-                                📷
-                              </span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                disabled={subiendoImagenId === product.id}
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) subirImagen(product, file);
-                                  e.target.value = "";
-                                }}
-                              />
-                            </label>
-                          </td>
-                          {/* NOMBRE */}
-                          <td className="py-2 px-4 min-w-[420px]">
-                            <div className="flex items-center gap-1.5">
-                              {puedeReordenar && (
-                                <div className="flex flex-col shrink-0">
-                                  <button
-                                    onClick={() => moverProducto(product, "arriba")}
-                                    disabled={idxEnCategoria === 0 || reordenandoId !== null}
-                                    className="text-ink/40 hover:text-leaf-700 disabled:opacity-20 disabled:hover:text-ink/40 leading-none text-xs px-1"
-                                    aria-label={`Mover ${product.nombre} hacia arriba en su categoría`}
-                                    title="Mover arriba"
-                                  >
-                                    ▲
-                                  </button>
-                                  <button
-                                    onClick={() => moverProducto(product, "abajo")}
-                                    disabled={idxEnCategoria === productosCategoria.length - 1 || reordenandoId !== null}
-                                    className="text-ink/40 hover:text-leaf-700 disabled:opacity-20 disabled:hover:text-ink/40 leading-none text-xs px-1"
-                                    aria-label={`Mover ${product.nombre} hacia abajo en su categoría`}
-                                    title="Mover abajo"
-                                  >
-                                    ▼
-                                  </button>
-                                </div>
-                              )}
-                              <input
-                                type="text"
-                                value={edit.nombre}
-                                onChange={(e) => handleProductChange(product.id, "nombre", e.target.value)}
-                                className="w-full min-w-[360px] border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-2 py-1.5 focus:bg-white focus:outline-none"
-                              />
-                            </div>
-                          </td>
+                              📷
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={subiendoImagenId === product.id}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) subirImagen(product, file);
+                                e.target.value = "";
+                              }}
+                            />
+                          </label>
 
-                          {/* CATEGORÍA */}
-                          <td className="py-2 px-3">
+                          {puedeReordenar && (
+                            <div className="flex flex-col shrink-0">
+                              <button
+                                onClick={() => moverProducto(product, "arriba")}
+                                disabled={idxEnCategoria === 0 || reordenandoId !== null}
+                                className="text-ink/40 hover:text-leaf-700 disabled:opacity-20 disabled:hover:text-ink/40 leading-none text-xs px-1"
+                                aria-label={`Mover ${product.nombre} hacia arriba en su categoría`}
+                                title="Mover arriba"
+                              >
+                                ▲
+                              </button>
+                              <button
+                                onClick={() => moverProducto(product, "abajo")}
+                                disabled={idxEnCategoria === productosCategoria.length - 1 || reordenandoId !== null}
+                                className="text-ink/40 hover:text-leaf-700 disabled:opacity-20 disabled:hover:text-ink/40 leading-none text-xs px-1"
+                                aria-label={`Mover ${product.nombre} hacia abajo en su categoría`}
+                                title="Mover abajo"
+                              >
+                                ▼
+                              </button>
+                            </div>
+                          )}
+
+                          <input
+                            type="text"
+                            value={edit.nombre}
+                            onChange={(e) => handleProductChange(product.id, "nombre", e.target.value)}
+                            className="flex-1 min-w-0 text-base font-medium border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded-lg px-3 py-2 focus:bg-white focus:outline-none"
+                          />
+
+                          <span
+                            className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-medium ${product.activo
+                              ? "bg-leaf-100 text-leaf-800"
+                              : "bg-alert-100 text-alert-600"
+                              }`}
+                          >
+                            {product.activo ? "Disponible" : "Sin stock"}
+                          </span>
+                        </div>
+
+                        {/* FILA INFERIOR: categoría, precio, precio en Bs y "por peso" —
+                            en cuadrícula que se acomoda al ancho de pantalla, sin scroll horizontal */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-medium text-ink/50 mb-1">Categoría</label>
                             <input
                               type="text"
                               list="categorias-existentes"
                               value={edit.categoria}
                               onChange={(e) => handleProductChange(product.id, "categoria", e.target.value)}
-                              className="w-full border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-2 py-1 focus:bg-white focus:outline-none text-xs"
+                              className="w-full text-sm border border-leaf-100 hover:border-leaf-300 focus:border-leaf-500 rounded-lg px-3 py-2.5 focus:bg-white focus:outline-none"
                               title="Escribí una categoría existente o una nueva, y tocá Guardar"
                             />
-                          </td>
+                          </div>
 
-                          {/* POR PESO (KG) */}
-                          <td className="py-2 px-3 text-center">
-                            <input
-                              type="checkbox"
-                              checked={edit.porPeso}
-                              onChange={(e) => handleProductChange(product.id, "porPeso", e.target.checked)}
-                              className="w-4 h-4 accent-leaf-600 cursor-pointer"
-                              title="Se vende por kilogramo (el precio es por kg)"
-                            />
-                          </td>
-
-                          {/* PRECIO ($) */}
-                          <td className="py-2 px-3">
+                          <div>
+                            <label className="block text-[11px] font-medium text-ink/50 mb-1">Precio ($)</label>
                             <div className="relative flex items-center">
-                              <span className="absolute left-2 text-xs text-ink/40">$</span>
+                              <span className="absolute left-3 text-sm text-ink/40">$</span>
                               <input
                                 type="number"
                                 step="0.01"
                                 placeholder="0.00"
                                 value={edit.precioUsd}
                                 onChange={(e) => handleProductChange(product.id, "precioUsd", e.target.value)}
-                                className="w-full pl-5 pr-1 py-1 border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded focus:bg-white focus:outline-none"
+                                className="w-full text-sm pl-7 pr-2 py-2.5 border border-leaf-100 hover:border-leaf-300 focus:border-leaf-500 rounded-lg focus:bg-white focus:outline-none"
                               />
                               {edit.porPeso && (
-                                <span className="absolute right-1 text-[10px] text-ink/40">/kg</span>
+                                <span className="absolute right-2 text-[10px] text-ink/40">/kg</span>
                               )}
                             </div>
-                          </td>
+                          </div>
 
-                          {/* PRECIO CLIENTE EN BS */}
-                          <td className="py-2 px-3 text-right">
-                            <span className="font-semibold text-leaf-800">
-                              {precioBs} Bs{edit.porPeso && <span className="text-ink/40 font-normal">/kg</span>}
-                            </span>
-                          </td>
-
-                          {/* ESTADO / DISPONIBILIDAD */}
-                          <td className="py-2 px-3 text-center">
-                            <span
-                              className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${product.activo
-                                ? "bg-leaf-100 text-leaf-800"
-                                : "bg-alert-100 text-alert-600"
-                                }`}
-                            >
-                              {product.activo ? "Disponible" : "Sin stock"}
-                            </span>
-                          </td>
-
-                          {/* BOTÓN GUARDAR */}
-                          <td className="py-2 px-4 text-right">
-                            <div className="flex flex-col items-end gap-1.5">
-                              <button
-                                onClick={() => guardarProducto(product.id)}
-                                disabled={estaGuardando}
-                                className="px-3 py-1.5 rounded-lg bg-leaf-600 text-white text-xs font-medium disabled:opacity-40 hover:bg-leaf-700 transition-colors"
-                              >
-                                {estaGuardando ? "..." : "Guardar"}
-                              </button>
-                              <button
-                                onClick={() => toggleDisponibilidad(product)}
-                                disabled={cambiandoDisponibilidadId === product.id}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-40 transition-colors border ${product.activo
-                                  ? "border-alert-600 text-alert-600 hover:bg-alert-50"
-                                  : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
-                                  }`}
-                              >
-                                {cambiandoDisponibilidadId === product.id
-                                  ? "..."
-                                  : product.activo
-                                    ? "Desactivar"
-                                    : "Activar"}
-                              </button>
+                          <div>
+                            <label className="block text-[11px] font-medium text-ink/50 mb-1">Precio cliente (Bs)</label>
+                            <div className="text-sm font-semibold text-leaf-800 px-3 py-2.5 bg-leaf-50 rounded-lg">
+                              {precioBs} Bs{edit.porPeso && <span className="text-ink/40 font-normal"> /kg</span>}
                             </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                );
-              })}
+                          </div>
 
-              {productosFiltrados.length === 0 && (
-                <tbody>
-                  <tr>
-                    <td colSpan={8} className="py-6 text-center text-xs text-ink/50">
-                      {searchTerm ? "No se encontraron productos." : "No hay productos disponibles."}
-                    </td>
-                  </tr>
-                </tbody>
-              )}
-            </table>
-          </div>
+                          <div>
+                            <label className="block text-[11px] font-medium text-ink/50 mb-1">Por peso</label>
+                            <label className="flex items-center gap-2 text-sm text-ink/70 border border-leaf-100 rounded-lg px-3 py-2.5 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={edit.porPeso}
+                                onChange={(e) => handleProductChange(product.id, "porPeso", e.target.checked)}
+                                className="w-4 h-4 accent-leaf-600 cursor-pointer"
+                                title="Se vende por kilogramo (el precio es por kg)"
+                              />
+                              Se vende por kg
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* BOTONES DE ACCIÓN */}
+                        <div className="flex justify-end gap-2 mt-3">
+                          <button
+                            onClick={() => guardarProducto(product.id)}
+                            disabled={estaGuardando}
+                            className="px-4 py-2 rounded-lg bg-leaf-600 text-white text-sm font-medium disabled:opacity-40 hover:bg-leaf-700 transition-colors"
+                          >
+                            {estaGuardando ? "..." : "Guardar"}
+                          </button>
+                          <button
+                            onClick={() => toggleDisponibilidad(product)}
+                            disabled={cambiandoDisponibilidadId === product.id}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 transition-colors border ${product.activo
+                              ? "border-alert-600 text-alert-600 hover:bg-alert-50"
+                              : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
+                              }`}
+                          >
+                            {cambiandoDisponibilidadId === product.id
+                              ? "..."
+                              : product.activo
+                                ? "Desactivar"
+                                : "Activar"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          {productosFiltrados.length === 0 && (
+            <div className="py-6 text-center text-xs text-ink/50">
+              {searchTerm ? "No se encontraron productos." : "No hay productos disponibles."}
+            </div>
+          )}
         </div>
       </div>
     </div>
