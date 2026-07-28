@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Nunca se debe pre-renderizar en el build: siempre necesita leer la base
+// de datos en el momento (y en el build todavía puede no existir la tabla
+// "Categoria" si la migración no se corrió antes).
+export const dynamic = "force-dynamic";
+
 // Devuelve todas las categorías que existen hoy (según los productos) junto
 // con su imagen representativa si tiene una asignada. Las categorías sin
 // fila propia en "Categoria" (todavía nadie les puso foto) se devuelven
