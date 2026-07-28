@@ -615,7 +615,7 @@ export default function AdminProductosPage() {
               <thead>
                 <tr className="border-b border-leaf-100 bg-leaf-50/50 text-xs font-semibold text-leaf-800">
                   <th className="py-3 px-3 w-16 text-center">Imagen</th>
-                  <th className="py-3 px-4">Producto</th>
+                  <th className="py-3 px-4 min-w-[240px]">Producto</th>
                   <th className="py-3 px-3 w-40">Categoría</th>
                   <th className="py-3 px-3 w-24 text-center">Por peso</th>
                   <th className="py-3 px-3 w-28">Precio ($)</th>
@@ -693,7 +693,7 @@ export default function AdminProductosPage() {
                             </label>
                           </td>
                           {/* NOMBRE */}
-                          <td className="py-2 px-4">
+                          <td className="py-2 px-4 min-w-[240px]">
                             <div className="flex items-center gap-1.5">
                               {puedeReordenar && (
                                 <div className="flex flex-col shrink-0">
@@ -721,7 +721,7 @@ export default function AdminProductosPage() {
                                 type="text"
                                 value={edit.nombre}
                                 onChange={(e) => handleProductChange(product.id, "nombre", e.target.value)}
-                                className="w-full border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-2 py-1 focus:bg-white focus:outline-none"
+                                className="w-full min-w-[180px] border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-2 py-1 focus:bg-white focus:outline-none"
                               />
                             </div>
                           </td>
@@ -778,8 +778,8 @@ export default function AdminProductosPage() {
                           <td className="py-2 px-3 text-center">
                             <span
                               className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${product.activo
-                                  ? "bg-leaf-100 text-leaf-800"
-                                  : "bg-alert-100 text-alert-600"
+                                ? "bg-leaf-100 text-leaf-800"
+                                : "bg-alert-100 text-alert-600"
                                 }`}
                             >
                               {product.activo ? "Disponible" : "Sin stock"}
@@ -800,8 +800,8 @@ export default function AdminProductosPage() {
                                 onClick={() => toggleDisponibilidad(product)}
                                 disabled={cambiandoDisponibilidadId === product.id}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-40 transition-colors border ${product.activo
-                                    ? "border-alert-600 text-alert-600 hover:bg-alert-50"
-                                    : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
+                                  ? "border-alert-600 text-alert-600 hover:bg-alert-50"
+                                  : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
                                   }`}
                               >
                                 {cambiandoDisponibilidadId === product.id
