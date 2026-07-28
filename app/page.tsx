@@ -140,17 +140,31 @@ export default function CatalogPage() {
     return () => clearInterval(interval);
   }, [clienteIdChat]);
 
+  // Imágenes elegidas a propósito para cada categoría (asignadas desde el
+  // admin). Si una categoría no tiene una asignada, se usa como respaldo
+  // la foto de algún producto de esa categoría (ver imagenPorCategoria).
+  const [categoriaImagenes, setCategoriaImagenes] = useState<Record<string, string | null>>({});
+
   useEffect(() => {
     async function load() {
-      const [pRes, cRes, meRes] = await Promise.all([
+      const [pRes, cRes, meRes, catRes] = await Promise.all([
         fetch("/api/products"),
         fetch("/api/config"),
-        fetch("/api/clientes/me")
+        fetch("/api/clientes/me"),
+        fetch("/api/categorias")
       ]);
       const [pData, cData] = await Promise.all([pRes.json(), cRes.json()]);
       setProducts(pData.products);
       setTasaCambio(cData.tasaCambio);
       setPedidosHabilitados(cData.pedidosHabilitados ?? true);
+      if (catRes.ok) {
+        const catData = await catRes.json();
+        const mapa: Record<string, string | null> = {};
+        for (const c of catData.categorias ?? []) {
+          mapa[c.nombre] = c.imagenUrl;
+        }
+        setCategoriaImagenes(mapa);
+      }
       if (meRes.ok) {
         const meData = await meRes.json();
         setCliente(meData.cliente);
@@ -181,6 +195,24 @@ export default function CatalogPage() {
   }, [cart, cartCargado]);
 
   const categorias = useMemo(() => Array.from(new Set(products.map((p) => p.categoria))), [products]);
+
+  // Imagen representativa de cada categoría para los círculos de arriba:
+  // primero la que el admin le asignó a propósito a la categoría; si no
+  // tiene, la del primer producto de esa categoría que tenga foto cargada
+  // (se va llenando solo). Si ninguna existe, el círculo muestra un ícono
+  // genérico.
+  const imagenPorCategoria = useMemo(() => {
+    const mapa: Record<string, string> = {};
+    for (const p of products) {
+      if (p.imagenUrl && !mapa[p.categoria]) {
+        mapa[p.categoria] = p.imagenUrl;
+      }
+    }
+    for (const [nombre, url] of Object.entries(categoriaImagenes)) {
+      if (url) mapa[nombre] = url;
+    }
+    return mapa;
+  }, [products, categoriaImagenes]);
 
   // Filtrado de productos basado en búsqueda y categoría seleccionada.
   // La búsqueda matchea tanto el nombre del producto como el nombre de su
@@ -363,20 +395,44 @@ export default function CatalogPage() {
             )}
           </div>
 
-          {/* Chips de Categorías */}
-          <div className="flex gap-2 overflow-x-auto pt-3 pb-0.5 scrollbar-none">
-            {["Todas", ...categorias].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${selectedCategory === cat
-                  ? "bg-leaf-600 text-white shadow-sm"
-                  : "bg-white text-ink/70 border border-leaf-100 hover:bg-leaf-100/50"
-                  }`}
-              >
-                {cat}
-              </button>
-            ))}
+          {/* Categorías: círculo con la foto de un producto de esa
+              categoría y el nombre debajo (en vez de un botón de texto). */}
+          <div className="flex gap-3.5 sm:gap-4 overflow-x-auto pt-3 pb-1 scrollbar-none">
+            {["Todas", ...categorias].map((cat) => {
+              const seleccionada = selectedCategory === cat;
+              const imagenCat = cat !== "Todas" ? imagenPorCategoria[cat] : undefined;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className="flex flex-col items-center gap-1.5 shrink-0 w-16 sm:w-[4.5rem]"
+                  aria-pressed={seleccionada}
+                >
+                  <span
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden flex items-center justify-center transition-all ${
+                      seleccionada
+                        ? "ring-2 ring-leaf-600 ring-offset-2 ring-offset-cream shadow-sm"
+                        : "ring-1 ring-leaf-100"
+                    } ${imagenCat ? "bg-leaf-50" : "bg-leaf-100/70"}`}
+                  >
+                    {imagenCat ? (
+                      <img src={imagenCat} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-2xl" aria-hidden="true">
+                        {cat === "Todas" ? "🛍️" : "🛒"}
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={`text-[11px] sm:text-xs text-center leading-tight line-clamp-2 transition-colors ${
+                      seleccionada ? "text-leaf-700 font-semibold" : "text-ink/60 font-medium"
+                    }`}
+                  >
+                    {cat}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -428,8 +484,9 @@ export default function CatalogPage() {
                     return (
                       <li
                         key={p.id}
-                        className={`relative flex flex-col bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-md transition-shadow ${p.activo ? "border-leaf-100" : "border-leaf-100 opacity-60"
-                          } ${recienAgregadoId === p.id ? "animate-agregado" : ""}`}
+                        className={`relative flex flex-col bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-md transition-shadow ${
+                          p.activo ? "border-leaf-100" : "border-leaf-100 opacity-60"
+                        } ${recienAgregadoId === p.id ? "animate-agregado" : ""}`}
                       >
                         {recienAgregadoId === p.id && (
                           <span
@@ -614,8 +671,9 @@ export default function CatalogPage() {
           incluso si el resumen de abajo está colapsado. */}
       {toasts.length > 0 && (
         <div
-          className={`fixed inset-x-0 z-30 flex flex-col items-center gap-1.5 px-4 pointer-events-none ${totalItems > 0 ? "bottom-24 sm:bottom-28" : "bottom-4"
-            }`}
+          className={`fixed inset-x-0 z-30 flex flex-col items-center gap-1.5 px-4 pointer-events-none ${
+            totalItems > 0 ? "bottom-24 sm:bottom-28" : "bottom-4"
+          }`}
         >
           {toasts.map((t) => (
             <div

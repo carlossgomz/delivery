@@ -7,8 +7,9 @@ import { put } from "@vercel/blob";
 //
 // "carpeta" es opcional (default "comprobantes", el uso original de este
 // endpoint); el admin de productos manda carpeta=productos para las
-// imágenes de producto.
-const CARPETAS_PERMITIDAS = ["comprobantes", "productos"];
+// imágenes de producto, y carpeta=categorias para la imagen representativa
+// de cada categoría (los círculos del catálogo).
+const CARPETAS_PERMITIDAS = ["comprobantes", "productos", "categorias"];
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
     }
 
     const ext = file.name.split(".").pop() || "jpg";
-    const prefijo = carpeta === "productos" ? "producto" : "comprobante";
+    const prefijo = carpeta === "productos" ? "producto" : carpeta === "categorias" ? "categoria" : "comprobante";
     const filename = `${carpeta}/${prefijo}-${Date.now()}.${ext}`;
 
     const blob = await put(filename, file, { access: "public" });

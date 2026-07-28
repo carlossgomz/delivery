@@ -18,11 +18,8 @@ type Product = {
 
 type EditingValue = { nombre: string; precioUsd: string; porPeso: boolean; categoria: string };
 
-export default function AdminHomePage() {
+export default function AdminProductosPage() {
   const [tasaCambio, setTasaCambio] = useState<number>(0);
-  const [nuevaTasa, setNuevaTasa] = useState<string>("");
-  const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState("");
 
   // Estados para gestión de productos
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,9 +30,26 @@ export default function AdminHomePage() {
   const [subiendoImagenId, setSubiendoImagenId] = useState<string | null>(null);
   const [reordenandoId, setReordenandoId] = useState<string | null>(null);
 
-  // Estados para el panel de "Categorías" (renombrar en bloque)
+  // Estados para el panel de "Categorías" (renombrar en bloque + imagen)
   const [renombrando, setRenombrando] = useState<Record<string, string>>({});
   const [guardandoCategoria, setGuardandoCategoria] = useState<string | null>(null);
+  const [categoriaImagenes, setCategoriaImagenes] = useState<Record<string, string | null>>({});
+  const [subiendoImagenCategoriaId, setSubiendoImagenCategoriaId] = useState<string | null>(null);
+
+  // Estados para agregar un producto nuevo
+  const [nuevoProducto, setNuevoProducto] = useState({
+    nombre: "",
+    precioUsd: "",
+    categoria: "",
+    porPeso: false,
+  });
+  // Imagen elegida para el producto nuevo: se sube recién cuando se
+  // confirma "Agregar" (junto con el resto de los datos), no apenas se
+  // selecciona el archivo.
+  const [nuevaImagenFile, setNuevaImagenFile] = useState<File | null>(null);
+  const [nuevaImagenPreview, setNuevaImagenPreview] = useState<string | null>(null);
+  const [agregandoProducto, setAgregandoProducto] = useState(false);
+  const [mensajeNuevoProducto, setMensajeNuevoProducto] = useState("");
 
   async function subirImagen(product: Product, file: File) {
     setSubiendoImagenId(product.id);
@@ -72,8 +86,44 @@ export default function AdminHomePage() {
     }
   }
 
+  // Sube (o reemplaza) la imagen representativa de una categoría entera —
+  // la que se ve en los círculos del catálogo del cliente.
+  async function subirImagenCategoria(nombreCategoria: string, file: File) {
+    setSubiendoImagenCategoriaId(nombreCategoria);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("carpeta", "categorias");
+
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!uploadRes.ok) {
+        alert("No se pudo subir la imagen.");
+        return;
+      }
+      const { url } = await uploadRes.json();
+
+      const res = await fetch("/api/categorias/imagen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: nombreCategoria, imagenUrl: url }),
+      });
+
+      if (res.ok) {
+        setCategoriaImagenes((prev) => ({ ...prev, [nombreCategoria]: url }));
+      } else {
+        alert("La imagen se subió pero no se pudo asociar a la categoría.");
+      }
+    } catch (e) {
+      console.error("Error al subir imagen de categoría:", e);
+      alert("Ocurrió un error al subir la imagen.");
+    } finally {
+      setSubiendoImagenCategoriaId(null);
+    }
+  }
+
   useEffect(() => {
-    // Cargar Tasa Actual
+    // Tasa del día: solo se muestra acá para calcular el precio en Bs de
+    // cada producto. Para cambiarla, ahora se usa la pestaña Configuración.
     fetch("/api/config")
       .then((r) => r.json())
       .then((d) => {
@@ -81,6 +131,7 @@ export default function AdminHomePage() {
       });
 
     cargarProductos();
+    cargarCategorias();
   }, []);
 
   async function cargarProductos() {
@@ -105,23 +156,19 @@ export default function AdminHomePage() {
     }
   }
 
-  async function actualizarTasa() {
-    setGuardando(true);
-    setMensaje("");
-    const res = await fetch("/api/config", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tasaCambio: Number(nuevaTasa) })
-    });
-    if (res.ok) {
+  async function cargarCategorias() {
+    try {
+      const res = await fetch("/api/categorias", { cache: "no-store" });
+      if (!res.ok) return;
       const data = await res.json();
-      setTasaCambio(data.tasaCambio);
-      setNuevaTasa("");
-      setMensaje("Tasa actualizada correctamente.");
-    } else {
-      setMensaje("No se pudo actualizar la tasa.");
+      const mapa: Record<string, string | null> = {};
+      for (const c of data.categorias ?? []) {
+        mapa[c.nombre] = c.imagenUrl;
+      }
+      setCategoriaImagenes(mapa);
+    } catch (e) {
+      console.error("Error al cargar categorías:", e);
     }
-    setGuardando(false);
   }
 
   // El precio lo carga el admin directamente en dólares; el precio en Bs
@@ -172,8 +219,10 @@ export default function AdminHomePage() {
       if (res.ok) {
         // Si cambió de categoría, el agrupamiento de la tabla cambia:
         // recargamos todo en vez de parchear en memoria para no desordenar
-        // los grupos.
+        // los grupos. También puede haber una categoría nueva, así que
+        // refrescamos la lista de categorías (para el panel y el datalist).
         await cargarProductos();
+        await cargarCategorias();
       } else {
         alert("No se pudo actualizar el producto.");
       }
@@ -260,6 +309,7 @@ export default function AdminHomePage() {
       });
       if (res.ok) {
         await cargarProductos();
+        await cargarCategorias();
       } else {
         const data = await res.json().catch(() => ({}));
         alert(data.error || "No se pudo renombrar la categoría.");
@@ -269,6 +319,76 @@ export default function AdminHomePage() {
       alert("Ocurrió un error al renombrar la categoría.");
     } finally {
       setGuardandoCategoria(null);
+    }
+  }
+
+  async function agregarProducto() {
+    const nombre = nuevoProducto.nombre.trim();
+    const categoria = nuevoProducto.categoria.trim();
+    const precioUsd = parseFloat(nuevoProducto.precioUsd);
+
+    if (!nombre || !categoria) {
+      setMensajeNuevoProducto("Completa el nombre y la categoría.");
+      return;
+    }
+    if (isNaN(precioUsd) || precioUsd <= 0) {
+      setMensajeNuevoProducto("Escribe un precio válido en dólares.");
+      return;
+    }
+
+    setAgregandoProducto(true);
+    setMensajeNuevoProducto("");
+
+    try {
+      // Si el admin eligió una imagen, se sube primero: así el producto ya
+      // se crea con su foto en vez de tener que ir a buscarlo después para
+      // asociársela.
+      let imagenUrl: string | null = null;
+      if (nuevaImagenFile) {
+        const formData = new FormData();
+        formData.append("file", nuevaImagenFile);
+        formData.append("carpeta", "productos");
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        if (!uploadRes.ok) {
+          setMensajeNuevoProducto("No se pudo subir la imagen. Intenta agregar el producto de nuevo.");
+          setAgregandoProducto(false);
+          return;
+        }
+        const uploadData = await uploadRes.json();
+        imagenUrl = uploadData.url;
+      }
+
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, precioUsd, categoria, porPeso: nuevoProducto.porPeso, imagenUrl }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const producto: Product = data.product;
+        setProducts((prev) => [...prev, producto]);
+        setEditingValues((prev) => ({
+          ...prev,
+          [producto.id]: {
+            nombre: producto.nombre,
+            precioUsd: producto.precioUsd.toString(),
+            porPeso: Boolean(producto.porPeso),
+            categoria: producto.categoria,
+          },
+        }));
+        setNuevoProducto({ nombre: "", precioUsd: "", categoria: "", porPeso: false });
+        setNuevaImagenFile(null);
+        setNuevaImagenPreview(null);
+        setMensajeNuevoProducto(`"${producto.nombre}" agregado al catálogo.`);
+      } else {
+        setMensajeNuevoProducto("No se pudo agregar el producto.");
+      }
+    } catch (e) {
+      console.error("Error al agregar producto:", e);
+      setMensajeNuevoProducto("No se pudo agregar el producto.");
+    } finally {
+      setAgregandoProducto(false);
     }
   }
 
@@ -298,55 +418,137 @@ export default function AdminHomePage() {
 
   return (
     <div className="space-y-6">
-      {/* SECCIÓN 1: TASA DEL DÍA */}
       <div>
-        <h1 className="font-display text-xl text-leaf-800 mb-4">Tasa del día</h1>
-
-        <div className="bg-white border border-leaf-100 rounded-lg p-6 mb-4">
-          <p className="text-sm text-ink/60">Tasa actual</p>
-          <p className="font-display text-3xl text-leaf-800">{tasaCambio} Bs/USD</p>
-        </div>
-
-        <div className="flex gap-3">
-          <input
-            type="number"
-            step="0.01"
-            value={nuevaTasa}
-            onChange={(e) => setNuevaTasa(e.target.value)}
-            placeholder="Nueva tasa, ej: 42.50"
-            className="flex-1 border border-leaf-100 rounded-lg px-3 py-3"
-          />
-          <button
-            disabled={!nuevaTasa || guardando}
-            onClick={actualizarTasa}
-            className="px-5 py-2 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40 hover:bg-leaf-700 transition-colors shrink-0"
-          >
-            Actualizar Tasa
-          </button>
-        </div>
-
-        {mensaje && <p className="text-sm mt-3 text-leaf-600 font-medium">{mensaje}</p>}
+        <h1 className="font-display text-xl text-leaf-800">Productos</h1>
+        <p className="text-xs text-ink/50 mt-1">
+          Agrega productos nuevos, súbeles imagen, organiza sus categorías y edita lo que ya tienes
+          cargado — todo desde acá.
+        </p>
       </div>
 
-      <hr className="border-leaf-100 my-6" />
+      {/* AGREGAR PRODUCTO NUEVO */}
+      <div className="bg-leaf-50/60 border border-leaf-100 rounded-lg p-4">
+        <p className="text-sm font-medium text-leaf-800 mb-3">➕ Agregar producto nuevo</p>
+        <div className="flex flex-col sm:flex-row gap-2.5">
+          {/* Imagen del producto nuevo (opcional): se sube junto con el
+              resto de los datos al tocar "Agregar". */}
+          <label className="relative shrink-0 w-16 h-16 sm:w-[42px] sm:h-[42px] rounded-lg border border-dashed border-leaf-300 bg-white overflow-hidden cursor-pointer flex items-center justify-center mx-auto sm:mx-0">
+            {nuevaImagenPreview ? (
+              <img src={nuevaImagenPreview} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-leaf-400 text-lg" title="Agregar imagen (opcional)">
+                📷
+              </span>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                if (nuevaImagenPreview) URL.revokeObjectURL(nuevaImagenPreview);
+                setNuevaImagenFile(file);
+                setNuevaImagenPreview(file ? URL.createObjectURL(file) : null);
+              }}
+            />
+          </label>
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_140px_180px_auto] gap-2.5">
+            <input
+              type="text"
+              placeholder="Nombre del producto"
+              value={nuevoProducto.nombre}
+              onChange={(e) => setNuevoProducto((prev) => ({ ...prev, nombre: e.target.value }))}
+              className="border border-leaf-100 rounded-lg px-3 py-2.5 bg-white"
+            />
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-xs text-ink/40">$</span>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Precio"
+                value={nuevoProducto.precioUsd}
+                onChange={(e) => setNuevoProducto((prev) => ({ ...prev, precioUsd: e.target.value }))}
+                className="w-full pl-6 pr-3 py-2.5 border border-leaf-100 rounded-lg bg-white"
+              />
+            </div>
+            <input
+              type="text"
+              list="categorias-existentes"
+              placeholder="Categoría (ej: Lácteos)"
+              value={nuevoProducto.categoria}
+              onChange={(e) => setNuevoProducto((prev) => ({ ...prev, categoria: e.target.value }))}
+              className="border border-leaf-100 rounded-lg px-3 py-2.5 bg-white"
+            />
+            <button
+              onClick={agregarProducto}
+              disabled={agregandoProducto}
+              className="px-4 py-2.5 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40 hover:bg-leaf-700 transition-colors whitespace-nowrap"
+            >
+              {agregandoProducto ? "Agregando..." : "Agregar"}
+            </button>
+          </div>
+        </div>
+        <label className="flex items-center gap-2 mt-2.5 text-xs text-ink/70 select-none">
+          <input
+            type="checkbox"
+            checked={nuevoProducto.porPeso}
+            onChange={(e) => setNuevoProducto((prev) => ({ ...prev, porPeso: e.target.checked }))}
+            className="w-4 h-4 accent-leaf-600 cursor-pointer"
+          />
+          Se vende por peso (kg) — el precio de arriba es por kilogramo, no por unidad
+        </label>
+        {mensajeNuevoProducto && (
+          <p className="text-xs mt-2.5 text-leaf-700">{mensajeNuevoProducto}</p>
+        )}
+      </div>
 
-      {/* SECCIÓN 1.5: CATEGORÍAS (renombrar en bloque) */}
+      <hr className="border-leaf-100" />
+
+      {/* CATEGORÍAS: imagen representativa (círculo del catálogo) y
+          renombrado en bloque */}
       <div>
         <h2 className="font-display text-xl text-leaf-800 mb-1">Categorías</h2>
         <p className="text-xs text-ink/50 mb-4">
+          La foto de cada categoría es la que ve el cliente en el círculo, arriba del catálogo.
           Cambiar el nombre acá lo aplica a todos los productos de esa categoría a la vez.
         </p>
         <div className="flex flex-wrap gap-2">
           {categoriasUnicas.map((cat) => (
             <div
               key={cat}
-              className="flex items-center gap-1.5 bg-white border border-leaf-100 rounded-lg px-2.5 py-2"
+              className="flex items-center gap-2 bg-white border border-leaf-100 rounded-lg px-2.5 py-2"
             >
+              <label
+                className="relative shrink-0 w-9 h-9 rounded-full border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group"
+                title="Cambiar imagen de la categoría"
+              >
+                {categoriaImagenes[cat] ? (
+                  <img src={categoriaImagenes[cat] as string} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="w-full h-full flex items-center justify-center text-leaf-300 text-sm">
+                    🛒
+                  </span>
+                )}
+                <span className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center text-white text-[8px] font-medium opacity-0 group-hover:opacity-100">
+                  {subiendoImagenCategoriaId === cat ? "..." : "Cambiar"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={subiendoImagenCategoriaId === cat}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) subirImagenCategoria(cat, file);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
               <input
                 type="text"
                 value={renombrando[cat] ?? cat}
                 onChange={(e) => setRenombrando((prev) => ({ ...prev, [cat]: e.target.value }))}
-                className="text-sm border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-1.5 py-1 focus:bg-leaf-50/40 focus:outline-none w-36"
+                className="text-sm border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-1.5 py-1 focus:bg-leaf-50/40 focus:outline-none w-32"
               />
               <button
                 onClick={() => renombrarCategoria(cat)}
@@ -363,13 +565,13 @@ export default function AdminHomePage() {
         </div>
       </div>
 
-      <hr className="border-leaf-100 my-6" />
+      <hr className="border-leaf-100" />
 
-      {/* SECCIÓN 2: CATÁLOGO DE PRODUCTOS EDITABLES CON BÚSQUEDA */}
+      {/* CATÁLOGO DE PRODUCTOS EDITABLES CON BÚSQUEDA */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h2 className="font-display text-xl text-leaf-800">Productos</h2>
+            <h2 className="font-display text-xl text-leaf-800">Editar productos</h2>
             <p className="text-xs text-ink/50">Carga el precio en dólares ($) de cada producto; el precio en Bs se calcula con la tasa del día</p>
           </div>
 
@@ -399,7 +601,7 @@ export default function AdminHomePage() {
           </p>
         )}
 
-        {/* Datalist compartido para sugerir categorías existentes al mover un producto */}
+        {/* Datalist compartido para sugerir categorías existentes al crear o mover un producto */}
         <datalist id="categorias-existentes">
           {categoriasUnicas.map((cat) => (
             <option key={cat} value={cat} />
@@ -576,8 +778,8 @@ export default function AdminHomePage() {
                           <td className="py-2 px-3 text-center">
                             <span
                               className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${product.activo
-                                ? "bg-leaf-100 text-leaf-800"
-                                : "bg-alert-100 text-alert-600"
+                                  ? "bg-leaf-100 text-leaf-800"
+                                  : "bg-alert-100 text-alert-600"
                                 }`}
                             >
                               {product.activo ? "Disponible" : "Sin stock"}
@@ -598,8 +800,8 @@ export default function AdminHomePage() {
                                 onClick={() => toggleDisponibilidad(product)}
                                 disabled={cambiandoDisponibilidadId === product.id}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-40 transition-colors border ${product.activo
-                                  ? "border-alert-600 text-alert-600 hover:bg-alert-50"
-                                  : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
+                                    ? "border-alert-600 text-alert-600 hover:bg-alert-50"
+                                    : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"
                                   }`}
                               >
                                 {cambiandoDisponibilidadId === product.id

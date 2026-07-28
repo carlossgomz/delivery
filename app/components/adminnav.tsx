@@ -182,8 +182,8 @@ export default function AdminNav() {
   }, [hayPedidosPendientes]);
 
   const links = [
-    { href: "/admin", label: "Tasa y Nuevo producto" },
-    { href: "/admin/productos", label: "🖼️ Imágenes y categorías" },
+    { href: "/admin", label: "Configuración" },
+    { href: "/admin/productos", label: "Productos" },
     { href: "/admin/pedidos", label: "Pedidos" },
     { href: "/admin/pedidos/llamada", label: "📞 Llamada" },
     { href: "/admin/clientes", label: "Clientes" },
