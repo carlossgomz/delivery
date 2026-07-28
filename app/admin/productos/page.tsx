@@ -33,6 +33,7 @@ export default function AdminProductosPage() {
   // Estados para el panel de "Categorías" (renombrar en bloque + imagen)
   const [renombrando, setRenombrando] = useState<Record<string, string>>({});
   const [guardandoCategoria, setGuardandoCategoria] = useState<string | null>(null);
+  const [eliminandoCategoria, setEliminandoCategoria] = useState<string | null>(null);
   const [categoriaImagenes, setCategoriaImagenes] = useState<Record<string, string | null>>({});
   const [subiendoImagenCategoriaId, setSubiendoImagenCategoriaId] = useState<string | null>(null);
 
@@ -322,6 +323,43 @@ export default function AdminProductosPage() {
     }
   }
 
+  async function eliminarCategoria(nombre: string) {
+    const cantidad = products.filter((p) => p.categoria === nombre).length;
+    const confirmado = window.confirm(
+      cantidad > 0
+        ? `"${nombre}" tiene ${cantidad} producto(s). Los que nunca se pidieron se van a borrar; los que ya tienen pedidos asociados se van a marcar "Sin stock" en vez de borrarse, para no perder ese historial. ¿Continuar?`
+        : `¿Eliminar la categoría "${nombre}"?`
+    );
+    if (!confirmado) return;
+
+    setEliminandoCategoria(nombre);
+    try {
+      const res = await fetch("/api/categorias/eliminar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        await cargarProductos();
+        await cargarCategorias();
+        if (data.desactivados > 0) {
+          alert(
+            `Se borraron ${data.eliminados} producto(s) y se marcaron "Sin stock" ${data.desactivados} que ya tenían pedidos.`
+          );
+        }
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "No se pudo eliminar la categoría.");
+      }
+    } catch (e) {
+      console.error("Error al eliminar categoría:", e);
+      alert("Ocurrió un error al eliminar la categoría.");
+    } finally {
+      setEliminandoCategoria(null);
+    }
+  }
+
   async function agregarProducto() {
     const nombre = nuevoProducto.nombre.trim();
     const categoria = nuevoProducto.categoria.trim();
@@ -392,10 +430,15 @@ export default function AdminProductosPage() {
     }
   }
 
+  // El buscador matchea tanto el nombre del producto como el nombre de su
+  // categoría: escribir "Lácteos" filtra a todos los productos de esa
+  // categoría, aunque su nombre no contenga esa palabra.
   const productosFiltrados = products.filter((p) => {
     const edit = editingValues[p.id];
     const nombreBuscar = edit?.nombre ?? p.nombre;
-    return nombreBuscar.toLowerCase().includes(searchTerm.toLowerCase());
+    const categoriaBuscar = edit?.categoria ?? p.categoria;
+    const q = searchTerm.toLowerCase();
+    return nombreBuscar.toLowerCase().includes(q) || categoriaBuscar.toLowerCase().includes(q);
   });
 
   // Nombres de categoría únicos, ordenados alfabéticamente.
@@ -556,6 +599,14 @@ export default function AdminProductosPage() {
                 className="px-2.5 py-1 rounded-md bg-leaf-600 text-white text-xs font-medium disabled:opacity-30 hover:bg-leaf-700 transition-colors shrink-0"
               >
                 {guardandoCategoria === cat ? "..." : "Guardar"}
+              </button>
+              <button
+                onClick={() => eliminarCategoria(cat)}
+                disabled={eliminandoCategoria === cat}
+                title="Eliminar categoría"
+                className="px-2 py-1 rounded-md border border-alert-600 text-alert-600 text-xs font-medium disabled:opacity-30 hover:bg-alert-50 transition-colors shrink-0"
+              >
+                {eliminandoCategoria === cat ? "..." : "🗑"}
               </button>
             </div>
           ))}
