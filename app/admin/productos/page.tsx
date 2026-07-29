@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type PointerEvent } from "react";
 
 type Product = {
   id: string;
@@ -29,6 +29,8 @@ export default function AdminProductosPage() {
   const [cambiandoDisponibilidadId, setCambiandoDisponibilidadId] = useState<string | null>(null);
   const [subiendoImagenId, setSubiendoImagenId] = useState<string | null>(null);
   const [reordenandoId, setReordenandoId] = useState<string | null>(null);
+  const [draggedProductId, setDraggedProductId] = useState<string | null>(null);
+  const [dragOverProductId, setDragOverProductId] = useState<string | null>(null);
 
   // Estados para el panel de "Categorías" (renombrar en bloque + imagen)
   const [renombrando, setRenombrando] = useState<Record<string, string>>({});
@@ -257,23 +259,91 @@ export default function AdminProductosPage() {
     }
   }
 
-  // Mueve un producto un lugar arriba/abajo DENTRO de su categoría. Usa la
-  // lista completa (no la filtrada por búsqueda) para no desordenar
-  // productos que en ese momento están ocultos por el buscador.
-  async function moverProducto(product: Product, direccion: "arriba" | "abajo") {
+  // Reordenar arrastrando: el agarre (⠿) de cada producto usa Pointer Events
+  // (en vez del drag&drop nativo del navegador) para que funcione igual con
+  // mouse y con el dedo en celular/tablet. Se suelta sobre otra fila de la
+  // MISMA categoría. Usa la lista completa (no la filtrada por búsqueda)
+  // para no desordenar productos que en ese momento están ocultos por el
+  // buscador.
+  function handlePointerDown(e: PointerEvent<HTMLButtonElement>, product: Product) {
+    if (searchTerm || reordenandoId || draggedProductId) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDraggedProductId(product.id);
+    setDragOverProductId(null);
+  }
+
+  function handlePointerMove(e: PointerEvent<HTMLButtonElement>) {
+    if (!draggedProductId) return;
+    e.preventDefault();
+
+    // Auto-scroll de la página cuando se arrastra cerca del borde superior
+    // o inferior de la pantalla, para listas largas en celular.
+    const margen = 60;
+    if (e.clientY < margen) {
+      window.scrollBy({ top: -14 });
+    } else if (e.clientY > window.innerHeight - margen) {
+      window.scrollBy({ top: 14 });
+    }
+
+    const draggedProduct = products.find((p) => p.id === draggedProductId);
+    if (!draggedProduct) return;
+
+    const elemento = document.elementFromPoint(e.clientX, e.clientY);
+    const fila = elemento?.closest("[data-product-row]") as HTMLElement | null;
+    const targetId = fila?.getAttribute("data-product-id") ?? null;
+
+    if (!targetId || targetId === draggedProductId) {
+      setDragOverProductId(null);
+      return;
+    }
+    const targetProduct = products.find((p) => p.id === targetId);
+    if (!targetProduct || targetProduct.categoria !== draggedProduct.categoria) {
+      setDragOverProductId(null);
+      return;
+    }
+    setDragOverProductId(targetId);
+  }
+
+  async function handlePointerUp() {
+    const draggedId = draggedProductId;
+    const targetId = dragOverProductId;
+    setDraggedProductId(null);
+    setDragOverProductId(null);
+    if (!draggedId || !targetId || draggedId === targetId) return;
+    await reordenarPorArrastre(draggedId, targetId);
+  }
+
+  function handlePointerCancel() {
+    setDraggedProductId(null);
+    setDragOverProductId(null);
+  }
+
+  async function reordenarPorArrastre(draggedId: string, targetId: string) {
+    const draggedProduct = products.find((p) => p.id === draggedId);
+    const targetProduct = products.find((p) => p.id === targetId);
+    if (!draggedProduct || !targetProduct || draggedProduct.categoria !== targetProduct.categoria) return;
+
     const grupo = products
-      .filter((p) => p.categoria === product.categoria)
+      .filter((p) => p.categoria === targetProduct.categoria)
       .sort((a, b) => a.orden - b.orden || (a.createdAt ?? "").localeCompare(b.createdAt ?? ""));
 
-    const idx = grupo.findIndex((p) => p.id === product.id);
-    const nuevoIdx = direccion === "arriba" ? idx - 1 : idx + 1;
-    if (idx === -1 || nuevoIdx < 0 || nuevoIdx >= grupo.length) return;
+    const fromIdx = grupo.findIndex((p) => p.id === draggedId);
+    const toIdx = grupo.findIndex((p) => p.id === targetId);
+    if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
 
     const reordenado = [...grupo];
-    const [item] = reordenado.splice(idx, 1);
-    reordenado.splice(nuevoIdx, 0, item);
+    const [item] = reordenado.splice(fromIdx, 1);
+    reordenado.splice(toIdx, 0, item);
 
-    setReordenandoId(product.id);
+    // Actualización optimista: el nuevo orden se ve al instante en pantalla,
+    // sin esperar la respuesta del servidor.
+    const ordenPorId = new Map(reordenado.map((p, i) => [p.id, i]));
+    setProducts((prev) =>
+      prev.map((p) => (ordenPorId.has(p.id) ? { ...p, orden: ordenPorId.get(p.id)! } : p))
+    );
+
+    setReordenandoId(draggedId);
     try {
       // Reasigna un orden secuencial (0, 1, 2...) a todo el grupo según el
       // nuevo arreglo, para que quede determinístico de ahí en adelante
@@ -292,6 +362,7 @@ export default function AdminProductosPage() {
     } catch (e) {
       console.error("Error al reordenar productos:", e);
       alert("No se pudo reordenar. Intenta de nuevo.");
+      await cargarProductos();
     } finally {
       setReordenandoId(null);
     }
@@ -675,7 +746,7 @@ export default function AdminProductosPage() {
                 </div>
 
                 <div className="divide-y divide-leaf-100/50">
-                  {productosCategoria.map((product, idxEnCategoria) => {
+                  {productosCategoria.map((product) => {
                     const edit = editingValues[product.id] || {
                       nombre: product.nombre,
                       precioUsd: product.precioUsd?.toString() ?? "0",
@@ -688,7 +759,13 @@ export default function AdminProductosPage() {
                     const puedeReordenar = !searchTerm;
 
                     return (
-                      <div key={product.id} className={`p-3 sm:p-4 hover:bg-leaf-50/20 ${!product.activo ? "opacity-50" : ""}`}>
+                      <div
+                        key={product.id}
+                        data-product-row
+                        data-product-id={product.id}
+                        className={`p-3 sm:p-4 transition-colors ${!product.activo ? "opacity-50" : ""} ${draggedProductId === product.id ? "opacity-40" : "hover:bg-leaf-50/20"
+                          } ${dragOverProductId === product.id ? "bg-leaf-100/70 ring-2 ring-inset ring-leaf-400" : ""}`}
+                      >
                         {/* FILA SUPERIOR: imagen + nombre (ocupa todo el ancho) + estado */}
                         <div className="flex items-center gap-3 mb-3">
                           <label
@@ -733,26 +810,20 @@ export default function AdminProductosPage() {
                           </label>
 
                           {puedeReordenar && (
-                            <div className="flex flex-col shrink-0">
-                              <button
-                                onClick={() => moverProducto(product, "arriba")}
-                                disabled={idxEnCategoria === 0 || reordenandoId !== null}
-                                className="text-ink/40 hover:text-leaf-700 disabled:opacity-20 disabled:hover:text-ink/40 leading-none text-xs px-1"
-                                aria-label={`Mover ${product.nombre} hacia arriba en su categoría`}
-                                title="Mover arriba"
-                              >
-                                ▲
-                              </button>
-                              <button
-                                onClick={() => moverProducto(product, "abajo")}
-                                disabled={idxEnCategoria === productosCategoria.length - 1 || reordenandoId !== null}
-                                className="text-ink/40 hover:text-leaf-700 disabled:opacity-20 disabled:hover:text-ink/40 leading-none text-xs px-1"
-                                aria-label={`Mover ${product.nombre} hacia abajo en su categoría`}
-                                title="Mover abajo"
-                              >
-                                ▼
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onPointerDown={(e) => handlePointerDown(e, product)}
+                              onPointerMove={handlePointerMove}
+                              onPointerUp={handlePointerUp}
+                              onPointerCancel={handlePointerCancel}
+                              disabled={reordenandoId !== null}
+                              style={{ touchAction: "none" }}
+                              className="shrink-0 cursor-grab active:cursor-grabbing text-ink/30 hover:text-leaf-700 disabled:opacity-20 text-lg leading-none px-1 touch-none select-none"
+                              aria-label={`Arrastrar ${product.nombre} para reordenar dentro de su categoría`}
+                              title="Arrastrar para reordenar"
+                            >
+                              ⠿
+                            </button>
                           )}
 
                           <input
