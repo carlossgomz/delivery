@@ -240,6 +240,12 @@ export default function CatalogPage() {
   }, [filteredProducts, selectedCategory]);
 
   function addToCart(productId: string) {
+    // Solo se abre el resumen automáticamente cuando el carrito estaba
+    // vacío (para que el primer producto agregado quede a la vista sin
+    // buscarlo). Si el carrito ya tenía productos, no se vuelve a abrir
+    // solo: si el usuario lo cerró a propósito, se respeta esa elección
+    // y el toast de abajo ("✓ Agregado...") ya avisa que se sumó.
+    const carritoEstabaVacio = cart.length === 0;
     setCart((prev) => {
       const existing = prev.find((l) => l.productId === productId);
       if (existing) {
@@ -247,9 +253,9 @@ export default function CatalogPage() {
       }
       return [...prev, { productId, cantidad: 1 }];
     });
-    // Al agregar el primer artículo, se muestra el resumen automáticamente
-    // para que quede a la vista sin tener que buscarlo.
-    setMostrarResumen(true);
+    if (carritoEstabaVacio) {
+      setMostrarResumen(true);
+    }
     const nombre = products.find((p) => p.id === productId)?.nombre ?? "Producto";
     notificarAgregado(productId, `✓ Agregado: ${nombre}`);
   }
@@ -271,6 +277,9 @@ export default function CatalogPage() {
   // peso sugerido y por el input manual). ajustarPeso suma/resta un delta
   // (usado por los botones +/- del resumen del carrito).
   function fijarPeso(productId: string, kilos: number) {
+    // Misma idea que en addToCart: el resumen se abre solo si el carrito
+    // estaba vacío, no cada vez que se ajusta un peso.
+    const carritoEstabaVacio = cart.length === 0;
     setCart((prev) => {
       const limpio = Math.round(kilos * 100) / 100;
       if (limpio <= 0) return prev.filter((l) => l.productId !== productId);
@@ -280,7 +289,9 @@ export default function CatalogPage() {
       }
       return [...prev, { productId, cantidad: limpio }];
     });
-    setMostrarResumen(true);
+    if (carritoEstabaVacio) {
+      setMostrarResumen(true);
+    }
   }
 
   function ajustarPeso(productId: string, delta: number) {
@@ -409,11 +420,10 @@ export default function CatalogPage() {
                   aria-pressed={seleccionada}
                 >
                   <span
-                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden flex items-center justify-center transition-all ${
-                      seleccionada
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden flex items-center justify-center transition-all ${seleccionada
                         ? "ring-2 ring-leaf-600 ring-offset-2 ring-offset-cream shadow-sm"
                         : "ring-1 ring-leaf-100"
-                    } ${imagenCat ? "bg-leaf-50" : "bg-leaf-100/70"}`}
+                      } ${imagenCat ? "bg-leaf-50" : "bg-leaf-100/70"}`}
                   >
                     {imagenCat ? (
                       <img src={imagenCat} alt="" className="w-full h-full object-cover" />
@@ -424,9 +434,8 @@ export default function CatalogPage() {
                     )}
                   </span>
                   <span
-                    className={`text-[11px] sm:text-xs text-center leading-tight line-clamp-2 transition-colors ${
-                      seleccionada ? "text-leaf-700 font-semibold" : "text-ink/60 font-medium"
-                    }`}
+                    className={`text-[11px] sm:text-xs text-center leading-tight line-clamp-2 transition-colors ${seleccionada ? "text-leaf-700 font-semibold" : "text-ink/60 font-medium"
+                      }`}
                   >
                     {cat}
                   </span>
@@ -484,9 +493,8 @@ export default function CatalogPage() {
                     return (
                       <li
                         key={p.id}
-                        className={`relative flex flex-col bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-md transition-shadow ${
-                          p.activo ? "border-leaf-100" : "border-leaf-100 opacity-60"
-                        } ${recienAgregadoId === p.id ? "animate-agregado" : ""}`}
+                        className={`relative flex flex-col bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-md transition-shadow ${p.activo ? "border-leaf-100" : "border-leaf-100 opacity-60"
+                          } ${recienAgregadoId === p.id ? "animate-agregado" : ""}`}
                       >
                         {recienAgregadoId === p.id && (
                           <span
@@ -671,9 +679,8 @@ export default function CatalogPage() {
           incluso si el resumen de abajo está colapsado. */}
       {toasts.length > 0 && (
         <div
-          className={`fixed inset-x-0 z-30 flex flex-col items-center gap-1.5 px-4 pointer-events-none ${
-            totalItems > 0 ? "bottom-24 sm:bottom-28" : "bottom-4"
-          }`}
+          className={`fixed inset-x-0 z-30 flex flex-col items-center gap-1.5 px-4 pointer-events-none ${totalItems > 0 ? "bottom-24 sm:bottom-28" : "bottom-4"
+            }`}
         >
           {toasts.map((t) => (
             <div
