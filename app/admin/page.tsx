@@ -9,8 +9,6 @@ export default function AdminConfiguracionPage() {
   const [nuevoTelefono, setNuevoTelefono] = useState<string>("");
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
-  const [pedidosHabilitados, setPedidosHabilitados] = useState<boolean>(true);
-  const [cambiandoPedidos, setCambiandoPedidos] = useState(false);
 
   useEffect(() => {
     fetch("/api/config")
@@ -18,7 +16,6 @@ export default function AdminConfiguracionPage() {
       .then((d) => {
         setTasaCambio(d.tasaCambio);
         setTelefonoTienda(d.telefonoTienda ?? "");
-        setPedidosHabilitados(d.pedidosHabilitados ?? true);
       });
   }, []);
 
@@ -60,73 +57,8 @@ export default function AdminConfiguracionPage() {
     setGuardando(false);
   }
 
-  async function alternarPedidos() {
-    const nuevoValor = !pedidosHabilitados;
-    setCambiandoPedidos(true);
-    setMensaje("");
-    try {
-      const res = await fetch("/api/config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pedidosHabilitados: nuevoValor })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setPedidosHabilitados(data.pedidosHabilitados);
-        setMensaje(
-          data.pedidosHabilitados
-            ? "Pedidos habilitados: los clientes ya pueden pedir."
-            : "Pedidos deshabilitados: los clientes verán el aviso de horario y no podrán pedir."
-        );
-      } else {
-        setMensaje("No se pudo actualizar el interruptor de pedidos.");
-      }
-    } catch (e) {
-      console.error("Error al actualizar pedidosHabilitados:", e);
-      setMensaje("No se pudo actualizar el interruptor de pedidos.");
-    } finally {
-      setCambiandoPedidos(false);
-    }
-  }
-
   return (
     <div>
-      {/* INTERRUPTOR: ABRIR/CERRAR PEDIDOS */}
-      <h1 className="font-display text-xl text-leaf-800 mb-4">Estado de la tienda</h1>
-      <div
-        className={`flex items-center justify-between gap-4 rounded-lg border p-4 mb-8 ${
-          pedidosHabilitados
-            ? "bg-leaf-50 border-leaf-100"
-            : "bg-alert-50 border-alert-200"
-        }`}
-      >
-        <div>
-          <p className={`font-medium ${pedidosHabilitados ? "text-leaf-800" : "text-alert-700"}`}>
-            {pedidosHabilitados ? "Recibiendo pedidos" : "Pedidos deshabilitados"}
-          </p>
-          <p className="text-xs text-ink/60 mt-0.5">
-            {pedidosHabilitados
-              ? "Los clientes pueden agregar productos y completar el pago."
-              : "Los clientes verán el aviso de horario y no podrán completar un pedido. El catálogo y el registro de cuentas nuevas siguen funcionando."}
-          </p>
-        </div>
-        <button
-          onClick={alternarPedidos}
-          disabled={cambiandoPedidos}
-          role="switch"
-          aria-checked={pedidosHabilitados}
-          className={`shrink-0 relative w-14 h-8 rounded-full transition-colors disabled:opacity-50 ${
-            pedidosHabilitados ? "bg-leaf-600" : "bg-ink/20"
-          }`}
-        >
-          <span
-            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${
-              pedidosHabilitados ? "translate-x-6" : "translate-x-0"
-            }`}
-          />
-        </button>
-      </div>
-
       <h1 className="font-display text-xl text-leaf-800 mb-4">Tasa de Cambio</h1>
 
       <div className="bg-white border border-leaf-100 rounded-lg p-6 mb-4">

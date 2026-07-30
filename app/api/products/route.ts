@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthed } from "@/lib/auth";
+import { isDuenoAuthed } from "@/lib/auth";
 
 // El catálogo y el checkout esperan un campo "precioUsd" en cada producto.
 // Ese precio ya viene cargado directamente por el admin (sin costo ni margen).
@@ -17,7 +17,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAdminAuthed()) {
+  if (!isDuenoAuthed()) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

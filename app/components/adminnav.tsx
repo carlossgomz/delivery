@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { reproducirAlerta } from "@/lib/alertaSonido";
 import { actualizarBadgeFavicon } from "@/lib/faviconBadge";
+import type { StaffRole } from "@/lib/auth";
 
 type PedidoPendiente = { id: string; clienteNombre: string; estado: string };
 
@@ -20,7 +21,7 @@ const PARPADEO_TITULO_MS = 1200;
 // vive TODA la alerta de "hay algo que atender" (pedido nuevo o pago
 // enviado), porque está montada en cualquier pantalla del admin: así el
 // aviso llega sin importar en qué pestaña/página esté el personal.
-export default function AdminNav() {
+export default function AdminNav({ role }: { role: StaffRole }) {
   const pathname = usePathname();
   const [noLeidos, setNoLeidos] = useState(0);
   const [pedidosPendientes, setPedidosPendientes] = useState<PedidoPendiente[]>([]);
@@ -181,9 +182,16 @@ export default function AdminNav() {
     return () => clearInterval(intervalo);
   }, [hayPedidosPendientes]);
 
+  // Configuración y Productos son solo de los dueños (rol "admin"). El
+  // empleado de delivery ("delivery") solo ve su sección: pedidos,
+  // llamada, clientes y mensajes.
   const links = [
-    { href: "/admin", label: "Configuración" },
-    { href: "/admin/productos", label: "Productos" },
+    ...(role === "admin"
+      ? [
+          { href: "/admin", label: "Configuración" },
+          { href: "/admin/productos", label: "Productos" }
+        ]
+      : []),
     { href: "/admin/pedidos", label: "Pedidos" },
     { href: "/admin/pedidos/llamada", label: "📞 Llamada" },
     { href: "/admin/clientes", label: "Clientes" },

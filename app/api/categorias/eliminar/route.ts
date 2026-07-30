@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthed } from "@/lib/auth";
+import { isDuenoAuthed } from "@/lib/auth";
 
 // Elimina una categoría completa. Como nunca se borra un producto que ya
 // fue pedido (rompería el historial de esos pedidos), esta ruta separa los
@@ -11,7 +11,7 @@ import { isAdminAuthed } from "@/lib/auth";
 //   historial de esos pedidos siga intacto.
 // La imagen asignada a la categoría (si tenía) también se borra.
 export async function POST(req: NextRequest) {
-    if (!isAdminAuthed()) {
+    if (!isDuenoAuthed()) {
         return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 

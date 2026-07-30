@@ -76,6 +76,49 @@ export default function AdminPedidosPage() {
   // automático no pise un cambio que el admin todavía no guardó.
   const [cambiosCantidad, setCambiosCantidad] = useState<Record<string, Record<string, number>>>({});
 
+  // Interruptor "atendiendo en tienda" (antes vivía en Configuración).
+  // Lo opera el empleado de delivery desde acá, junto al resto de su trabajo
+  // del día, sin necesitar acceso a la pantalla de Configuración/Productos.
+  const [pedidosHabilitados, setPedidosHabilitados] = useState<boolean>(true);
+  const [cambiandoPedidos, setCambiandoPedidos] = useState(false);
+  const [mensajeEstadoTienda, setMensajeEstadoTienda] = useState("");
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((d) => setPedidosHabilitados(d.pedidosHabilitados ?? true))
+      .catch(() => {});
+  }, []);
+
+  async function alternarPedidosHabilitados() {
+    const nuevoValor = !pedidosHabilitados;
+    setCambiandoPedidos(true);
+    setMensajeEstadoTienda("");
+    try {
+      const res = await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pedidosHabilitados: nuevoValor })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPedidosHabilitados(data.pedidosHabilitados);
+        setMensajeEstadoTienda(
+          data.pedidosHabilitados
+            ? "Pedidos habilitados: los clientes ya pueden pedir."
+            : "Pedidos deshabilitados: los clientes verán el aviso de horario y no podrán pedir."
+        );
+      } else {
+        setMensajeEstadoTienda("No se pudo actualizar el interruptor de pedidos.");
+      }
+    } catch (e) {
+      console.error("Error al actualizar pedidosHabilitados:", e);
+      setMensajeEstadoTienda("No se pudo actualizar el interruptor de pedidos.");
+    } finally {
+      setCambiandoPedidos(false);
+    }
+  }
+
   // Carga de pedidos desactivando el caché HTTP
   async function cargar() {
     try {
@@ -311,6 +354,42 @@ export default function AdminPedidosPage() {
           {conectado ? "Recibiendo pedidos en vivo" : "Sin conexión — reintentando…"}
         </span>
       </div>
+
+      {/* INTERRUPTOR: ABRIR/CERRAR PEDIDOS ("atendiendo en tienda") */}
+      <div
+        className={`flex items-center justify-between gap-4 rounded-lg border p-4 mb-6 ${
+          pedidosHabilitados
+            ? "bg-leaf-50 border-leaf-100"
+            : "bg-alert-50 border-alert-200"
+        }`}
+      >
+        <div>
+          <p className={`font-medium ${pedidosHabilitados ? "text-leaf-800" : "text-alert-700"}`}>
+            {pedidosHabilitados ? "Recibiendo pedidos" : "Pedidos deshabilitados"}
+          </p>
+          <p className="text-xs text-ink/60 mt-0.5">
+            {pedidosHabilitados
+              ? "Los clientes pueden agregar productos y completar el pago."
+              : "Los clientes verán el aviso de horario y no podrán completar un pedido. El catálogo y el registro de cuentas nuevas siguen funcionando."}
+          </p>
+        </div>
+        <button
+          onClick={alternarPedidosHabilitados}
+          disabled={cambiandoPedidos}
+          role="switch"
+          aria-checked={pedidosHabilitados}
+          className={`shrink-0 relative w-14 h-8 rounded-full transition-colors disabled:opacity-50 ${
+            pedidosHabilitados ? "bg-leaf-600" : "bg-ink/20"
+          }`}
+        >
+          <span
+            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${
+              pedidosHabilitados ? "translate-x-6" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </div>
+      {mensajeEstadoTienda && <p className="text-sm mb-4 text-leaf-600">{mensajeEstadoTienda}</p>}
 
       <div className="space-y-4">
         {safeOrders.map((order) => {

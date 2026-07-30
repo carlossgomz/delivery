@@ -3,8 +3,31 @@ import crypto from "crypto";
 
 const COOKIE_NAME = "admin_session";
 
+// --- Roles de personal ---
+// "admin"    -> dueños de la empresa: configuración (tasa, teléfono) y productos.
+// "delivery" -> empleado autorizado que atiende los deliverys: pedidos,
+//               mensajes, clientes y llamadas. Puede además abrir/cerrar
+//               la recepción de pedidos ("atendiendo en tienda").
+// Cada rol entra con una clave distinta (ver /api/login), pero ambos
+// comparten la misma cookie de sesión: lo único que cambia es su valor.
+export type StaffRole = "admin" | "delivery";
+
+export function getStaffRole(): StaffRole | null {
+  const value = cookies().get(COOKIE_NAME)?.value;
+  return value === "admin" || value === "delivery" ? value : null;
+}
+
+// Cualquier miembro del personal autenticado (dueño o empleado de delivery).
+// Se mantiene este nombre porque ya lo usan las rutas compartidas entre
+// ambos roles (pedidos, mensajes, clientes, llamadas).
 export function isAdminAuthed(): boolean {
-  return cookies().get(COOKIE_NAME)?.value === "ok";
+  return getStaffRole() !== null;
+}
+
+// Solo el dueño de la empresa (rol "admin"): configuración de tasa/teléfono
+// y gestión de productos/categorías.
+export function isDuenoAuthed(): boolean {
+  return getStaffRole() === "admin";
 }
 
 export const ADMIN_COOKIE_NAME = COOKIE_NAME;

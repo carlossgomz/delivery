@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthed } from "@/lib/auth";
+import { isDuenoAuthed } from "@/lib/auth";
 
 // Como las categorías no son una tabla propia (son solo un texto libre en
 // cada Product), "editar una categoría" significa renombrarla en todos los
 // productos que la tengan asignada de una sola vez, en vez de tener que
 // editar producto por producto (o borrar y volver a cargar, como antes).
 export async function POST(req: NextRequest) {
-  if (!isAdminAuthed()) {
+  if (!isDuenoAuthed()) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

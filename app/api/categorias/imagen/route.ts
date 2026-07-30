@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthed } from "@/lib/auth";
+import { isDuenoAuthed } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // todavía no tiene fila propia en "Categoria" (nadie le había puesto foto
 // antes), la crea; si ya existe, solo actualiza la imagen.
 export async function POST(req: NextRequest) {
-  if (!isAdminAuthed()) {
+  if (!isDuenoAuthed()) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

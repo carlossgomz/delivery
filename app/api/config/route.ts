@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthed } from "@/lib/auth";
+import { isAdminAuthed, isDuenoAuthed } from "@/lib/auth";
 
 export async function GET() {
   const config = await prisma.config.upsert({
@@ -18,12 +18,24 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  // Cualquier personal autenticado puede llegar hasta acá (el interruptor
+  // "atendiendo en tienda" lo opera el empleado de delivery desde la
+  // pantalla de Pedidos); la tasa y el teléfono siguen siendo solo del dueño.
   if (!isAdminAuthed()) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const body = await req.json();
   const data: { tasaCambio?: number; telefonoTienda?: string; pedidosHabilitados?: boolean } = {};
+
+  if (body.tasaCambio !== undefined || body.telefonoTienda !== undefined) {
+    if (!isDuenoAuthed()) {
+      return NextResponse.json(
+        { error: "Solo el administrador puede cambiar la tasa o el teléfono de la tienda" },
+        { status: 403 }
+      );
+    }
+  }
 
   if (body.tasaCambio !== undefined) {
     const tasaCambio = Number(body.tasaCambio);
