@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatCantidad } from "@/lib/peso";
+import { fechaVenezolana, formatFechaHoraVzla } from "@/lib/timezone";
 
 type OrderItem = {
   id: string;
@@ -91,6 +92,10 @@ export default function AdminPedidosPage() {
   // (pendiente por pago, en camino, entregado, cancelado, etc.) para que el
   // empleado ubique rápido lo que necesita sin desplazarse por todo el día.
   const [filtroEstado, setFiltroEstado] = useState<string>("TODOS");
+
+  // Filtro por día (hora de Venezuela). "" = todos los días. El valor
+  // coincide con el formato de <input type="date"> (YYYY-MM-DD).
+  const [filtroFecha, setFiltroFecha] = useState<string>("");
 
   // Cronómetro de entrega: desde que se crea el pedido hasta que se marca
   // "Entregado". Para los pedidos todavía activos se muestra corriendo en
@@ -372,8 +377,9 @@ export default function AdminPedidosPage() {
   }
 
   const safeOrders = Array.isArray(orders) ? orders : [];
-  const ordenesFiltradas =
-    filtroEstado === "TODOS" ? safeOrders : safeOrders.filter((o) => o.estado === filtroEstado);
+  const ordenesFiltradas = safeOrders
+    .filter((o) => filtroEstado === "TODOS" || o.estado === filtroEstado)
+    .filter((o) => !filtroFecha || fechaVenezolana(o.createdAt) === filtroFecha);
 
   // Opciones del filtro: "Todos" primero, y solo los estados que realmente
   // se usan en el flujo (ver ETIQUETAS arriba), en el orden en que avanza
@@ -437,7 +443,7 @@ export default function AdminPedidosPage() {
       {mensajeEstadoTienda && <p className="text-sm mb-4 text-leaf-600">{mensajeEstadoTienda}</p>}
 
       {/* FILTRO POR ESTADO */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-3">
         {OPCIONES_FILTRO.map((op) => {
           const activo = filtroEstado === op;
           const cantidad = op === "TODOS" ? safeOrders.length : safeOrders.filter((o) => o.estado === op).length;
@@ -457,9 +463,25 @@ export default function AdminPedidosPage() {
         })}
       </div>
 
+      {/* FILTRO POR DÍA (hora de Venezuela) */}
+      <div className="flex items-center gap-2 mb-6">
+        <label className="text-xs text-ink/50">Ver pedidos del día:</label>
+        <input
+          type="date"
+          value={filtroFecha}
+          onChange={(e) => setFiltroFecha(e.target.value)}
+          className="border border-leaf-100 rounded-lg px-2.5 py-1.5 text-sm"
+        />
+        {filtroFecha && (
+          <button onClick={() => setFiltroFecha("")} className="text-xs text-leaf-600 underline">
+            Quitar filtro
+          </button>
+        )}
+      </div>
+
       <div className="space-y-4">
         {ordenesFiltradas.length === 0 && (
-          <p className="text-sm text-ink/50 text-center py-8">No hay pedidos con este estado.</p>
+          <p className="text-sm text-ink/50 text-center py-8">No hay pedidos con este filtro.</p>
         )}
         {ordenesFiltradas.map((order) => {
           const items = Array.isArray(order?.items) ? order.items : [];
@@ -500,14 +522,18 @@ export default function AdminPedidosPage() {
                 </span>
               </div>
 
-              {order.estado !== "CANCELADO" && (
+              {order.estado !== "CANCELADO" ? (
                 <p className="text-xs text-ink/50 mb-2">
                   {order.estado === "ENTREGADO" && order.entregadoAt ? (
                     <>⏱ Entregado en {formatDuracion(new Date(order.entregadoAt).getTime() - new Date(order.createdAt).getTime())}</>
                   ) : (
                     <>⏱ Tiempo transcurrido: {formatDuracion(ahora - new Date(order.createdAt).getTime())}</>
                   )}
+                  {" · "}
+                  {formatFechaHoraVzla(order.createdAt)}
                 </p>
+              ) : (
+                <p className="text-xs text-ink/50 mb-2">{formatFechaHoraVzla(order.createdAt)}</p>
               )}
 
               {order.esCredito && !order.creditoPagado && (

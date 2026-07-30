@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatFechaVzla } from "@/lib/timezone";
 
 type TierItem = { productId: string; nombre: string; unidades: number; tier: string };
 type ClienteFrecuente = { nombre: string; telefono: string; pedidos: number; ultimoPedido: string };
@@ -36,6 +37,7 @@ function formatDuracion(ms: number): string {
 export default function EstadisticasPage() {
   const [data, setData] = useState<Estadisticas | null>(null);
   const [error, setError] = useState("");
+  const [busquedaProducto, setBusquedaProducto] = useState("");
 
   useEffect(() => {
     fetch("/api/estadisticas")
@@ -55,6 +57,9 @@ export default function EstadisticasPage() {
   }
 
   const maxUnidades = data.tierList.length > 0 ? data.tierList[0].unidades : 0;
+  const tierListFiltrada = data.tierList.filter((p) =>
+    p.nombre.toLowerCase().includes(busquedaProducto.trim().toLowerCase())
+  );
 
   return (
     <div>
@@ -101,28 +106,40 @@ export default function EstadisticasPage() {
       {data.tierList.length === 0 ? (
         <p className="text-sm text-ink/50 mb-6">Todavía no hay ventas registradas.</p>
       ) : (
-        <div className="bg-white border border-leaf-100 rounded-lg divide-y divide-leaf-50 mb-8">
-          {data.tierList.map((p, idx) => (
-            <div key={p.productId} className="flex items-center gap-3 p-3">
-              <span className="text-xs text-ink/40 w-6 text-right shrink-0">{idx + 1}</span>
-              <span className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center font-display font-bold ${COLOR_TIER[p.tier]}`}>
-                {p.tier}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-ink/80 truncate">{p.nombre}</p>
-                <div className="h-1.5 bg-leaf-50 rounded-full mt-1 overflow-hidden">
-                  <div
-                    className="h-full bg-leaf-600 rounded-full"
-                    style={{ width: `${maxUnidades > 0 ? (p.unidades / maxUnidades) * 100 : 0}%` }}
-                  />
+        <>
+          <input
+            type="text"
+            value={busquedaProducto}
+            onChange={(e) => setBusquedaProducto(e.target.value)}
+            placeholder="Buscar producto…"
+            className="w-full border border-leaf-100 rounded-lg px-3 py-2 text-sm mb-3"
+          />
+          <div className="bg-white border border-leaf-100 rounded-lg divide-y divide-leaf-50 mb-8 max-h-[420px] overflow-y-auto">
+            {tierListFiltrada.length === 0 && (
+              <p className="text-sm text-ink/50 text-center py-6">Ningún producto coincide con "{busquedaProducto}".</p>
+            )}
+            {tierListFiltrada.map((p, idx) => (
+              <div key={p.productId} className="flex items-center gap-3 p-3">
+                <span className="text-xs text-ink/40 w-6 text-right shrink-0">{idx + 1}</span>
+                <span className={`shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center font-display font-bold ${COLOR_TIER[p.tier]}`}>
+                  {p.tier}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-ink/80 truncate">{p.nombre}</p>
+                  <div className="h-1.5 bg-leaf-50 rounded-full mt-1 overflow-hidden">
+                    <div
+                      className="h-full bg-leaf-600 rounded-full"
+                      style={{ width: `${maxUnidades > 0 ? (p.unidades / maxUnidades) * 100 : 0}%` }}
+                    />
+                  </div>
                 </div>
+                <span className="text-sm font-medium text-leaf-800 shrink-0">
+                  {p.unidades % 1 === 0 ? p.unidades : p.unidades.toFixed(2)}
+                </span>
               </div>
-              <span className="text-sm font-medium text-leaf-800 shrink-0">
-                {p.unidades % 1 === 0 ? p.unidades : p.unidades.toFixed(2)}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* CLIENTES FRECUENTES */}
@@ -148,9 +165,7 @@ export default function EstadisticasPage() {
                   <td className="p-3 text-ink/80">{c.nombre}</td>
                   <td className="p-3 text-ink/60">{c.telefono}</td>
                   <td className="p-3 text-right font-medium text-leaf-800">{c.pedidos}</td>
-                  <td className="p-3 text-right text-ink/50 text-xs">
-                    {new Date(c.ultimoPedido).toLocaleDateString("es-VE")}
-                  </td>
+                  <td className="p-3 text-right text-ink/50 text-xs">{formatFechaVzla(c.ultimoPedido)}</td>
                 </tr>
               ))}
             </tbody>

@@ -18,6 +18,12 @@ export async function GET() {
 
   // "Vendido" = pedidos que realmente se ENTREGARON (no pendientes, no
   // cancelados). Es la venta real, no solo lo que el cliente pidió.
+  //
+  // Los productos que se venden POR PESO (Product.porPeso) cuentan como 1
+  // producto vendido por cada línea del pedido, sin importar los kilos
+  // exactos (0.5kg de queso = 1 producto, igual que 1 unidad de cualquier
+  // otro artículo). Así la ganancia y el conteo de unidades reflejan
+  // "cuántas veces se vendió", no el peso.
   const entregados = await prisma.order.findMany({
     where: { estado: "ENTREGADO" },
     include: { items: { include: { product: true } } }
@@ -32,15 +38,16 @@ export async function GET() {
   for (const order of entregados) {
     for (const item of order.items) {
       if (item.disponible === false) continue;
-      totalUnidadesVendidas += item.cantidad;
+      const unidadesLinea = item.product?.porPeso ? 1 : item.cantidad;
+      totalUnidadesVendidas += unidadesLinea;
 
       const key = item.productId;
       const nombre = item.product?.nombre ?? "Producto eliminado";
       const actual = vendidosPorProducto.get(key);
       if (actual) {
-        actual.unidades += item.cantidad;
+        actual.unidades += unidadesLinea;
       } else {
-        vendidosPorProducto.set(key, { nombre, unidades: item.cantidad });
+        vendidosPorProducto.set(key, { nombre, unidades: unidadesLinea });
       }
     }
   }
