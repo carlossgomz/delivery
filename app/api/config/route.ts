@@ -13,6 +13,7 @@ export async function GET() {
     tasaCambio: config.tasaCambio,
     telefonoTienda: config.telefonoTienda,
     pedidosHabilitados: config.pedidosHabilitados,
+    ganancia: config.ganancia,
     updatedAt: config.updatedAt
   });
 }
@@ -20,18 +21,19 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   // Cualquier personal autenticado puede llegar hasta acá (el interruptor
   // "atendiendo en tienda" lo opera el empleado de delivery desde la
-  // pantalla de Pedidos); la tasa y el teléfono siguen siendo solo del dueño.
+  // pantalla de Pedidos); la tasa, el teléfono y la ganancia siguen siendo
+  // solo del dueño.
   if (!isAdminAuthed()) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const body = await req.json();
-  const data: { tasaCambio?: number; telefonoTienda?: string; pedidosHabilitados?: boolean } = {};
+  const data: { tasaCambio?: number; telefonoTienda?: string; pedidosHabilitados?: boolean; ganancia?: number } = {};
 
-  if (body.tasaCambio !== undefined || body.telefonoTienda !== undefined) {
+  if (body.tasaCambio !== undefined || body.telefonoTienda !== undefined || body.ganancia !== undefined) {
     if (!isDuenoAuthed()) {
       return NextResponse.json(
-        { error: "Solo el administrador puede cambiar la tasa o el teléfono de la tienda" },
+        { error: "Solo el administrador puede cambiar la tasa, el teléfono o la ganancia de la tienda" },
         { status: 403 }
       );
     }
@@ -53,6 +55,14 @@ export async function POST(req: NextRequest) {
     data.pedidosHabilitados = Boolean(body.pedidosHabilitados);
   }
 
+  if (body.ganancia !== undefined) {
+    const ganancia = Number(body.ganancia);
+    if (Number.isNaN(ganancia) || ganancia < 0) {
+      return NextResponse.json({ error: "Ganancia inválida" }, { status: 400 });
+    }
+    data.ganancia = ganancia;
+  }
+
   const config = await prisma.config.upsert({
     where: { id: 1 },
     update: data,
@@ -60,13 +70,15 @@ export async function POST(req: NextRequest) {
       id: 1,
       tasaCambio: data.tasaCambio ?? 1,
       telefonoTienda: data.telefonoTienda,
-      pedidosHabilitados: data.pedidosHabilitados ?? true
+      pedidosHabilitados: data.pedidosHabilitados ?? true,
+      ganancia: data.ganancia ?? 0.1
     }
   });
 
   return NextResponse.json({
     tasaCambio: config.tasaCambio,
     telefonoTienda: config.telefonoTienda,
-    pedidosHabilitados: config.pedidosHabilitados
+    pedidosHabilitados: config.pedidosHabilitados,
+    ganancia: config.ganancia
   });
 }

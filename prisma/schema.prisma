@@ -76,6 +76,10 @@ model Order {
   esCredito       Boolean     @default(false)
   creditoPagado   Boolean     @default(false)
   createdAt       DateTime    @default(now())
+  // Se llena automáticamente la primera vez que el pedido llega a
+  // "ENTREGADO" (ver /api/orders/[id]). Junto con createdAt permite
+  // calcular y mostrar cuánto tardó realmente la entrega en /admin/pedidos.
+  entregadoAt     DateTime?
   items           OrderItem[]
 
   // Opcional: si el pedido lo hizo un cliente con cuenta registrada, queda
@@ -136,6 +140,11 @@ model Config {
   // un cliente nuevo, pero no se pueden crear pedidos (ni desde el
   // catálogo ni por la API) hasta que se vuelva a activar.
   pedidosHabilitados Boolean @default(true)
+  // Ganancia en dólares que se le suma a CADA producto antes de convertir a
+  // bolívares: (precioUsd + ganancia) x tasaCambio = total que ve el
+  // cliente. Solo lo edita el dueño (rol "admin"), desde /admin junto a la
+  // tasa y el teléfono.
+  ganancia       Float    @default(0.10)
   updatedAt      DateTime @updatedAt
 }
 

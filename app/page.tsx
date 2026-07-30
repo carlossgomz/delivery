@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import { formatCantidad } from "@/lib/peso";
+import { precioBs as calcPrecioBs } from "@/lib/precio";
 
 type Product = {
   id: string;
@@ -45,6 +46,7 @@ export default function CatalogPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [tasaCambio, setTasaCambio] = useState<number>(0);
+  const [ganancia, setGanancia] = useState<number>(0);
   const [pedidosHabilitados, setPedidosHabilitados] = useState<boolean>(true);
   const [cart, setCart] = useState<CartLine[]>([]);
   // Peso que el cliente está escribiendo para un producto por kilo, pero
@@ -156,6 +158,7 @@ export default function CatalogPage() {
       const [pData, cData] = await Promise.all([pRes.json(), cRes.json()]);
       setProducts(pData.products);
       setTasaCambio(cData.tasaCambio);
+      setGanancia(cData.ganancia ?? 0);
       setPedidosHabilitados(cData.pedidosHabilitados ?? true);
       if (catRes.ok) {
         const catData = await catRes.json();
@@ -310,9 +313,12 @@ export default function CatalogPage() {
     const p = products.find((pr) => pr.id === l.productId);
     return sum + (p?.porPeso ? 1 : l.cantidad);
   }, 0);
-  const totalUsd = cart.reduce((sum, l) => {
+  // La ganancia se suma POR PRODUCTO, así que el total en Bs se calcula
+  // línea por línea (no sumando primero en $ y agregando la ganancia una
+  // sola vez al final).
+  const totalBsCarrito = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
-    return sum + (p ? p.precioUsd * l.cantidad : 0);
+    return sum + (p ? calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * l.cantidad : 0);
   }, 0);
 
   if (loading) {
@@ -489,7 +495,7 @@ export default function CatalogPage() {
                 <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                   {categoryProducts.map((p) => {
                     const line = cart.find((l) => l.productId === p.id);
-                    const precioBs = (p.precioUsd * tasaCambio).toFixed(2);
+                    const precioBs = calcPrecioBs(p.precioUsd, ganancia, tasaCambio).toFixed(2);
                     return (
                       <li
                         key={p.id}
@@ -591,7 +597,7 @@ export default function CatalogPage() {
                             const draftValue =
                               draftRaw !== undefined ? draftRaw : line ? String(line.cantidad) : "";
                             const kilosDraft = parseFloat(draftValue) || 0;
-                            const precioEstimadoBs = (kilosDraft * p.precioUsd * tasaCambio).toFixed(2);
+                            const precioEstimadoBs = (kilosDraft * calcPrecioBs(p.precioUsd, ganancia, tasaCambio)).toFixed(2);
 
                             function limpiarDraft() {
                               setPesoDrafts((prev) => {
@@ -756,7 +762,7 @@ export default function CatalogPage() {
                 <p className="text-xs sm:text-sm text-leaf-100 underline decoration-dotted">
                   {totalItems} producto(s) {mostrarResumen ? "▲ ocultar" : "▼ editar"}
                 </p>
-                <p className="font-medium truncate">Bs {(totalUsd * tasaCambio).toFixed(2)}</p>
+                <p className="font-medium truncate">Bs {totalBsCarrito.toFixed(2)}</p>
               </button>
               <button
                 onClick={() => router.push("/checkout")}

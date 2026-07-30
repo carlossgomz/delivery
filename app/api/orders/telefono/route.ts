@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed, hashPassword } from "@/lib/auth";
 import { emitirEventoPedido } from "@/lib/orderEvents";
+import { precioBs } from "@/lib/precio";
 
 // Pedido tomado por teléfono por el personal de tienda. Siempre queda
 // enlazado a una cuenta de Cliente (identificada por cédula) para no
@@ -89,7 +90,12 @@ export async function POST(req: NextRequest) {
     const p = products.find((pr) => pr.id === i.productId)!;
     return sum + p.precioUsd * i.cantidad;
   }, 0);
-  const totalBs = totalUsd * config.tasaCambio;
+  // Igual que en el resto del sitio: la ganancia se suma por producto antes
+  // de convertir a Bs (ver lib/precio.ts).
+  const totalBs = itemsValidos.reduce((sum, i) => {
+    const p = products.find((pr) => pr.id === i.productId)!;
+    return sum + precioBs(p.precioUsd, config.ganancia, config.tasaCambio) * i.cantidad;
+  }, 0);
 
   const estadosPermitidos = ["ESPERANDO_PAGO", "PAGO_EN_REVISION", "CONFIRMADO", "EN_PREPARACION"];
   const estado = estadosPermitidos.includes(estadoInicial ?? "") ? (estadoInicial as string) : "ESPERANDO_PAGO";

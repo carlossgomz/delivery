@@ -4,6 +4,7 @@ import { isAdminAuthed, getClienteIdFromSession } from "@/lib/auth";
 import { emitirEventoPedido } from "@/lib/orderEvents";
 import { notificarClientePorChat } from "@/lib/chatNotify";
 import { formatCantidad } from "@/lib/peso";
+import { precioBs } from "@/lib/precio";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const order = await prisma.order.findUnique({
@@ -97,7 +98,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     const order = await prisma.order.update({
       where: { id: params.id },
-      data: { estado: "ENTREGADO" },
+      data: { estado: "ENTREGADO", entregadoAt: new Date() },
       include: { items: { include: { product: true } } }
     });
 
@@ -180,7 +181,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     const disponibles = order.items.filter((i) => i.disponible);
     const totalUsd = disponibles.reduce((sum, i) => sum + i.precioUsd * i.cantidad, 0);
-    const totalBs = totalUsd * order.tasaCambio;
+    // La ganancia se suma por producto antes de convertir a Bs (ver
+    // lib/precio.ts), por eso el total en Bs no sale de totalUsd * tasa
+    // directo, sino sumando línea por línea con la ganancia ya incluida.
+    const config = await prisma.config.upsert({ where: { id: 1 }, update: {}, create: { id: 1, tasaCambio: 1 } });
+    const totalBs = disponibles.reduce(
+      (sum, i) => sum + precioBs(i.precioUsd, config.ganancia, order.tasaCambio) * i.cantidad,
+      0
+    );
 
     const updated = await prisma.order.update({
       where: { id: params.id },
@@ -248,7 +256,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (body.estado) {
     const order = await prisma.order.update({
       where: { id: params.id },
-      data: { estado: body.estado },
+      data: {
+        estado: body.estado,
+        // Se guarda la primera vez que el pedido llega a "ENTREGADO", para
+        // el cronómetro de tiempo de entrega en /admin/pedidos.
+        ...(body.estado === "ENTREGADO" ? { entregadoAt: new Date() } : {})
+      },
       include: { items: { include: { product: true } } }
     });
 

@@ -7,6 +7,8 @@ export default function AdminConfiguracionPage() {
   const [nuevaTasa, setNuevaTasa] = useState<string>("");
   const [telefonoTienda, setTelefonoTienda] = useState<string>("");
   const [nuevoTelefono, setNuevoTelefono] = useState<string>("");
+  const [ganancia, setGanancia] = useState<number>(0.1);
+  const [nuevaGanancia, setNuevaGanancia] = useState<string>("");
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
 
@@ -16,6 +18,7 @@ export default function AdminConfiguracionPage() {
       .then((d) => {
         setTasaCambio(d.tasaCambio);
         setTelefonoTienda(d.telefonoTienda ?? "");
+        setGanancia(d.ganancia ?? 0.1);
       });
   }, []);
 
@@ -53,6 +56,25 @@ export default function AdminConfiguracionPage() {
       setMensaje("Teléfono actualizado.");
     } else {
       setMensaje("No se pudo actualizar el teléfono.");
+    }
+    setGuardando(false);
+  }
+
+  async function actualizarGanancia() {
+    setGuardando(true);
+    setMensaje("");
+    const res = await fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ganancia: Number(nuevaGanancia) })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setGanancia(data.ganancia);
+      setNuevaGanancia("");
+      setMensaje("Ganancia actualizada.");
+    } else {
+      setMensaje("No se pudo actualizar la ganancia.");
     }
     setGuardando(false);
   }
@@ -106,6 +128,37 @@ export default function AdminConfiguracionPage() {
         <button
           disabled={!nuevoTelefono || guardando}
           onClick={actualizarTelefono}
+          className="px-5 py-2 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
+        >
+          Actualizar
+        </button>
+      </div>
+
+      {/* GANANCIA POR PRODUCTO */}
+      <hr className="border-leaf-100 my-6" />
+      <h2 className="font-display text-lg text-leaf-800 mb-3">Ganancia por producto</h2>
+      <p className="text-xs text-ink/50 mb-3">
+        Monto en $ que se suma al precio de cada producto antes de convertirlo a bolívares.
+        Fórmula: (precio + ganancia) x tasa = total en Bs que ve el cliente.
+      </p>
+      <div className="bg-white border border-leaf-100 rounded-lg p-4 mb-4">
+        <p className="text-sm text-ink/60">Ganancia actual</p>
+        <p className="font-display text-xl text-leaf-800">${ganancia.toFixed(2)} por producto</p>
+      </div>
+      <div className="flex gap-3">
+        <input
+          type="number"
+          inputMode="decimal"
+          step="0.01"
+          min="0"
+          value={nuevaGanancia}
+          onChange={(e) => setNuevaGanancia(e.target.value)}
+          placeholder="Ej: 0.10"
+          className="flex-1 border border-leaf-100 rounded-lg px-3 py-3"
+        />
+        <button
+          disabled={!nuevaGanancia || guardando}
+          onClick={actualizarGanancia}
           className="px-5 py-2 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40"
         >
           Actualizar

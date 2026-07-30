@@ -6,6 +6,7 @@ import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import Confetti from "@/app/components/Confetti";
 import { formatCantidad } from "@/lib/peso";
+import { precioBs as calcPrecioBs } from "@/lib/precio";
 
 type Product = { id: string; nombre: string; precioUsd: number; porPeso?: boolean };
 type CartLine = { productId: string; cantidad: number };
@@ -43,6 +44,7 @@ export default function CheckoutPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [tasaCambio, setTasaCambio] = useState(0);
+  const [ganancia, setGanancia] = useState(0);
   const [loadingConfig, setLoadingConfig] = useState(true);
   const [pedidosHabilitados, setPedidosHabilitados] = useState(true);
 
@@ -120,6 +122,7 @@ export default function CheckoutPage() {
         if (cRes.ok) {
           const cData = await cRes.json();
           setTasaCambio(cData.tasaCambio || 0);
+          setGanancia(cData.ganancia || 0);
           setPedidosHabilitados(cData.pedidosHabilitados ?? true);
         }
 
@@ -178,9 +181,11 @@ export default function CheckoutPage() {
     return () => clearInterval(interval);
   }, [orderId, estado]);
 
-  const totalUsd = cart.reduce((sum, l) => {
+  // La ganancia se suma por producto, así que el total en Bs se calcula
+  // línea por línea (ver lib/precio.ts).
+  const totalBsCarrito = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
-    return sum + (p ? p.precioUsd * l.cantidad : 0);
+    return sum + (p ? calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * l.cantidad : 0);
   }, 0);
 
   // Una vez la tienda confirma disponibilidad, si algún artículo no estaba
@@ -477,11 +482,10 @@ export default function CheckoutPage() {
 
         {estado === "PENDIENTE_VERIFICACION" && (() => {
           const items = order?.items ?? [];
-          const totalEstimadoUsd = items.reduce(
-            (sum, it) => sum + (it.precioUsd ?? 0) * it.cantidad,
+          const totalEstimadoBs = items.reduce(
+            (sum, it) => sum + calcPrecioBs(it.precioUsd ?? 0, ganancia, order?.tasaCambio ?? tasaCambio) * it.cantidad,
             0
           );
-          const totalEstimadoBs = totalEstimadoUsd * (order?.tasaCambio ?? tasaCambio);
 
           return (
             <div className="text-left bg-white rounded-lg border border-leaf-100 shadow-sm overflow-hidden">
@@ -504,7 +508,7 @@ export default function CheckoutPage() {
                     const cantidadTexto = it.product?.porPeso
                       ? formatCantidad(it.cantidad, true)
                       : `${it.cantidad}×`;
-                    const lineaBs = (it.precioUsd ?? 0) * it.cantidad * (order?.tasaCambio ?? tasaCambio);
+                    const lineaBs = calcPrecioBs(it.precioUsd ?? 0, ganancia, order?.tasaCambio ?? tasaCambio) * it.cantidad;
                     return (
                       <li key={idx} className="py-1.5">
                         <div className="flex items-baseline justify-between gap-2">
@@ -672,7 +676,7 @@ export default function CheckoutPage() {
             <div className="p-3 bg-leaf-100/30 rounded-lg border border-leaf-100">
               <p className="text-xs text-ink/60">Monto total a pagar:</p>
               <p className="text-lg font-bold text-leaf-800">
-                Bs {(order?.totalBs ?? totalUsd * tasaCambio).toFixed(2)}
+                Bs {(order?.totalBs ?? totalBsCarrito).toFixed(2)}
               </p>
             </div>
 
@@ -971,12 +975,15 @@ export default function CheckoutPage() {
           </Link>
         </p>
       ) : (
-        <p className="text-sm text-ink/60 mb-6">
-          <Link href="/registro" className="text-leaf-600 underline">
-            Crea una cuenta
-          </Link>{" "}
-          para no volver a escribir tus datos, o continúa como invitado.
-        </p>
+        <div className="mb-6 p-4 rounded-lg border-2 border-leaf-300 bg-leaf-50 text-center">
+          <p className="text-sm text-leaf-900">
+            <Link href="/registro" className="font-bold text-leaf-700 underline underline-offset-2">
+              ✨ Crea una cuenta
+            </Link>{" "}
+            <span className="font-medium">para no volver a escribir tus datos</span>, o
+            continúa como invitado.
+          </p>
+        </div>
       )}
 
       {errorMsg && (
@@ -1017,7 +1024,7 @@ export default function CheckoutPage() {
         <div className="pt-2 border-t border-leaf-100">
           <p className="text-sm text-ink/60">Total estimado (sujeto a disponibilidad)</p>
           <p className="font-medium">
-            {loadingConfig ? "Cargando total..." : `Bs ${(totalUsd * tasaCambio).toFixed(2)}`}
+            {loadingConfig ? "Cargando total..." : `Bs ${totalBsCarrito.toFixed(2)}`}
           </p>
         </div>
 

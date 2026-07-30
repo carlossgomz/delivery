@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type PointerEvent } from "react";
+import { precioBs as calcPrecioBsConGanancia } from "@/lib/precio";
 
 type Product = {
   id: string;
@@ -20,6 +21,7 @@ type EditingValue = { nombre: string; precioUsd: string; porPeso: boolean; categ
 
 export default function AdminProductosPage() {
   const [tasaCambio, setTasaCambio] = useState<number>(0);
+  const [ganancia, setGanancia] = useState<number>(0);
 
   // Estados para gestión de productos
   const [products, setProducts] = useState<Product[]>([]);
@@ -131,6 +133,7 @@ export default function AdminProductosPage() {
       .then((r) => r.json())
       .then((d) => {
         setTasaCambio(d.tasaCambio);
+        setGanancia(d.ganancia ?? 0);
       });
 
     cargarProductos();
@@ -175,12 +178,13 @@ export default function AdminProductosPage() {
   }
 
   // El precio lo carga el admin directamente en dólares; el precio en Bs
-  // que ve el cliente se calcula con la tasa del día.
+  // que ve el cliente se calcula con la tasa del día MÁS la ganancia por
+  // producto configurada en Configuración: (precio + ganancia) x tasa.
   function calcularPrecioBs(precioUsdStr: string): string {
     const precioUsd = parseFloat(precioUsdStr);
     if (isNaN(precioUsd) || precioUsd <= 0) return "0.00";
 
-    return (precioUsd * tasaCambio).toFixed(2);
+    return calcPrecioBsConGanancia(precioUsd, ganancia, tasaCambio).toFixed(2);
   }
 
   function handleProductChange(

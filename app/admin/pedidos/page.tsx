@@ -27,6 +27,10 @@ type Order = {
   origen?: string;
   esCredito?: boolean;
   creditoPagado?: boolean;
+  createdAt: string;
+  // Se llena cuando el pedido llega a "ENTREGADO" (ver /api/orders/[id]).
+  // Sirve para calcular el tiempo real que tardó la entrega.
+  entregadoAt?: string | null;
   items?: OrderItem[];
 };
 
@@ -82,6 +86,30 @@ export default function AdminPedidosPage() {
   const [pedidosHabilitados, setPedidosHabilitados] = useState<boolean>(true);
   const [cambiandoPedidos, setCambiandoPedidos] = useState(false);
   const [mensajeEstadoTienda, setMensajeEstadoTienda] = useState("");
+
+  // Filtro por estado en la lista de pedidos: "TODOS" o un estado puntual
+  // (pendiente por pago, en camino, entregado, cancelado, etc.) para que el
+  // empleado ubique rápido lo que necesita sin desplazarse por todo el día.
+  const [filtroEstado, setFiltroEstado] = useState<string>("TODOS");
+
+  // Cronómetro de entrega: desde que se crea el pedido hasta que se marca
+  // "Entregado". Para los pedidos todavía activos se muestra corriendo en
+  // vivo (por eso este "reloj" que se actualiza cada segundo); para los ya
+  // entregados se congela en el tiempo real que tardó.
+  const [ahora, setAhora] = useState<number>(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setAhora(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  function formatDuracion(ms: number): string {
+    const totalSeg = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(totalSeg / 3600);
+    const m = Math.floor((totalSeg % 3600) / 60);
+    const s = totalSeg % 60;
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }
 
   useEffect(() => {
     fetch("/api/config")
@@ -344,6 +372,23 @@ export default function AdminPedidosPage() {
   }
 
   const safeOrders = Array.isArray(orders) ? orders : [];
+  const ordenesFiltradas =
+    filtroEstado === "TODOS" ? safeOrders : safeOrders.filter((o) => o.estado === filtroEstado);
+
+  // Opciones del filtro: "Todos" primero, y solo los estados que realmente
+  // se usan en el flujo (ver ETIQUETAS arriba), en el orden en que avanza
+  // un pedido normal.
+  const OPCIONES_FILTRO = [
+    "TODOS",
+    "PENDIENTE_VERIFICACION",
+    "ESPERANDO_PAGO",
+    "PAGO_EN_REVISION",
+    "CONFIRMADO",
+    "EN_PREPARACION",
+    "EN_CAMINO",
+    "ENTREGADO",
+    "CANCELADO"
+  ];
 
   return (
     <div>
@@ -391,8 +436,32 @@ export default function AdminPedidosPage() {
       </div>
       {mensajeEstadoTienda && <p className="text-sm mb-4 text-leaf-600">{mensajeEstadoTienda}</p>}
 
+      {/* FILTRO POR ESTADO */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {OPCIONES_FILTRO.map((op) => {
+          const activo = filtroEstado === op;
+          const cantidad = op === "TODOS" ? safeOrders.length : safeOrders.filter((o) => o.estado === op).length;
+          return (
+            <button
+              key={op}
+              onClick={() => setFiltroEstado(op)}
+              className={`text-xs px-3 py-1.5 rounded-full font-medium border transition-colors ${
+                activo
+                  ? "bg-leaf-600 text-white border-leaf-600"
+                  : "bg-white text-ink/70 border-leaf-100 hover:border-leaf-300"
+              }`}
+            >
+              {op === "TODOS" ? "Todos" : ETIQUETAS[op] ?? op} ({cantidad})
+            </button>
+          );
+        })}
+      </div>
+
       <div className="space-y-4">
-        {safeOrders.map((order) => {
+        {ordenesFiltradas.length === 0 && (
+          <p className="text-sm text-ink/50 text-center py-8">No hay pedidos con este estado.</p>
+        )}
+        {ordenesFiltradas.map((order) => {
           const items = Array.isArray(order?.items) ? order.items : [];
           const notaCliente = order?.notaPago || order?.nota || order?.referencia;
           const esRevisionPago = order?.estado === "PAGO_RECIBIDO" || order?.estado === "PAGO_EN_REVISION";
@@ -430,6 +499,16 @@ export default function AdminPedidosPage() {
                   {ETIQUETAS[order.estado] ?? order.estado}
                 </span>
               </div>
+
+              {order.estado !== "CANCELADO" && (
+                <p className="text-xs text-ink/50 mb-2">
+                  {order.estado === "ENTREGADO" && order.entregadoAt ? (
+                    <>⏱ Entregado en {formatDuracion(new Date(order.entregadoAt).getTime() - new Date(order.createdAt).getTime())}</>
+                  ) : (
+                    <>⏱ Tiempo transcurrido: {formatDuracion(ahora - new Date(order.createdAt).getTime())}</>
+                  )}
+                </p>
+              )}
 
               {order.esCredito && !order.creditoPagado && (
                 <button
