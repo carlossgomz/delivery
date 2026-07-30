@@ -189,7 +189,8 @@ export default function AdminNav({ role }: { role: StaffRole }) {
     ...(role === "admin"
       ? [
           { href: "/admin", label: "Configuración" },
-          { href: "/admin/productos", label: "Productos" }
+          { href: "/admin/productos", label: "Productos" },
+          { href: "/admin/estadisticas", label: "📊 Estadísticas" }
         ]
       : []),
     { href: "/admin/pedidos", label: "Pedidos" },

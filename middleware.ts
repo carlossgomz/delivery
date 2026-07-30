@@ -6,7 +6,11 @@ const COOKIE_NAME = "admin_session";
 // (tasa, teléfono) y productos. El empleado de delivery no debe poder
 // entrar aquí ni por URL directa.
 function esRutaSoloDueno(pathname: string): boolean {
-  return pathname === "/admin" || pathname.startsWith("/admin/productos");
+  return (
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/productos") ||
+    pathname.startsWith("/admin/estadisticas")
+  );
 }
 
 export function middleware(req: NextRequest) {
