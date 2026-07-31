@@ -29,6 +29,10 @@ const ACTIVE_ORDER_KEY = "active_order_id";
 // Misma clave que usa ContactoTienda.tsx para identificar al cliente
 // invitado (sin cuenta) en este navegador.
 const CLIENTE_ID_KEY = "delivery_cliente_id";
+// Marca que ya se le preguntó al visitante (sin sesión) si es cliente
+// frecuente o prefiere continuar como invitado, para no repetirle la
+// pregunta cada vez que abre la página en el mismo navegador.
+const BIENVENIDA_VISTA_KEY = "delivery_bienvenida_vista";
 
 function obtenerClienteIdInvitado(): string {
   let id = localStorage.getItem(CLIENTE_ID_KEY);
@@ -61,6 +65,10 @@ export default function CatalogPage() {
   // Id (de cuenta si hay sesión, o invitado guardado en este navegador)
   // usado para consultar la burbuja de mensajes nuevos del botón Contacto.
   const [clienteIdChat, setClienteIdChat] = useState<string | null>(null);
+  // Modal de bienvenida: se muestra una sola vez por navegador a quien
+  // todavía no tiene sesión, para que elija entre iniciar sesión/registrarse
+  // (cliente frecuente) o seguir de una vez como invitado.
+  const [mostrarBienvenida, setMostrarBienvenida] = useState(false);
 
   async function cargarMensajesNoLeidos(id: string) {
     try {
@@ -173,6 +181,8 @@ export default function CatalogPage() {
         setCliente(meData.cliente);
         if (meData.cliente) {
           cargarPedidosPendientes();
+        } else if (!localStorage.getItem(BIENVENIDA_VISTA_KEY)) {
+          setMostrarBienvenida(true);
         }
         const idParaChat = meData.cliente?.id ?? obtenerClienteIdInvitado();
         setClienteIdChat(idParaChat);
@@ -263,6 +273,23 @@ export default function CatalogPage() {
     notificarAgregado(productId, `✓ Agregado: ${nombre}`);
   }
 
+  // El visitante elige que sí es cliente frecuente: se recuerda que ya
+  // contestó y se lo manda a iniciar sesión (desde ahí puede ir a
+  // registrarse si todavía no tiene cuenta).
+  function elegirSoyClienteFrecuente() {
+    localStorage.setItem(BIENVENIDA_VISTA_KEY, "1");
+    setMostrarBienvenida(false);
+    router.push("/cliente/login");
+  }
+
+  // El visitante prefiere seguir sin cuenta: se cierra el modal y
+  // continúa en el catálogo como invitado (ya soportado en todo el flujo
+  // de carrito/checkout mediante obtenerClienteIdInvitado()).
+  function elegirContinuarInvitado() {
+    localStorage.setItem(BIENVENIDA_VISTA_KEY, "1");
+    setMostrarBienvenida(false);
+  }
+
   function removeFromCart(productId: string) {
     setCart((prev) =>
       prev
@@ -327,6 +354,41 @@ export default function CatalogPage() {
 
   return (
     <main className="max-w-6xl mx-auto pb-36">
+      {/* Modal de bienvenida: primera pregunta al abrir la página para
+          quien no tiene sesión iniciada. Se muestra una sola vez por
+          navegador (ver BIENVENIDA_VISTA_KEY) y no bloquea a quien ya
+          tiene cuenta iniciada. */}
+      {mostrarBienvenida && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/50 px-4 py-6">
+          <div className="w-full sm:max-w-sm bg-white rounded-2xl shadow-xl p-5 sm:p-6">
+            <img
+              src="/branding/logo-day-express.png"
+              alt="Day Express Supermarket"
+              className="h-10 w-auto object-contain mb-3"
+            />
+            <h2 className="font-display text-lg text-leaf-800 mb-1">¡Bienvenido!</h2>
+            <p className="text-sm text-ink/70 mb-5">
+              ¿Eres cliente frecuente? Inicia sesión o regístrate para ver tu historial de
+              pedidos, o continúa directo como invitado.
+            </p>
+            <div className="flex flex-col gap-2.5">
+              <button
+                onClick={elegirSoyClienteFrecuente}
+                className="w-full px-4 py-2.5 rounded-lg bg-leaf-600 text-white text-sm font-medium hover:bg-leaf-800 active:scale-95 transition-all"
+              >
+                Soy cliente frecuente · Iniciar sesión
+              </button>
+              <button
+                onClick={elegirContinuarInvitado}
+                className="w-full px-4 py-2.5 rounded-lg bg-white border border-leaf-200 text-leaf-700 text-sm font-medium hover:bg-leaf-50 active:scale-95 transition-all"
+              >
+                Continuar como invitado
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- CABECERA + BUSCADOR + CATEGORÍAS: todo fijo mientras se
           scrollea el catálogo, agrupado en un solo bloque sticky. --- */}
       <div className="sticky top-0 z-20 bg-cream/95 backdrop-blur-sm border-b border-leaf-100 shadow-[0_1px_0_rgba(38,68,35,0.04)]">

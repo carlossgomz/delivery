@@ -1,0 +1,41 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "app/api/orders/route.ts": {
+      "memory": 1536,
+      "maxDuration": 15
+    },
+    "app/api/orders/\\[id\\]/route.ts": {
+      "memory": 1536,
+      "maxDuration": 15
+    },
+    "app/api/orders/stream/route.ts": {
+      "memory": 512,
+      "maxDuration": 300
+    },
+    "app/api/orders/pendientes-count/route.ts": {
+      "memory": 512,
+      "maxDuration": 10
+    },
+    "app/api/chat/stream/route.ts": {
+      "memory": 512,
+      "maxDuration": 300
+    },
+    "app/api/chat/mensajes/route.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/api/config/route.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/api/products/route.ts": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/api/upload/route.ts": {
+      "memory": 1024,
+      "maxDuration": 20
+    }
+  }
+}

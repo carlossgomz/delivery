@@ -9,7 +9,8 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:import-productos": "tsx prisma/importProductos.ts"
+    "db:import-productos": "tsx prisma/importProductos.ts",
+    "db:reset-produccion": "tsx scripts/reset-produccion.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
