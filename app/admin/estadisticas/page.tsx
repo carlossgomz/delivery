@@ -8,6 +8,8 @@ type ClienteFrecuente = { nombre: string; telefono: string; pedidos: number; ult
 type RecordEntrega = { orderId: string; clienteNombre: string; ms: number } | null;
 
 type Estadisticas = {
+  mesSeleccionado: string; // "YYYY-MM" o "global"
+  mesesDisponibles: string[]; // "YYYY-MM", más recientes primero
   ventasTotalesUsd: number;
   totalUnidadesVendidas: number;
   gananciaTotalUsd: number;
@@ -26,6 +28,24 @@ const COLOR_TIER: Record<string, string> = {
   D: "bg-ink/5 text-ink/50 border-ink/10"
 };
 
+const NOMBRES_MES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+];
+
+// "YYYY-MM" -> "Julio 2026"
+function formatMes(mes: string): string {
+  const [anio, m] = mes.split("-").map(Number);
+  return `${NOMBRES_MES[m - 1]} ${anio}`;
+}
+
+// "YYYY-MM" -> "YYYY-MM" del mes calendario inmediatamente anterior.
+function mesAnteriorDe(mes: string): string {
+  const [anio, m] = mes.split("-").map(Number);
+  const fecha = new Date(anio, m - 2, 1); // m es 1-indexado; -2 = mes anterior en índice 0
+  return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function formatDuracion(ms: number): string {
   const totalSeg = Math.max(0, Math.floor(ms / 1000));
   const h = Math.floor(totalSeg / 3600);
@@ -38,19 +58,31 @@ function formatDuracion(ms: number): string {
 export default function EstadisticasPage() {
   const [data, setData] = useState<Estadisticas | null>(null);
   const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(true);
   const [busquedaProducto, setBusquedaProducto] = useState("");
 
+  async function cargar(mes?: string) {
+    setCargando(true);
+    setError("");
+    try {
+      const url = mes ? `/api/estadisticas?mes=${mes}` : "/api/estadisticas";
+      const r = await fetch(url);
+      if (!r.ok) throw new Error("No se pudieron cargar las estadísticas.");
+      const json = await r.json();
+      setData(json);
+    } catch (e: any) {
+      setError(e.message || "No se pudieron cargar las estadísticas.");
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  // Carga inicial: el servidor decide el mes actual (hora de Venezuela).
   useEffect(() => {
-    fetch("/api/estadisticas")
-      .then(async (r) => {
-        if (!r.ok) throw new Error("No se pudieron cargar las estadísticas.");
-        return r.json();
-      })
-      .then(setData)
-      .catch((e) => setError(e.message));
+    cargar();
   }, []);
 
-  if (error) {
+  if (error && !data) {
     return <p className="text-sm text-alert-600">{error}</p>;
   }
   if (!data) {
@@ -62,9 +94,77 @@ export default function EstadisticasPage() {
     p.nombre.toLowerCase().includes(busquedaProducto.trim().toLowerCase())
   );
 
+  const esGlobal = data.mesSeleccionado === "global";
+  // El mes actual real es siempre el más reciente de la lista (el servidor
+  // lo agrega aunque todavía no tenga ventas), así que "mes anterior" se
+  // calcula por calendario y no depende de si ese mes tuvo ventas o no.
+  const mesActualReal = data.mesesDisponibles[0];
+  const mesAnterior = mesAnteriorDe(mesActualReal);
+
   return (
     <div>
-      <h1 className="font-display text-xl text-leaf-800 mb-4">Estadísticas de ventas</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
+        <h1 className="font-display text-xl text-leaf-800">Estadísticas de ventas</h1>
+        {cargando && <span className="text-xs text-ink/40">Actualizando…</span>}
+      </div>
+      <p className="text-sm text-ink/60 mb-4">
+        {esGlobal ? "Todos los meses (acumulado global)" : formatMes(data.mesSeleccionado)}
+      </p>
+
+      {/* SELECTOR DE PERÍODO */}
+      <div className="flex flex-wrap items-center gap-2 mb-5">
+        <button
+          onClick={() => cargar(mesActualReal)}
+          disabled={cargando}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium border disabled:opacity-40 ${
+            !esGlobal && data.mesSeleccionado === mesActualReal
+              ? "bg-leaf-600 text-white border-leaf-600"
+              : "bg-white text-ink/70 border-leaf-100"
+          }`}
+        >
+          Mes actual
+        </button>
+        <button
+          onClick={() => cargar(mesAnterior)}
+          disabled={cargando}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium border disabled:opacity-40 ${
+            !esGlobal && data.mesSeleccionado === mesAnterior ? "bg-leaf-600 text-white border-leaf-600" : "bg-white text-ink/70 border-leaf-100"
+          }`}
+        >
+          Mes anterior
+        </button>
+        <button
+          onClick={() => cargar("global")}
+          disabled={cargando}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium border disabled:opacity-40 ${
+            esGlobal ? "bg-leaf-600 text-white border-leaf-600" : "bg-white text-ink/70 border-leaf-100"
+          }`}
+        >
+          Global (todos)
+        </button>
+        <select
+          value={esGlobal ? "" : data.mesSeleccionado}
+          onChange={(e) => e.target.value && cargar(e.target.value)}
+          disabled={cargando}
+          className="ml-auto border border-leaf-100 rounded-lg px-2 py-1.5 text-sm text-ink/70 bg-white disabled:opacity-40"
+        >
+          <option value="" disabled>
+            Ver otro mes…
+          </option>
+          {data.mesesDisponibles.map((m) => (
+            <option key={m} value={m}>
+              {formatMes(m)}
+            </option>
+          ))}
+          {!data.mesesDisponibles.includes(mesAnterior) && (
+            <option key={mesAnterior} value={mesAnterior}>
+              {formatMes(mesAnterior)}
+            </option>
+          )}
+        </select>
+      </div>
+
+      {error && <p className="text-sm text-alert-600 mb-4">{error}</p>}
 
       {/* VENTAS TOTALES POR DELIVERY */}
       <div className="bg-leaf-800 rounded-lg p-5 mb-4">
@@ -114,7 +214,7 @@ export default function EstadisticasPage() {
       {/* TIER LIST DE PRODUCTOS */}
       <h2 className="font-display text-lg text-leaf-800 mb-3">Tier list de productos</h2>
       {data.tierList.length === 0 ? (
-        <p className="text-sm text-ink/50 mb-6">Todavía no hay ventas registradas.</p>
+        <p className="text-sm text-ink/50 mb-6">Todavía no hay ventas registradas en este período.</p>
       ) : (
         <>
           <input
@@ -155,7 +255,7 @@ export default function EstadisticasPage() {
       {/* CLIENTES FRECUENTES */}
       <h2 className="font-display text-lg text-leaf-800 mb-3">Clientes frecuentes</h2>
       {data.clientesFrecuentes.length === 0 ? (
-        <p className="text-sm text-ink/50">Todavía no hay pedidos registrados.</p>
+        <p className="text-sm text-ink/50">Todavía no hay pedidos registrados en este período.</p>
       ) : (
         <>
           {/* Tarjetas apiladas en móvil */}

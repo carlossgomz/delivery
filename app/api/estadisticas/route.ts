@@ -1,14 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isDuenoAuthed } from "@/lib/auth";
+import { mesVenezolano, mesActualVenezolano } from "@/lib/timezone";
 
 // Estadísticas de ventas para el dueño. Solo rol "admin" (ver
 // app/admin/estadisticas y el middleware, que además bloquea la URL
 // directa para el empleado de delivery).
-export async function GET() {
+//
+// Reporte mensual: por defecto se muestra el mes en curso (hora de
+// Venezuela) y "reinicia en 0" solo porque cada pedido nuevo cae en un
+// mes distinto al filtrar por fecha; no hace falta borrar ni archivar
+// nada. También se puede pedir un mes específico (?mes=YYYY-MM) o el
+// acumulado histórico completo (?mes=global).
+export async function GET(request: Request) {
   if (!isDuenoAuthed()) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
+
+  const { searchParams } = new URL(request.url);
+  const mesParam = searchParams.get("mes");
+  const esGlobal = mesParam === "global";
+  const mesValido = mesParam && /^\d{4}-\d{2}$/.test(mesParam) ? mesParam : null;
+  const mesSeleccionado = esGlobal ? null : mesValido ?? mesActualVenezolano();
 
   const config = await prisma.config.upsert({
     where: { id: 1 },
@@ -24,10 +37,27 @@ export async function GET() {
   // exactos (0.5kg de queso = 1 producto, igual que 1 unidad de cualquier
   // otro artículo). Así la ganancia y el conteo de unidades reflejan
   // "cuántas veces se vendió", no el peso.
-  const entregados = await prisma.order.findMany({
+  const entregadosTodos = await prisma.order.findMany({
     where: { estado: "ENTREGADO" },
     include: { items: { include: { product: true } } }
   });
+
+  // El mes de un pedido entregado es el de su fecha de entrega
+  // (entregadoAt); si no la tiene guardada (pedidos marcados como
+  // entregados antes de que existiera ese campo), se usa createdAt.
+  function mesDelPedido(o: (typeof entregadosTodos)[number]): string {
+    return mesVenezolano(o.entregadoAt ?? o.createdAt);
+  }
+
+  // Meses con al menos una venta, más el mes actual aunque todavía esté
+  // vacío, para que el selector siempre lo ofrezca desde el día 1.
+  const mesesSet = new Set(entregadosTodos.map(mesDelPedido));
+  mesesSet.add(mesActualVenezolano());
+  const mesesDisponibles = Array.from(mesesSet).sort().reverse();
+
+  const entregados = esGlobal
+    ? entregadosTodos
+    : entregadosTodos.filter((o) => mesDelPedido(o) === mesSeleccionado);
 
   // --- 1) Productos vendidos + ganancia total ---
   // Solo cuentan los renglones que sí se marcaron disponibles (lo que
@@ -63,8 +93,8 @@ export async function GET() {
   const gananciaTotalUsd = totalUnidadesVendidas * (config.ganancia || 0);
 
   // --- 2) Récord de tiempo de entrega ---
-  // Entre los pedidos entregados que sí tienen entregadoAt guardado
-  // (los marcados como entregados antes de este cambio no lo tendrán).
+  // Entre los pedidos entregados (del período elegido) que sí tienen
+  // entregadoAt guardado.
   const tiempos = entregados
     .filter((o) => o.entregadoAt)
     .map((o) => ({
@@ -99,12 +129,18 @@ export async function GET() {
   const tierList = ranking.map((r) => ({ ...r, tier: calcularTier(r.unidades) }));
 
   // --- 4) Clientes frecuentes ---
-  // Se cuentan TODOS los pedidos (cualquier estado): mide qué tan seguido
-  // pide un cliente, no solo lo que se le llegó a entregar. Se agrupa por
-  // teléfono para que también cuenten los pedidos de invitados sin cuenta.
-  const todosLosPedidos = await prisma.order.findMany({
+  // Se cuentan TODOS los pedidos del período elegido (cualquier estado):
+  // mide qué tan seguido pide un cliente, no solo lo que se le llegó a
+  // entregar. Se agrupa por teléfono para que también cuenten los
+  // pedidos de invitados sin cuenta. Se filtra por createdAt (fecha en
+  // que se hizo el pedido), no por entregadoAt.
+  const todosLosPedidosRaw = await prisma.order.findMany({
     select: { clienteNombre: true, clienteTelefono: true, createdAt: true }
   });
+
+  const todosLosPedidos = esGlobal
+    ? todosLosPedidosRaw
+    : todosLosPedidosRaw.filter((o) => mesVenezolano(o.createdAt) === mesSeleccionado);
 
   const porCliente = new Map<string, { nombre: string; telefono: string; pedidos: number; ultimoPedido: Date }>();
   for (const o of todosLosPedidos) {
@@ -129,6 +165,8 @@ export async function GET() {
     .slice(0, 20);
 
   return NextResponse.json({
+    mesSeleccionado: esGlobal ? "global" : mesSeleccionado,
+    mesesDisponibles,
     ventasTotalesUsd,
     totalUnidadesVendidas,
     gananciaTotalUsd,

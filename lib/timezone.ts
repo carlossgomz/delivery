@@ -33,3 +33,14 @@ export function formatFechaVzla(fecha: string | Date): string {
   const d = typeof fecha === "string" ? new Date(fecha) : fecha;
   return d.toLocaleDateString("es-VE", { timeZone: ZONA_HORARIA });
 }
+
+// "YYYY-MM" de una fecha, en hora de Venezuela. Se usa para agrupar
+// pedidos por mes en las estadísticas (reporte mensual de ventas).
+export function mesVenezolano(fecha: string | Date): string {
+  return fechaVenezolana(fecha).slice(0, 7);
+}
+
+// "YYYY-MM" del mes actual, en hora de Venezuela.
+export function mesActualVenezolano(): string {
+  return mesVenezolano(new Date());
+}
