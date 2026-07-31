@@ -806,6 +806,11 @@ export default function CheckoutPage() {
                 📦 Ver estado de mi pedido
               </button>
             )}
+            {!cliente && (
+              <p className="text-sm text-ink/70 bg-leaf-50 border border-leaf-100 rounded-lg px-3 py-2.5 text-center">
+                📲 Le estaremos notificando por WhatsApp o llamada el estado de su pedido.
+              </p>
+            )}
           </div>
         )}
 
