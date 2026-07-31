@@ -489,6 +489,9 @@ export default function CheckoutPage() {
 
           return (
             <div className="text-left bg-white rounded-lg border border-leaf-100 shadow-sm overflow-hidden">
+              <p className="text-center font-display font-bold text-2xl sm:text-3xl text-leaf-800 py-3 px-2 bg-amber-100 border-b-2 border-amber-300">
+                POR FAVOR ESPERE AQUÍ 🙏
+              </p>
               <p className="text-clay-600 animate-pulse text-center text-sm py-2.5 bg-clay-100/50 border-b border-dashed border-leaf-200">
                 🔎 La tienda está confirmando qué productos tiene disponibles…
               </p>
