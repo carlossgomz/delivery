@@ -35,6 +35,14 @@ export async function GET() {
   let totalUnidadesVendidas = 0;
   const vendidosPorProducto = new Map<string, { nombre: string; unidades: number }>();
 
+  // Ventas totales por delivery en dólares: suma de lo que pagó cada
+  // cliente (totalUsd) en los pedidos ya entregados. Es el ingreso bruto,
+  // distinto de "gananciaTotalUsd" que es la ganancia neta configurada.
+  let ventasTotalesUsd = 0;
+  for (const order of entregados) {
+    ventasTotalesUsd += order.totalUsd || 0;
+  }
+
   for (const order of entregados) {
     for (const item of order.items) {
       if (item.disponible === false) continue;
@@ -121,6 +129,7 @@ export async function GET() {
     .slice(0, 20);
 
   return NextResponse.json({
+    ventasTotalesUsd,
     totalUnidadesVendidas,
     gananciaTotalUsd,
     ganancia: config.ganancia,

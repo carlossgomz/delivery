@@ -8,6 +8,7 @@ type ClienteFrecuente = { nombre: string; telefono: string; pedidos: number; ult
 type RecordEntrega = { orderId: string; clienteNombre: string; ms: number } | null;
 
 type Estadisticas = {
+  ventasTotalesUsd: number;
   totalUnidadesVendidas: number;
   gananciaTotalUsd: number;
   ganancia: number;
@@ -65,18 +66,27 @@ export default function EstadisticasPage() {
     <div>
       <h1 className="font-display text-xl text-leaf-800 mb-4">Estadísticas de ventas</h1>
 
-      {/* VENTAS TOTALES + GANANCIA */}
+      {/* VENTAS TOTALES POR DELIVERY */}
+      <div className="bg-leaf-800 rounded-lg p-5 mb-4">
+        <p className="text-sm text-leaf-100/80">Ventas totales por delivery</p>
+        <p className="font-display text-3xl sm:text-4xl text-white break-all">
+          ${data.ventasTotalesUsd.toFixed(2)}
+        </p>
+        <p className="text-xs text-leaf-100/70 mt-1">Solo pedidos ya entregados</p>
+      </div>
+
+      {/* PRODUCTOS VENDIDOS + GANANCIA */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div className="bg-white border border-leaf-100 rounded-lg p-5">
+        <div className="bg-white border border-leaf-100 rounded-lg p-5 min-w-0">
           <p className="text-sm text-ink/60">Productos vendidos en total</p>
-          <p className="font-display text-3xl text-leaf-800">
+          <p className="font-display text-3xl text-leaf-800 break-all">
             {data.totalUnidadesVendidas % 1 === 0 ? data.totalUnidadesVendidas : data.totalUnidadesVendidas.toFixed(2)}
           </p>
           <p className="text-xs text-ink/50 mt-1">Solo pedidos ya entregados</p>
         </div>
-        <div className="bg-white border border-leaf-100 rounded-lg p-5">
+        <div className="bg-white border border-leaf-100 rounded-lg p-5 min-w-0">
           <p className="text-sm text-ink/60">Ganancia total</p>
-          <p className="font-display text-3xl text-leaf-800">${data.gananciaTotalUsd.toFixed(2)}</p>
+          <p className="font-display text-3xl text-leaf-800 break-all">${data.gananciaTotalUsd.toFixed(2)}</p>
           <p className="text-xs text-ink/50 mt-1">
             {data.totalUnidadesVendidas % 1 === 0 ? data.totalUnidadesVendidas : data.totalUnidadesVendidas.toFixed(2)} x ${data.ganancia.toFixed(2)}
           </p>
@@ -84,12 +94,12 @@ export default function EstadisticasPage() {
       </div>
 
       {/* RÉCORD DE TIEMPO DE ENTREGA */}
-      <div className="bg-white border border-leaf-100 rounded-lg p-5 mb-6">
+      <div className="bg-white border border-leaf-100 rounded-lg p-5 mb-6 min-w-0">
         <p className="text-sm text-ink/60 mb-1">🏆 Récord de tiempo de entrega</p>
         {data.recordEntrega ? (
           <>
-            <p className="font-display text-2xl text-leaf-800">{formatDuracion(data.recordEntrega.ms)}</p>
-            <p className="text-xs text-ink/50 mt-1">
+            <p className="font-display text-2xl text-leaf-800 break-all">{formatDuracion(data.recordEntrega.ms)}</p>
+            <p className="text-xs text-ink/50 mt-1 break-words">
               Pedido de {data.recordEntrega.clienteNombre} (#{data.recordEntrega.orderId.slice(0, 8)})
             </p>
           </>
@@ -147,30 +157,48 @@ export default function EstadisticasPage() {
       {data.clientesFrecuentes.length === 0 ? (
         <p className="text-sm text-ink/50">Todavía no hay pedidos registrados.</p>
       ) : (
-        <div className="bg-white border border-leaf-100 rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-leaf-50 text-ink/60 text-left">
-                <th className="p-3 font-medium">#</th>
-                <th className="p-3 font-medium">Cliente</th>
-                <th className="p-3 font-medium">Teléfono</th>
-                <th className="p-3 font-medium text-right">Pedidos</th>
-                <th className="p-3 font-medium text-right">Último pedido</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-leaf-50">
-              {data.clientesFrecuentes.map((c, idx) => (
-                <tr key={c.telefono}>
-                  <td className="p-3 text-ink/40">{idx + 1}</td>
-                  <td className="p-3 text-ink/80">{c.nombre}</td>
-                  <td className="p-3 text-ink/60">{c.telefono}</td>
-                  <td className="p-3 text-right font-medium text-leaf-800">{c.pedidos}</td>
-                  <td className="p-3 text-right text-ink/50 text-xs">{formatFechaVzla(c.ultimoPedido)}</td>
+        <>
+          {/* Tarjetas apiladas en móvil */}
+          <div className="sm:hidden bg-white border border-leaf-100 rounded-lg divide-y divide-leaf-50">
+            {data.clientesFrecuentes.map((c, idx) => (
+              <div key={c.telefono} className="p-3 flex items-start gap-3">
+                <span className="text-xs text-ink/40 w-5 shrink-0 pt-0.5">{idx + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-ink/80 truncate">{c.nombre}</p>
+                  <p className="text-xs text-ink/60">{c.telefono}</p>
+                  <p className="text-xs text-ink/50 mt-0.5">Último pedido: {formatFechaVzla(c.ultimoPedido)}</p>
+                </div>
+                <span className="text-sm font-medium text-leaf-800 shrink-0">{c.pedidos}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Tabla en pantallas medianas en adelante */}
+          <div className="hidden sm:block bg-white border border-leaf-100 rounded-lg overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-leaf-50 text-ink/60 text-left">
+                  <th className="p-3 font-medium">#</th>
+                  <th className="p-3 font-medium">Cliente</th>
+                  <th className="p-3 font-medium">Teléfono</th>
+                  <th className="p-3 font-medium text-right">Pedidos</th>
+                  <th className="p-3 font-medium text-right">Último pedido</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-leaf-50">
+                {data.clientesFrecuentes.map((c, idx) => (
+                  <tr key={c.telefono}>
+                    <td className="p-3 text-ink/40">{idx + 1}</td>
+                    <td className="p-3 text-ink/80">{c.nombre}</td>
+                    <td className="p-3 text-ink/60">{c.telefono}</td>
+                    <td className="p-3 text-right font-medium text-leaf-800">{c.pedidos}</td>
+                    <td className="p-3 text-right text-ink/50 text-xs">{formatFechaVzla(c.ultimoPedido)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
