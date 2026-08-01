@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
@@ -61,6 +61,7 @@ export default function CheckoutPage() {
 
   // Estados para comprobante o referencia/nota
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
+  const inputComprobanteRef = useRef<HTMLInputElement | null>(null);
   const [notaPago, setNotaPago] = useState("");
 
   // Cuando la tienda confirma disponibilidad y NO todo estaba disponible,
@@ -548,8 +549,8 @@ export default function CheckoutPage() {
               {hayNoDisponibles && hayAjustes
                 ? "La tienda ya revisó tu pedido: algunos artículos no estaban disponibles y a otros les tuvo que ajustar la cantidad. Revisa los cambios:"
                 : hayAjustes
-                ? "La tienda ajustó la cantidad/peso de algunos artículos según el stock real. Revisa los cambios antes de pagar:"
-                : "La tienda ya revisó tu pedido. Algunos artículos no estaban disponibles:"}
+                  ? "La tienda ajustó la cantidad/peso de algunos artículos según el stock real. Revisa los cambios antes de pagar:"
+                  : "La tienda ya revisó tu pedido. Algunos artículos no estaban disponibles:"}
             </p>
 
             {itemsSinCambios.length > 0 && (
@@ -695,15 +696,41 @@ export default function CheckoutPage() {
 
             {/* OPCIÓN 1: Subir imagen */}
             <div>
-              <label className="block text-xs text-ink/70 mb-1">
-                🖼️ Adjuntar capture del comprobante (opcional):
-              </label>
+              <p className="block text-xs text-ink/70 mb-1.5">
+                🖼️ Comprobante de pago (opcional):
+              </p>
               <input
+                ref={inputComprobanteRef}
                 type="file"
                 accept="image/*"
                 onChange={(e) => setArchivoComprobante(e.target.files?.[0] || null)}
-                className="block w-full text-sm text-ink/70 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-leaf-600 file:text-white hover:file:bg-leaf-800 cursor-pointer"
+                className="hidden"
               />
+
+              {!archivoComprobante ? (
+                <button
+                  type="button"
+                  onClick={() => inputComprobanteRef.current?.click()}
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-clay-400 text-white text-base font-bold shadow-md hover:bg-clay-600 active:scale-[0.98] transition-all"
+                >
+                  <span className="text-2xl">📸</span>
+                  SUBIR FOTO DEL COMPROBANTE
+                </button>
+              ) : (
+                <div className="flex items-center justify-between gap-2 py-3 px-4 rounded-xl bg-leaf-50 border-2 border-leaf-400">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-leaf-800 min-w-0">
+                    <span className="text-xl shrink-0">✅</span>
+                    <span className="truncate">Foto cargada: {archivoComprobante.name}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => inputComprobanteRef.current?.click()}
+                    className="shrink-0 text-xs font-bold text-leaf-800 underline"
+                  >
+                    Cambiar
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* OPCIÓN 2: Texto / Referencia */}
@@ -755,23 +782,23 @@ export default function CheckoutPage() {
             las da la pantalla de arriba, así que no se duplican aquí.) */}
         {(estado === "PENDIENTE_VERIFICACION" ||
           (estado === "ESPERANDO_PAGO" && !mostrarVerificacionParcial)) && (
-          <div className="mt-4 flex flex-col gap-2">
-            <button
-              disabled={enviando}
-              onClick={agregarMasArticulos}
-              className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
-            >
-              ➕ Se me olvidó algo, agregar más artículos
-            </button>
-            <button
-              disabled={enviando}
-              onClick={rechazarPedido}
-              className="w-full py-3 rounded-lg border border-alert-600 text-alert-600 font-medium hover:bg-alert-50 transition-colors disabled:opacity-40"
-            >
-              Ya no quiero hacer este pedido
-            </button>
-          </div>
-        )}
+            <div className="mt-4 flex flex-col gap-2">
+              <button
+                disabled={enviando}
+                onClick={agregarMasArticulos}
+                className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
+              >
+                ➕ Se me olvidó algo, agregar más artículos
+              </button>
+              <button
+                disabled={enviando}
+                onClick={rechazarPedido}
+                className="w-full py-3 rounded-lg border border-alert-600 text-alert-600 font-medium hover:bg-alert-50 transition-colors disabled:opacity-40"
+              >
+                Ya no quiero hacer este pedido
+              </button>
+            </div>
+          )}
 
         {/* PANTALLA DE PAGO RECIBIDO */}
         {(estado === "PAGO_RECIBIDO" || estado === "PAGO_EN_REVISION") && (
