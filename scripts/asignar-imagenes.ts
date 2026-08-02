@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { PrismaClient } from "@prisma/client";
-import { put } from "@vercel/blob";
+import { subirImagenR2 } from "../lib/r2";
 
 const prisma = new PrismaClient();
 
@@ -36,20 +36,6 @@ function normalizar(texto: string): string {
         .trim();
 }
 
-function contentTypeDesdeExtension(ext: string): string {
-    switch (ext.toLowerCase()) {
-        case ".jpg":
-        case ".jpeg":
-            return "image/jpeg";
-        case ".png":
-            return "image/png";
-        case ".webp":
-            return "image/webp";
-        default:
-            return "application/octet-stream";
-    }
-}
-
 async function main() {
     const rutaCarpeta = path.resolve(process.cwd(), CARPETA_IMAGENES);
 
@@ -59,8 +45,9 @@ async function main() {
         process.exit(1);
     }
 
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-        console.error("❌ Falta BLOB_READ_WRITE_TOKEN en tu .env — sin eso no se puede subir a Vercel Blob.");
+    if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY || !process.env.R2_BUCKET_NAME) {
+        console.error("❌ Faltan variables de entorno de Cloudflare R2 en tu .env — sin eso no se puede subir.");
+        console.error("   Necesitas: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL");
         process.exit(1);
     }
 
@@ -105,17 +92,16 @@ async function main() {
 
         try {
             const buffer = fs.readFileSync(rutaImagen);
-            const ext = path.extname(rutaImagen);
-            const nombreBlob = `productos/producto-${producto.id}${ext}`;
+            const key = `productos/producto-${producto.id}.jpg`;
 
-            const blob = await put(nombreBlob, buffer, {
-                access: "public",
-                contentType: contentTypeDesdeExtension(ext),
-            });
+            // subirImagenR2 redimensiona a 800x800 máx. y comprime a JPEG
+            // calidad 80 antes de subir — cada foto queda en decenas de KB
+            // en vez de los varios MB que suelen pesar las fotos originales.
+            const url = await subirImagenR2(buffer, key);
 
             await prisma.product.update({
                 where: { id: producto.id },
-                data: { imagenUrl: blob.url },
+                data: { imagenUrl: url },
             });
 
             asignados++;

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { subirImagenR2 } from "@/lib/r2";
 
-// Guarda el archivo en Vercel Blob. A diferencia de escribir en /public,
-// esto sobrevive entre despliegues y funciona igual en local que en
-// producción (usa el mismo BLOB_READ_WRITE_TOKEN en ambos lados).
+// Guarda el archivo en Cloudflare R2 (ya no en Vercel Blob: R2 no cobra por
+// transferencia de salida, así que servir el catálogo no consume ningún
+// cupo). subirImagenR2 además redimensiona/comprime la imagen a un máximo
+// de 800x800px antes de subirla, para que cada foto ocupe lo justo.
 //
 // "carpeta" es opcional (default "comprobantes", el uso original de este
 // endpoint); el admin de productos manda carpeta=productos para las
@@ -22,23 +23,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No se recibió archivo" }, { status: 400 });
     }
 
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.error("❌ ERROR: Falta la variable BLOB_READ_WRITE_TOKEN en las variables de entorno.");
+    if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY || !process.env.R2_BUCKET_NAME) {
+      console.error("❌ ERROR: Faltan variables de entorno de Cloudflare R2 (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME).");
       return NextResponse.json(
-        { error: "El servidor no tiene configurado el token de Vercel Blob." },
+        { error: "El servidor no tiene configurado el acceso a Cloudflare R2." },
         { status: 500 }
       );
     }
 
-    const ext = file.name.split(".").pop() || "jpg";
     const prefijo = carpeta === "productos" ? "producto" : carpeta === "categorias" ? "categoria" : "comprobante";
-    const filename = `${carpeta}/${prefijo}-${Date.now()}.${ext}`;
+    const key = `${carpeta}/${prefijo}-${Date.now()}.jpg`;
 
-    const blob = await put(filename, file, { access: "public" });
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const url = await subirImagenR2(buffer, key);
 
-    return NextResponse.json({ url: blob.url });
+    return NextResponse.json({ url });
   } catch (error: any) {
-    console.error("❌ Error en /api/upload al subir archivo a Blob:", error);
+    console.error("❌ Error en /api/upload al subir archivo a R2:", error);
     return NextResponse.json(
       { error: error.message || "Error interno al subir el archivo" },
       { status: 500 }

@@ -129,12 +129,13 @@ export async function GET(request: Request) {
   const tierList = ranking.map((r) => ({ ...r, tier: calcularTier(r.unidades) }));
 
   // --- 4) Clientes frecuentes ---
-  // Se cuentan TODOS los pedidos del período elegido (cualquier estado):
-  // mide qué tan seguido pide un cliente, no solo lo que se le llegó a
-  // entregar. Se agrupa por teléfono para que también cuenten los
-  // pedidos de invitados sin cuenta. Se filtra por createdAt (fecha en
-  // que se hizo el pedido), no por entregadoAt.
+  // Se cuentan solo los pedidos ENTREGADOS del período elegido: mide
+  // compras reales, no pedidos que se cancelaron en el camino. Se agrupa
+  // por teléfono para que también cuenten los pedidos de invitados sin
+  // cuenta. Se filtra por createdAt (fecha en que se hizo el pedido), no
+  // por entregadoAt.
   const todosLosPedidosRaw = await prisma.order.findMany({
+    where: { estado: "ENTREGADO" },
     select: { clienteNombre: true, clienteTelefono: true, createdAt: true }
   });
 

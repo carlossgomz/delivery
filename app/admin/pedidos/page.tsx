@@ -26,6 +26,9 @@ type Order = {
   nota?: string | null;
   referencia?: string | null;
   origen?: string;
+  // Si el pedido lo hizo un cliente con cuenta (clienteId no nulo), o fue
+  // como invitado sin registrarse (clienteId null).
+  clienteId?: string | null;
   esCredito?: boolean;
   creditoPagado?: boolean;
   createdAt: string;
@@ -120,7 +123,7 @@ export default function AdminPedidosPage() {
     fetch("/api/config")
       .then((r) => r.json())
       .then((d) => setPedidosHabilitados(d.pedidosHabilitados ?? true))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   async function alternarPedidosHabilitados() {
@@ -408,11 +411,10 @@ export default function AdminPedidosPage() {
 
       {/* INTERRUPTOR: ABRIR/CERRAR PEDIDOS ("atendiendo en tienda") */}
       <div
-        className={`flex items-center justify-between gap-4 rounded-lg border p-4 mb-6 ${
-          pedidosHabilitados
+        className={`flex items-center justify-between gap-4 rounded-lg border p-4 mb-6 ${pedidosHabilitados
             ? "bg-leaf-50 border-leaf-100"
             : "bg-alert-50 border-alert-200"
-        }`}
+          }`}
       >
         <div>
           <p className={`font-medium ${pedidosHabilitados ? "text-leaf-800" : "text-alert-700"}`}>
@@ -429,14 +431,12 @@ export default function AdminPedidosPage() {
           disabled={cambiandoPedidos}
           role="switch"
           aria-checked={pedidosHabilitados}
-          className={`shrink-0 relative w-14 h-8 rounded-full transition-colors disabled:opacity-50 ${
-            pedidosHabilitados ? "bg-leaf-600" : "bg-ink/20"
-          }`}
+          className={`shrink-0 relative w-14 h-8 rounded-full transition-colors disabled:opacity-50 ${pedidosHabilitados ? "bg-leaf-600" : "bg-ink/20"
+            }`}
         >
           <span
-            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${
-              pedidosHabilitados ? "translate-x-6" : "translate-x-0"
-            }`}
+            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-transform ${pedidosHabilitados ? "translate-x-6" : "translate-x-0"
+              }`}
           />
         </button>
       </div>
@@ -451,11 +451,10 @@ export default function AdminPedidosPage() {
             <button
               key={op}
               onClick={() => setFiltroEstado(op)}
-              className={`text-xs px-3 py-1.5 rounded-full font-medium border transition-colors ${
-                activo
+              className={`text-xs px-3 py-1.5 rounded-full font-medium border transition-colors ${activo
                   ? "bg-leaf-600 text-white border-leaf-600"
                   : "bg-white text-ink/70 border-leaf-100 hover:border-leaf-300"
-              }`}
+                }`}
             >
               {op === "TODOS" ? "Todos" : ETIQUETAS[op] ?? op} ({cantidad})
             </button>
@@ -494,6 +493,15 @@ export default function AdminPedidosPage() {
                 <div className="min-w-0">
                   <p className="font-medium flex items-center gap-1.5 flex-wrap">
                     {order.clienteNombre}
+                    {order.clienteId ? (
+                      <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-leaf-100 text-leaf-700 font-medium">
+                        👤 Registrado
+                      </span>
+                    ) : (
+                      <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-ink/5 text-ink/50 font-medium">
+                        🕶️ Invitado
+                      </span>
+                    )}
                     {order.origen === "LLAMADA" && (
                       <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">
                         📞 Por llamada
@@ -501,11 +509,10 @@ export default function AdminPedidosPage() {
                     )}
                     {order.esCredito && (
                       <span
-                        className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                          order.creditoPagado
+                        className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${order.creditoPagado
                             ? "bg-leaf-100 text-leaf-700"
                             : "bg-clay-100 text-clay-600"
-                        }`}
+                          }`}
                       >
                         {order.creditoPagado ? "🤝 Crédito cobrado" : "🤝 Crédito pendiente"}
                       </span>
