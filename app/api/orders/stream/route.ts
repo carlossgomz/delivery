@@ -42,6 +42,7 @@ export async function GET(req: NextRequest) {
         const message = data.message as MensajePedido;
         if (message.evento === "nuevo_pedido") send("nuevo_pedido", message.data);
         if (message.evento === "pedido_actualizado") send("pedido_actualizado", message.data);
+        if (message.evento === "pedido_eliminado") send("pedido_eliminado", message.data);
       }
 
       function onError(err: unknown) {

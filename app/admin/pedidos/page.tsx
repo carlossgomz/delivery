@@ -70,6 +70,20 @@ const COLORES: Record<string, string> = {
 export default function AdminPedidosPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [conectado, setConectado] = useState(false);
+  // Rol del personal logueado: "cancelar pedido" y "eliminar pedido" son
+  // acciones solo del dueño ("admin"), no del empleado de delivery. Se
+  // consulta al servidor porque la cookie de sesión es httpOnly y no se
+  // puede leer directo desde el navegador.
+  const [rol, setRol] = useState<"admin" | "delivery" | null>(null);
+  const [eliminandoPedidoId, setEliminandoPedidoId] = useState<string | null>(null);
+  const [cancelandoPedidoId, setCancelandoPedidoId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/staff/rol")
+      .then((r) => r.json())
+      .then((d) => setRol(d.role ?? null))
+      .catch(() => setRol(null));
+  }, []);
   // Cambios de "disponible" que el admin ya marcó en pantalla pero
   // todavía no ha guardado con "Confirmar disponibilidad". Se guardan
   // aparte (orderId -> itemId -> valor) para que el refresco automático
@@ -196,6 +210,19 @@ export default function AdminPedidosPage() {
             setOrders((prev) =>
               (prev || []).map((o) => (o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o))
             );
+          } catch {
+            cargar();
+          }
+        } else {
+          cargar();
+        }
+      });
+
+      eventSource.addEventListener("pedido_eliminado", (event: MessageEvent) => {
+        if (event.data) {
+          try {
+            const { id } = JSON.parse(event.data) as { id: string };
+            setOrders((prev) => (prev || []).filter((o) => o.id !== id));
           } catch {
             cargar();
           }
@@ -379,6 +406,62 @@ export default function AdminPedidosPage() {
     }
   }
 
+  // Cancela un pedido sin importar su estado actual (solo dueño). A
+  // diferencia de "cambiarEstado", esto está pensado para poder frenar un
+  // pedido en cualquier punto del flujo, no solo en los pasos previstos.
+  async function cancelarPedidoDueno(order: Order) {
+    if (!window.confirm(`¿Cancelar el pedido de ${order.clienteNombre}? Esta acción se puede hacer en cualquier momento.`)) {
+      return;
+    }
+    setCancelandoPedidoId(order.id);
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "cancelar_pedido_dueno" })
+      });
+      const data = await res.json();
+      if (res.ok && data.order) {
+        setOrders((prev) => (prev || []).map((o) => (o.id === order.id ? data.order : o)));
+      } else {
+        alert(data.error || "No se pudo cancelar el pedido.");
+      }
+    } catch (e) {
+      console.error("Error al cancelar pedido:", e);
+      alert("Ocurrió un error al cancelar el pedido.");
+    } finally {
+      setCancelandoPedidoId(null);
+    }
+  }
+
+  // Elimina el pedido definitivamente (borra también su historial). Se
+  // pide confirmar el nombre del cliente para evitar un borrado accidental,
+  // ya que a diferencia de cancelar, esto no se puede deshacer.
+  async function eliminarPedido(order: Order) {
+    if (
+      !window.confirm(
+        `Esto va a ELIMINAR para siempre el pedido de ${order.clienteNombre} (no se puede deshacer). ¿Continuar?`
+      )
+    ) {
+      return;
+    }
+    setEliminandoPedidoId(order.id);
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, { method: "DELETE" });
+      if (res.ok) {
+        setOrders((prev) => (prev || []).filter((o) => o.id !== order.id));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "No se pudo eliminar el pedido.");
+      }
+    } catch (e) {
+      console.error("Error al eliminar pedido:", e);
+      alert("Ocurrió un error al eliminar el pedido.");
+    } finally {
+      setEliminandoPedidoId(null);
+    }
+  }
+
   const safeOrders = Array.isArray(orders) ? orders : [];
   const ordenesFiltradas = safeOrders
     .filter((o) => filtroEstado === "TODOS" || o.estado === filtroEstado)
@@ -522,11 +605,39 @@ export default function AdminPedidosPage() {
                     {order.clienteTelefono} · {order.direccion}
                   </p>
                 </div>
-                <span
-                  className={`shrink-0 text-xs px-2.5 py-1 rounded-full font-medium ${COLORES[order.estado] ?? "bg-clay-100 text-clay-600"}`}
-                >
-                  {ETIQUETAS[order.estado] ?? order.estado}
-                </span>
+                <div className="shrink-0 flex flex-col items-end gap-1.5">
+                  <span
+                    className={`text-xs px-2.5 py-1 rounded-full font-medium ${COLORES[order.estado] ?? "bg-clay-100 text-clay-600"}`}
+                  >
+                    {ETIQUETAS[order.estado] ?? order.estado}
+                  </span>
+
+                  {/* Acciones solo del dueño: cancelar o eliminar el pedido
+                      en cualquier momento, sin importar el estado. El
+                      empleado de delivery no ve estos botones. */}
+                  {rol === "admin" && (
+                    <div className="flex gap-1.5">
+                      {order.estado !== "CANCELADO" && (
+                        <button
+                          onClick={() => cancelarPedidoDueno(order)}
+                          disabled={cancelandoPedidoId === order.id}
+                          className="text-[11px] px-2 py-1 rounded-lg border border-clay-500 text-clay-600 font-medium hover:bg-clay-50 disabled:opacity-40 transition-colors"
+                          title="Cancelar este pedido en cualquier momento"
+                        >
+                          {cancelandoPedidoId === order.id ? "..." : "Cancelar"}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => eliminarPedido(order)}
+                        disabled={eliminandoPedidoId === order.id}
+                        className="text-[11px] px-2 py-1 rounded-lg border border-alert-600 text-alert-600 font-medium hover:bg-alert-50 disabled:opacity-40 transition-colors"
+                        title="Eliminar este pedido definitivamente"
+                      >
+                        {eliminandoPedidoId === order.id ? "..." : "Eliminar"}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {order.estado !== "CANCELADO" ? (

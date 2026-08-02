@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type PointerEvent } from "react";
 import { precioBs as calcPrecioBsConGanancia } from "@/lib/precio";
+import { normalizarTexto } from "@/lib/texto";
 
 type Product = {
   id: string;
@@ -26,6 +27,9 @@ export default function AdminProductosPage() {
   // Estados para gestión de productos
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  // Filtro de disponibilidad: "TODOS", "ACTIVOS" (con stock) o "INACTIVOS"
+  // (desactivados / sin stock), para ubicar rápido los productos apagados.
+  const [filtroDisponibilidad, setFiltroDisponibilidad] = useState<"TODOS" | "ACTIVOS" | "INACTIVOS">("TODOS");
   const [editingValues, setEditingValues] = useState<Record<string, EditingValue>>({});
   const [guardandoProductoId, setGuardandoProductoId] = useState<string | null>(null);
   const [cambiandoDisponibilidadId, setCambiandoDisponibilidadId] = useState<string | null>(null);
@@ -270,7 +274,7 @@ export default function AdminProductosPage() {
   // para no desordenar productos que en ese momento están ocultos por el
   // buscador.
   function handlePointerDown(e: PointerEvent<HTMLButtonElement>, product: Product) {
-    if (searchTerm || reordenandoId || draggedProductId) return;
+    if (searchTerm || filtroDisponibilidad !== "TODOS" || reordenandoId || draggedProductId) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     setDraggedProductId(product.id);
@@ -507,13 +511,20 @@ export default function AdminProductosPage() {
 
   // El buscador matchea tanto el nombre del producto como el nombre de su
   // categoría: escribir "Lácteos" filtra a todos los productos de esa
-  // categoría, aunque su nombre no contenga esa palabra.
+  // categoría, aunque su nombre no contenga esa palabra. Se normaliza
+  // (sin acentos, minúsculas) para que buscar "maiz" encuentre "Maíz".
   const productosFiltrados = products.filter((p) => {
     const edit = editingValues[p.id];
     const nombreBuscar = edit?.nombre ?? p.nombre;
     const categoriaBuscar = edit?.categoria ?? p.categoria;
-    const q = searchTerm.toLowerCase();
-    return nombreBuscar.toLowerCase().includes(q) || categoriaBuscar.toLowerCase().includes(q);
+    const q = normalizarTexto(searchTerm);
+    const coincideBusqueda =
+      normalizarTexto(nombreBuscar).includes(q) || normalizarTexto(categoriaBuscar).includes(q);
+    const coincideDisponibilidad =
+      filtroDisponibilidad === "TODOS" ||
+      (filtroDisponibilidad === "ACTIVOS" && p.activo) ||
+      (filtroDisponibilidad === "INACTIVOS" && !p.activo);
+    return coincideBusqueda && coincideDisponibilidad;
   });
 
   // Nombres de categoría únicos, ordenados alfabéticamente.
@@ -701,29 +712,63 @@ export default function AdminProductosPage() {
             <p className="text-xs text-ink/50">Carga el precio en dólares ($) de cada producto; el precio en Bs se calcula con la tasa del día</p>
           </div>
 
-          {/* BARRA DE BÚSQUEDA */}
-          <div className="relative w-full sm:w-64">
-            <input
-              type="text"
-              placeholder="Buscar producto..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border border-leaf-100 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-leaf-500"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="absolute right-2.5 top-2.5 text-xs text-ink/40 hover:text-ink/80"
-              >
-                ✕
-              </button>
-            )}
+          <div className="flex flex-col sm:items-end gap-2">
+            {/* BARRA DE BÚSQUEDA */}
+            <div className="relative w-full sm:w-64">
+              <input
+                type="text"
+                placeholder="Buscar producto..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full border border-leaf-100 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-leaf-500"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-2.5 top-2.5 text-xs text-ink/40 hover:text-ink/80"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* FILTRO POR DISPONIBILIDAD */}
+            <div className="flex gap-1.5">
+              {(
+                [
+                  { valor: "TODOS", etiqueta: "Todos" },
+                  { valor: "ACTIVOS", etiqueta: "Disponibles" },
+                  { valor: "INACTIVOS", etiqueta: "Sin stock" },
+                ] as const
+              ).map((op) => {
+                const activo = filtroDisponibilidad === op.valor;
+                const cantidad =
+                  op.valor === "TODOS"
+                    ? products.length
+                    : op.valor === "ACTIVOS"
+                      ? products.filter((p) => p.activo).length
+                      : products.filter((p) => !p.activo).length;
+                return (
+                  <button
+                    key={op.valor}
+                    type="button"
+                    onClick={() => setFiltroDisponibilidad(op.valor)}
+                    className={`text-xs px-3 py-1.5 rounded-full font-medium border transition-colors ${activo
+                      ? "bg-leaf-600 text-white border-leaf-600"
+                      : "bg-white text-ink/70 border-leaf-100 hover:border-leaf-300"
+                      }`}
+                  >
+                    {op.etiqueta} ({cantidad})
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {searchTerm && (
+        {(searchTerm || filtroDisponibilidad !== "TODOS") && (
           <p className="text-xs text-clay-600 mb-2">
-            Para reordenar productos dentro de una categoría, borra la búsqueda primero.
+            Para reordenar productos dentro de una categoría, borra la búsqueda y el filtro primero.
           </p>
         )}
 
@@ -760,7 +805,7 @@ export default function AdminProductosPage() {
 
                     const precioBs = calcularPrecioBs(edit.precioUsd);
                     const estaGuardando = guardandoProductoId === product.id;
-                    const puedeReordenar = !searchTerm;
+                    const puedeReordenar = !searchTerm && filtroDisponibilidad === "TODOS";
 
                     return (
                       <div
@@ -936,7 +981,9 @@ export default function AdminProductosPage() {
 
           {productosFiltrados.length === 0 && (
             <div className="py-6 text-center text-xs text-ink/50">
-              {searchTerm ? "No se encontraron productos." : "No hay productos disponibles."}
+              {searchTerm || filtroDisponibilidad !== "TODOS"
+                ? "No se encontraron productos con ese filtro."
+                : "No hay productos disponibles."}
             </div>
           )}
         </div>

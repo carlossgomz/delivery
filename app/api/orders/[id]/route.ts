@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthed, getClienteIdFromSession } from "@/lib/auth";
+import { isAdminAuthed, isDuenoAuthed, getClienteIdFromSession } from "@/lib/auth";
 import { emitirEventoPedido } from "@/lib/orderEvents";
 import { notificarClientePorChat } from "@/lib/chatNotify";
 import { formatCantidad } from "@/lib/peso";
@@ -99,6 +99,30 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const order = await prisma.order.update({
       where: { id: params.id },
       data: { estado: "ENTREGADO", entregadoAt: new Date() },
+      include: { items: { include: { product: true } } }
+    });
+
+    await emitirEventoPedido("pedido_actualizado", order);
+    return NextResponse.json({ order });
+  }
+
+  // 0.7) El dueño cancela un pedido en cualquier momento, sin importar en
+  // qué estado esté (a diferencia de "cancelar_cliente", que solo funciona
+  // antes de pagar). Es una acción propia del rol "admin" — el empleado de
+  // delivery no la ve ni puede usarla, para no cancelar pedidos por error.
+  if (body.action === "cancelar_pedido_dueno") {
+    if (!isDuenoAuthed()) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const existente = await prisma.order.findUnique({ where: { id: params.id } });
+    if (!existente) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+    }
+
+    const order = await prisma.order.update({
+      where: { id: params.id },
+      data: { estado: "CANCELADO" },
       include: { items: { include: { product: true } } }
     });
 
@@ -270,4 +294,25 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 
   return NextResponse.json({ error: "Nada que actualizar" }, { status: 400 });
+}
+
+// Elimina un pedido definitivamente (junto con sus items, por la cascada
+// en Prisma). Es una acción propia del dueño ("admin"): borra el historial
+// del pedido, así que el empleado de delivery no tiene acceso — para eso
+// existe cancelar, que conserva el registro. Funciona en cualquier estado,
+// sin restricción.
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  if (!isDuenoAuthed()) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const existente = await prisma.order.findUnique({ where: { id: params.id } });
+  if (!existente) {
+    return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+  }
+
+  await prisma.order.delete({ where: { id: params.id } });
+
+  await emitirEventoPedido("pedido_eliminado", { id: params.id });
+  return NextResponse.json({ ok: true });
 }

@@ -10,7 +10,7 @@ import { redis } from "@/lib/redis";
 // conexión TCP persistente), que es compartido por todas las instancias.
 const CANAL_PEDIDOS = "pedidos";
 
-export type EventoPedido = "nuevo_pedido" | "pedido_actualizado";
+export type EventoPedido = "nuevo_pedido" | "pedido_actualizado" | "pedido_eliminado";
 
 export type MensajePedido = {
   evento: EventoPedido;
