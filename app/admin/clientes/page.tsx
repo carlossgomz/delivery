@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { soloDigitos } from "@/lib/cedula";
+import { normalizarTexto } from "@/lib/texto";
 
 type Cliente = {
   id: string;
@@ -18,6 +19,52 @@ function generarPasswordTemporal(): string {
 }
 
 export default function AdminClientesPage() {
+  // Lista completa de clientes registrados, mostrada comprimida (solo el
+  // nombre) con una flecha para desplegar el resto de sus datos.
+  const [listado, setListado] = useState<Cliente[]>([]);
+  const [cargandoListado, setCargandoListado] = useState(true);
+  const [errorListado, setErrorListado] = useState<string | null>(null);
+  const [filtroListado, setFiltroListado] = useState("");
+  const [expandidos, setExpandidos] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    cargarListado();
+  }, []);
+
+  async function cargarListado() {
+    setCargandoListado(true);
+    setErrorListado(null);
+    try {
+      const res = await fetch("/api/clientes", { cache: "no-store" });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setListado(Array.isArray(data.clientes) ? data.clientes : []);
+    } catch (e) {
+      console.error("Error al cargar clientes:", e);
+      setErrorListado("No se pudo cargar la lista de clientes.");
+    } finally {
+      setCargandoListado(false);
+    }
+  }
+
+  function alternarExpandido(id: string) {
+    setExpandidos((prev) => {
+      const copia = new Set(prev);
+      if (copia.has(id)) {
+        copia.delete(id);
+      } else {
+        copia.add(id);
+      }
+      return copia;
+    });
+  }
+
+  const listadoFiltrado = listado.filter((c) => {
+    const q = normalizarTexto(filtroListado);
+    if (!q) return true;
+    return normalizarTexto(c.nombre).includes(q) || c.cedula.includes(filtroListado.trim());
+  });
+
   const [cedula, setCedula] = useState("");
   const [buscando, setBuscando] = useState(false);
   const [cliente, setCliente] = useState<Cliente | null>(null);
@@ -130,6 +177,77 @@ export default function AdminClientesPage() {
         Cuando un cliente olvide su contraseña, pídele su cédula, búscala aquí y define una
         contraseña nueva para dictársela.
       </p>
+
+      {/* LISTA DE CLIENTES REGISTRADOS (comprimida, con flecha para ver el detalle) */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <h2 className="text-sm font-medium text-ink/80">
+            Clientes registrados {!cargandoListado && `(${listado.length})`}
+          </h2>
+        </div>
+
+        <input
+          type="text"
+          value={filtroListado}
+          onChange={(e) => setFiltroListado(e.target.value)}
+          placeholder="Filtrar por nombre o cédula..."
+          className="w-full border border-leaf-100 rounded-lg px-3 py-2 text-sm mb-3"
+        />
+
+        {cargandoListado && <p className="text-sm text-ink/50">Cargando clientes...</p>}
+        {errorListado && <p className="text-sm text-alert-600">{errorListado}</p>}
+
+        {!cargandoListado && !errorListado && (
+          <div className="bg-white border border-leaf-100 rounded-lg divide-y divide-leaf-50 overflow-hidden">
+            {listadoFiltrado.map((c) => {
+              const abierto = expandidos.has(c.id);
+              return (
+                <div key={c.id}>
+                  <button
+                    type="button"
+                    onClick={() => alternarExpandido(c.id)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-leaf-50/40 transition-colors"
+                    aria-expanded={abierto}
+                  >
+                    <span className="font-medium text-sm text-ink/80 truncate">
+                      {c.nombre}
+                      {c.creditoAutorizado && (
+                        <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-clay-100 text-clay-600 font-medium align-middle">
+                          🤝 Crédito
+                        </span>
+                      )}
+                    </span>
+                    <span
+                      className={`shrink-0 text-ink/40 transition-transform ${abierto ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    >
+                      ▾
+                    </span>
+                  </button>
+
+                  {abierto && (
+                    <div className="px-4 pb-3 -mt-1 text-sm text-ink/60 space-y-0.5">
+                      <p>Cédula: {c.cedula}</p>
+                      <p>Teléfono: {c.telefono}</p>
+                      <p>Dirección: {c.direccion}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {listadoFiltrado.length === 0 && (
+              <p className="px-4 py-6 text-center text-xs text-ink/50">
+                {filtroListado ? "No se encontraron clientes." : "Todavía no hay clientes registrados."}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      <hr className="border-leaf-100 mb-8" />
+
+      <h2 className="text-sm font-medium text-ink/80 mb-2">Restablecer contraseña / gestionar crédito</h2>
 
       {/* BUSCAR POR CÉDULA */}
       <div className="flex gap-3 mb-2">

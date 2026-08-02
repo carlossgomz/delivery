@@ -1,7 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { CLIENTE_COOKIE_NAME, hashPassword } from "@/lib/auth";
+import { CLIENTE_COOKIE_NAME, hashPassword, isAdminAuthed } from "@/lib/auth";
 import { soloDigitos } from "@/lib/cedula";
+
+// Lista de todos los clientes registrados, para el panel /admin/clientes.
+// Se ordena por nombre para que sea fácil de recorrer.
+export async function GET() {
+  if (!isAdminAuthed()) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const clientes = await prisma.cliente.findMany({
+    orderBy: { nombre: "asc" },
+    select: {
+      id: true,
+      nombre: true,
+      cedula: true,
+      telefono: true,
+      direccion: true,
+      creditoAutorizado: true
+    }
+  });
+
+  return NextResponse.json({ clientes });
+}
 
 // Registro de cliente. Lo deja logueado de una vez (misma cookie que login).
 export async function POST(req: NextRequest) {

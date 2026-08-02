@@ -63,6 +63,12 @@ export default function CheckoutPage() {
   // Estados para comprobante o referencia/nota
   const [notaPago, setNotaPago] = useState("");
 
+  // true cuando el cliente volvió a esta página tocando el enlace que le
+  // mandamos dentro del propio mensaje de WhatsApp (ver abrirWhatsappConPedido).
+  // Sirve para mostrarle un aviso claro de que falta el último paso: tocar
+  // "Finalizar compra" para que el pedido quede confirmado en el sistema.
+  const [volviendoDeWhatsapp, setVolviendoDeWhatsapp] = useState(false);
+
   // Cuando la tienda confirma disponibilidad y NO todo estaba disponible,
   // primero mostramos un resumen (qué sí / qué no) con tres salidas
   // (reemplazar, continuar solo con lo disponible o cancelar) antes de
@@ -148,6 +154,14 @@ export default function CheckoutPage() {
           // No esperamos al polling: se consulta de una vez para que la
           // pantalla de pago aparezca al instante, sin pantalla en blanco.
           cargarOrden(savedOrder);
+        }
+
+        // ¿Volvió desde el enlace de "confirmar" que le mandamos dentro del
+        // mensaje de WhatsApp? Se lee de la URL (?confirmar=1) y se limpia
+        // de la barra de direcciones para que no quede pegado si recarga.
+        if (new URLSearchParams(window.location.search).get("confirmar") === "1") {
+          setVolviendoDeWhatsapp(true);
+          window.history.replaceState(null, "", "/checkout");
         }
       } catch (err) {
         console.error("Error al cargar datos iniciales:", err);
@@ -273,6 +287,7 @@ export default function CheckoutPage() {
       } else {
         setEstado("PAGO_RECIBIDO");
       }
+      setVolviendoDeWhatsapp(false);
     } catch (err: any) {
       setErrorMsg(err.message || "Error al procesar el pago");
     } finally {
@@ -302,6 +317,12 @@ export default function CheckoutPage() {
 
     const totalBs = (order?.totalBs ?? totalBsCarrito).toFixed(2);
 
+    // Enlace de vuelta al checkout: va al final del propio mensaje que el
+    // cliente envía, así que le queda visible en su chat (WhatsApp muestra
+    // los mensajes que uno mismo mandó) y puede tocarlo ahí mismo para
+    // volver a la página en vez de quedarse en WhatsApp sin confirmar.
+    const enlaceVolver = `${window.location.origin}/checkout?confirmar=1`;
+
     const mensaje =
       `¡Hola! 👋 Les envío el comprobante de mi pago 🧾\n\n` +
       `🧑 *Cliente:* ${nombre}\n` +
@@ -311,7 +332,8 @@ export default function CheckoutPage() {
       `🛒 *Pedido:*\n${listaItems}\n\n` +
       `💰 *Total a pagar:* Bs ${totalBs}\n\n` +
       (notaPago.trim() ? `💬 *Referencia:* ${notaPago.trim()}\n\n` : "") +
-      `Adjunto la foto del comprobante en este chat. ¡Gracias! 🙏`;
+      `Adjunto la foto del comprobante en este chat. ¡Gracias! 🙏\n\n` +
+      `👉 Cuando lo hayas enviado, toca este enlace para volver y confirmar tu pedido:\n${enlaceVolver}`;
 
     const link = `https://wa.me/${numeroInternacional}?text=${encodeURIComponent(mensaje)}`;
     window.open(link, "_blank");
@@ -737,6 +759,19 @@ export default function CheckoutPage() {
                 className="w-full text-sm border border-leaf-100 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-leaf-600"
               />
             </div>
+
+            {/* Aparece cuando el cliente vuelve tocando el enlace que le
+                mandamos dentro de su propio mensaje de WhatsApp: le recuerda
+                que falta este último paso para que el pedido quede
+                confirmado en el sistema (no basta con haberlo mandado). */}
+            {volviendoDeWhatsapp && (
+              <div className="p-3 bg-leaf-100/60 border border-leaf-300 rounded-lg text-sm text-leaf-800 flex items-start gap-2 animate-pulse">
+                <span className="text-lg leading-none">👇</span>
+                <span>
+                  ¡Ya casi! Si ya enviaste el comprobante por WhatsApp, toca <strong>"Finalizar compra"</strong> para confirmar tu pedido.
+                </span>
+              </div>
+            )}
 
             <button
               disabled={enviando}
