@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
@@ -44,6 +44,7 @@ export default function CheckoutPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [tasaCambio, setTasaCambio] = useState(0);
+  const [telefonoTienda, setTelefonoTienda] = useState<string | null>(null);
   const [ganancia, setGanancia] = useState(0);
   const [loadingConfig, setLoadingConfig] = useState(true);
   const [pedidosHabilitados, setPedidosHabilitados] = useState(true);
@@ -60,8 +61,6 @@ export default function CheckoutPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Estados para comprobante o referencia/nota
-  const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
-  const inputComprobanteRef = useRef<HTMLInputElement | null>(null);
   const [notaPago, setNotaPago] = useState("");
 
   // Cuando la tienda confirma disponibilidad y NO todo estaba disponible,
@@ -125,6 +124,7 @@ export default function CheckoutPage() {
           setTasaCambio(cData.tasaCambio || 0);
           setGanancia(cData.ganancia || 0);
           setPedidosHabilitados(cData.pedidosHabilitados ?? true);
+          setTelefonoTienda(cData.telefonoTienda || null);
         }
 
         if (meRes.ok) {
@@ -247,32 +247,6 @@ export default function CheckoutPage() {
     setEnviando(true);
     setErrorMsg(null);
 
-    let url = "";
-
-    // Subida de imagen a Vercel Blob
-    if (archivoComprobante) {
-      try {
-        const formData = new FormData();
-        formData.append("file", archivoComprobante);
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const uploadData = await uploadRes.json();
-        if (uploadRes.ok && uploadData.url) {
-          url = uploadData.url;
-        } else {
-          throw new Error(uploadData.error || "Fallo al subir el archivo de comprobante");
-        }
-      } catch (err: any) {
-        console.error("Error al subir comprobante:", err);
-        setErrorMsg(err.message || "No se pudo subir la imagen del comprobante.");
-        setEnviando(false);
-        return;
-      }
-    }
-
     const textoNota = notaPago.trim();
 
     try {
@@ -281,7 +255,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           estado: "PAGO_RECIBIDO",
-          comprobanteUrl: url !== "" ? url : null,
+          comprobanteUrl: null,
           notaPago: textoNota !== "" ? textoNota : null,
           nota: textoNota !== "" ? textoNota : null,
           referencia: textoNota !== "" ? textoNota : null,
@@ -304,6 +278,43 @@ export default function CheckoutPage() {
     } finally {
       setEnviando(false);
     }
+  }
+
+  // Arma un mensaje de WhatsApp con todos los datos del pedido, para que el
+  // cliente envíe el comprobante directo a la tienda por ahí (única forma
+  // de enviar la foto del pago; ya no se sube archivo desde la web).
+  function abrirWhatsappConPedido() {
+    if (!telefonoTienda) return;
+
+    const numeroLimpio = telefonoTienda.replace(/[^\d+]/g, "");
+    const numeroInternacional = numeroLimpio.startsWith("+")
+      ? numeroLimpio.slice(1)
+      : numeroLimpio.startsWith("0")
+        ? `58${numeroLimpio.slice(1)}`
+        : `58${numeroLimpio}`;
+
+    const listaItems = itemsDisponibles
+      .map((it) => {
+        const cant = it.product?.porPeso ? formatCantidad(it.cantidad, true) : `x${it.cantidad}`;
+        return `• ${it.product?.nombre ?? "Producto"} (${cant})`;
+      })
+      .join("\n");
+
+    const totalBs = (order?.totalBs ?? totalBsCarrito).toFixed(2);
+
+    const mensaje =
+      `¡Hola! 👋 Les envío el comprobante de mi pago 🧾\n\n` +
+      `🧑 *Cliente:* ${nombre}\n` +
+      `📍 *Dirección:* ${direccion}\n` +
+      `📞 *Teléfono:* ${telefono}\n` +
+      `🔖 *N° de pedido:* ${(orderId ?? "").slice(0, 8)}\n\n` +
+      `🛒 *Pedido:*\n${listaItems}\n\n` +
+      `💰 *Total a pagar:* Bs ${totalBs}\n\n` +
+      (notaPago.trim() ? `💬 *Referencia:* ${notaPago.trim()}\n\n` : "") +
+      `Adjunto la foto del comprobante en este chat. ¡Gracias! 🙏`;
+
+    const link = `https://wa.me/${numeroInternacional}?text=${encodeURIComponent(mensaje)}`;
+    window.open(link, "_blank");
   }
 
   // El cliente confirma que ya recibió el pedido, sin esperar a que la
@@ -694,49 +705,29 @@ export default function CheckoutPage() {
               <p><span className="font-semibold text-leaf-800">🪪 Cédula:</span> V-10073649</p>
             </div>
 
-            {/* OPCIÓN 1: Subir imagen */}
+            {/* Enviar comprobante — único medio: WhatsApp */}
             <div>
               <p className="block text-xs text-ink/70 mb-1.5">
-                🖼️ Comprobante de pago (opcional):
+                📸 Envíanos la foto de tu comprobante de pago:
               </p>
-              <input
-                ref={inputComprobanteRef}
-                type="file"
-                accept="image/*"
-                onChange={(e) => setArchivoComprobante(e.target.files?.[0] || null)}
-                className="hidden"
-              />
-
-              {!archivoComprobante ? (
-                <button
-                  type="button"
-                  onClick={() => inputComprobanteRef.current?.click()}
-                  className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-clay-400 text-white text-base font-bold shadow-md hover:bg-clay-600 active:scale-[0.98] transition-all"
-                >
-                  <span className="text-2xl">📸</span>
-                  SUBIR FOTO DEL COMPROBANTE
-                </button>
-              ) : (
-                <div className="flex items-center justify-between gap-2 py-3 px-4 rounded-xl bg-leaf-50 border-2 border-leaf-400">
-                  <span className="flex items-center gap-2 text-sm font-semibold text-leaf-800 min-w-0">
-                    <span className="text-xl shrink-0">✅</span>
-                    <span className="truncate">Foto cargada: {archivoComprobante.name}</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => inputComprobanteRef.current?.click()}
-                    className="shrink-0 text-xs font-bold text-leaf-800 underline"
-                  >
-                    Cambiar
-                  </button>
-                </div>
-              )}
+              <button
+                type="button"
+                disabled={!telefonoTienda}
+                onClick={abrirWhatsappConPedido}
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-[#25D366] text-white text-base font-bold shadow-md hover:bg-[#1DA851] active:scale-[0.98] transition-all disabled:opacity-40"
+              >
+                <span className="text-2xl">📲</span>
+                ENVIAR COMPROBANTE POR WHATSAPP
+              </button>
+              <p className="text-[11px] text-ink/50 mt-1">
+                Se abre WhatsApp con tu pedido ya escrito — solo adjunta ahí la foto del pago.
+              </p>
             </div>
 
-            {/* OPCIÓN 2: Texto / Referencia */}
+            {/* Referencia opcional */}
             <div>
               <label className="block text-xs text-ink/70 mb-1">
-                💬 O escribe aquí el N° de referencia o mensaje:
+                💬 N° de referencia o comentario (opcional):
               </label>
               <input
                 type="text"
