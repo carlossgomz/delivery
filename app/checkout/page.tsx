@@ -6,7 +6,7 @@ import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import Confetti from "@/app/components/Confetti";
 import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
-import { precioBs as calcPrecioBs } from "@/lib/precio";
+import { totalBsLinea } from "@/lib/precio";
 
 type Product = {
   id: string;
@@ -225,13 +225,15 @@ export default function CheckoutPage() {
   // La ganancia se suma por producto, así que el total en Bs se calcula
   // línea por línea (ver lib/precio.ts). El precio SIEMPRE es por peso —
   // una línea "por unidad" de un producto híbrido se convierte primero a
-  // un peso estimado en kg antes de aplicar el precio por kilo.
+  // un peso estimado en kg antes de aplicar el precio por kilo, y suma la
+  // ganancia UNA sola vez por línea (no por kilo), a diferencia del resto
+  // del catálogo.
   const totalBsCarrito = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
     if (!p) return sum;
-    const esPorUnidadHibrida = p.porPeso && p.permiteUnidad && l.vendidoPorUnidad;
+    const esPorUnidadHibrida = Boolean(p.porPeso && p.permiteUnidad && l.vendidoPorUnidad);
     const cantidadKg = esPorUnidadHibrida ? pesoEstimadoKg(l.cantidad, p.pesoEstimadoUnidadGramos) : l.cantidad;
-    return sum + calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * cantidadKg;
+    return sum + totalBsLinea(p.precioUsd, ganancia, tasaCambio, cantidadKg, esPorUnidadHibrida);
   }, 0);
 
   // Una vez la tienda confirma disponibilidad, si algún artículo no estaba
@@ -552,7 +554,8 @@ export default function CheckoutPage() {
         {estado === "PENDIENTE_VERIFICACION" && (() => {
           const items = order?.items ?? [];
           const totalEstimadoBs = items.reduce(
-            (sum, it) => sum + calcPrecioBs(it.precioUsd ?? 0, ganancia, order?.tasaCambio ?? tasaCambio) * it.cantidad,
+            (sum, it) =>
+              sum + totalBsLinea(it.precioUsd ?? 0, ganancia, order?.tasaCambio ?? tasaCambio, it.cantidad, it.vendidoPorUnidad),
             0
           );
 
@@ -580,7 +583,7 @@ export default function CheckoutPage() {
                     const cantidadTexto = it.product?.porPeso
                       ? formatCantidad(it.cantidad, true)
                       : `${it.cantidad}×`;
-                    const lineaBs = calcPrecioBs(it.precioUsd ?? 0, ganancia, order?.tasaCambio ?? tasaCambio) * it.cantidad;
+                    const lineaBs = totalBsLinea(it.precioUsd ?? 0, ganancia, order?.tasaCambio ?? tasaCambio, it.cantidad, it.vendidoPorUnidad);
                     return (
                       <li key={idx} className="py-1.5">
                         <div className="flex items-baseline justify-between gap-2">

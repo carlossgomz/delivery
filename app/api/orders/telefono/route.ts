@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { isAdminAuthed, hashPassword } from "@/lib/auth";
 import { emitirEventoPedido } from "@/lib/orderEvents";
-import { precioBs } from "@/lib/precio";
+import { totalBsLinea } from "@/lib/precio";
 
 // Pedido tomado por teléfono por el personal de tienda. Siempre queda
 // enlazado a una cuenta de Cliente (identificada por cédula) para no
@@ -101,10 +101,13 @@ export async function POST(req: NextRequest) {
     return sum + p.precioUsd * cantidadKgEfectiva(p, i.cantidad, i.vendidoPorUnidad);
   }, 0);
   // Igual que en el resto del sitio: la ganancia se suma por producto antes
-  // de convertir a Bs (ver lib/precio.ts).
+  // de convertir a Bs (ver lib/precio.ts) — salvo la excepción de un
+  // artículo pedido "por unidad" de un producto híbrido (ej. "3 tomates"),
+  // donde la ganancia se suma UNA sola vez por línea, no por kilo.
   const totalBs = itemsValidos.reduce((sum, i) => {
     const p = products.find((pr) => pr.id === i.productId)!;
-    return sum + precioBs(p.precioUsd, config.ganancia, config.tasaCambio) * cantidadKgEfectiva(p, i.cantidad, i.vendidoPorUnidad);
+    const esPorUnidadHibrida = Boolean(p.porPeso && p.permiteUnidad && i.vendidoPorUnidad);
+    return sum + totalBsLinea(p.precioUsd, config.ganancia, config.tasaCambio, cantidadKgEfectiva(p, i.cantidad, i.vendidoPorUnidad), esPorUnidadHibrida);
   }, 0);
 
   const estadosPermitidos = ["ESPERANDO_PAGO", "PAGO_EN_REVISION", "CONFIRMADO", "EN_PREPARACION"];

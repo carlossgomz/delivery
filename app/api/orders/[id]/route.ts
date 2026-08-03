@@ -4,7 +4,7 @@ import { isAdminAuthed, isDuenoAuthed, getClienteIdFromSession } from "@/lib/aut
 import { emitirEventoPedido } from "@/lib/orderEvents";
 import { notificarClientePorChat } from "@/lib/chatNotify";
 import { formatCantidad } from "@/lib/peso";
-import { precioBs } from "@/lib/precio";
+import { totalBsLinea } from "@/lib/precio";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const order = await prisma.order.findUnique({
@@ -217,9 +217,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // La ganancia se suma por producto antes de convertir a Bs (ver
     // lib/precio.ts), por eso el total en Bs no sale de totalUsd * tasa
     // directo, sino sumando línea por línea con la ganancia ya incluida.
+    // Excepción: una línea pedida "por unidad" de un producto híbrido (ej.
+    // "3 tomates") suma la ganancia UNA sola vez por línea, no por kilo.
     const config = await prisma.config.upsert({ where: { id: 1 }, update: {}, create: { id: 1, tasaCambio: 1 } });
     const totalBs = disponibles.reduce(
-      (sum, i) => sum + precioBs(i.precioUsd, config.ganancia, order.tasaCambio) * i.cantidad,
+      (sum, i) => sum + totalBsLinea(i.precioUsd, config.ganancia, order.tasaCambio, i.cantidad, i.vendidoPorUnidad),
       0
     );
 

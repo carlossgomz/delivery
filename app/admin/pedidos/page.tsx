@@ -294,22 +294,21 @@ export default function AdminPedidosPage() {
   }
 
   // Texto a mostrar en el campo editable: prioriza el cambio sin guardar
-  // (tal cual se está escribiendo) sobre lo pedido originalmente. Si el
-  // renglón se pidió "por unidad" (enGramos), el valor de base se muestra
-  // convertido a gramos en vez de kg, porque es más natural para pesar.
-  function textoCantidadMostrada(order: Order, item: OrderItem, enGramos: boolean): string {
+  // (tal cual se está escribiendo) sobre lo que ya haya. Siempre en Kg —
+  // incluso para líneas pedidas "por unidad" (ej. "3 tomates"), para que
+  // la tienda maneje un solo tipo de unidad en toda la pantalla.
+  function textoCantidadMostrada(order: Order, item: OrderItem): string {
     const pendiente = cambiosCantidad[order.id]?.[item.id];
     if (pendiente !== undefined) return pendiente;
-    return enGramos ? String(Math.round(item.cantidad * 1000)) : String(item.cantidad);
+    return String(item.cantidad);
   }
 
   // Ajuste rápido con botones +/- (en vez de tener que escribir), tanto
   // para sumar como para restar del valor actual mostrado.
-  function nudgeCantidad(order: Order, item: OrderItem, enGramos: boolean, delta: number) {
-    const actualTexto = textoCantidadMostrada(order, item, enGramos);
-    const actual = parseFloat(actualTexto) || 0;
-    const nuevo = Math.max(0, actual + delta);
-    actualizarCantidad(order, item.id, enGramos ? String(Math.round(nuevo)) : String(nuevo));
+  function nudgeCantidad(order: Order, item: OrderItem, delta: number) {
+    const actual = parseFloat(textoCantidadMostrada(order, item)) || 0;
+    const nuevo = Math.max(0, Number((actual + delta).toFixed(3)));
+    actualizarCantidad(order, item.id, String(nuevo));
   }
 
   async function guardarDisponibilidad(order: Order) {
@@ -330,8 +329,7 @@ export default function AdminPedidosPage() {
               // mientras se reescribía): no se manda nada raro, se
               // conserva la cantidad que ya había.
               if (!isNaN(num) && num >= 0) {
-                const enGramos = Boolean(i.product?.porPeso) && i.vendidoPorUnidad;
-                cantidad = enGramos ? num / 1000 : num;
+                cantidad = num;
               }
             }
             return {
@@ -711,29 +709,34 @@ export default function AdminPedidosPage() {
                   // solo cambia cómo se lo mostramos al cliente, no cómo se
                   // cobra ni cómo lo confirma la tienda.
                   const esPorPeso = Boolean(item.product?.porPeso);
-                  // Solo para líneas vendidoPorUnidad: mostramos el input
-                  // de cantidad en GRAMOS (más natural para pesar) en vez
-                  // de kg, aunque por dentro siga guardándose en kg.
-                  const enGramos = Boolean(esPorPeso && item.vendidoPorUnidad);
                   return (
                   <li key={item.id} className="flex items-center justify-between py-2 gap-2">
                     <span className="min-w-0">
-                      {esPorPeso
-                        ? formatCantidad(item.cantidad, true)
-                        : `${item.cantidad}×`}{" "}
-                      {item.product?.nombre ?? "Producto"}
+                      {item.vendidoPorUnidad && item.unidadesPedidas != null ? (
+                        <>
+                          {item.unidadesPedidas} {item.product?.nombre ?? "Producto"} ({item.cantidad.toFixed(3)}kg)
+                        </>
+                      ) : (
+                        <>
+                          {esPorPeso
+                            ? formatCantidad(item.cantidad, true)
+                            : `${item.cantidad}×`}{" "}
+                          {item.product?.nombre ?? "Producto"}
+                        </>
+                      )}
                       {item.vendidoPorUnidad && item.unidadesPedidas != null && (
                         <span className="block text-[10px] text-ink/50">
-                          Cliente pidió: {item.unidadesPedidas} unidad{item.unidadesPedidas === 1 ? "" : "es"} (peso estimado)
+                          Cliente pidió: {item.unidadesPedidas} unidad{item.unidadesPedidas === 1 ? "" : "es"}
+                          {item.cantidadOriginal != null && ` (estimado: ${item.cantidadOriginal.toFixed(3)}kg)`}
                         </span>
                       )}
-                      {item.cantidadOriginal != null && (
+                      {!item.vendidoPorUnidad && item.cantidadOriginal != null && (
                         <span className="block text-[10px] text-clay-600">
-                          {item.vendidoPorUnidad ? "Peso estimado" : "Ajustado (pedido"}:{" "}
+                          Ajustado (pedido:{" "}
                           {esPorPeso
                             ? formatCantidad(item.cantidadOriginal, true)
                             : `${item.cantidadOriginal}×`}
-                          {!item.vendidoPorUnidad && ")"}
+                          )
                         </span>
                       )}
                     </span>
@@ -752,7 +755,7 @@ export default function AdminPedidosPage() {
                           <div className="flex items-center gap-1">
                             <button
                               type="button"
-                              onClick={() => nudgeCantidad(order, item, enGramos, enGramos ? -25 : esPorPeso ? -0.25 : -1)}
+                              onClick={() => nudgeCantidad(order, item, esPorPeso ? -0.025 : -1)}
                               className="w-6 h-6 shrink-0 rounded-full border border-leaf-300 text-leaf-700 flex items-center justify-center text-sm font-bold active:scale-90 transition-transform"
                               aria-label={`Restar de ${item.product?.nombre}`}
                               tabIndex={-1}
@@ -762,7 +765,7 @@ export default function AdminPedidosPage() {
                             <input
                               type="text"
                               inputMode="decimal"
-                              value={textoCantidadMostrada(order, item, enGramos)}
+                              value={textoCantidadMostrada(order, item)}
                               onChange={(e) => {
                                 // Solo se permiten dígitos y un punto decimal
                                 // mientras se escribe — así el celular no
@@ -776,14 +779,14 @@ export default function AdminPedidosPage() {
                               className="w-16 text-xs border border-leaf-100 rounded px-1.5 py-1 text-right focus:outline-none focus:border-leaf-500"
                               aria-label={`Peso real pesado de ${item.product?.nombre}`}
                               title={
-                                enGramos
-                                  ? "Pesá las unidades pedidas y anotá acá el peso real en gramos"
+                                item.vendidoPorUnidad
+                                  ? "Pesá las unidades pedidas y anotá acá el peso real en kg (ej. 0.320)"
                                   : "Editar si la cantidad/peso real disponible es distinta a lo pedido"
                               }
                             />
                             <button
                               type="button"
-                              onClick={() => nudgeCantidad(order, item, enGramos, enGramos ? 25 : esPorPeso ? 0.25 : 1)}
+                              onClick={() => nudgeCantidad(order, item, esPorPeso ? 0.025 : 1)}
                               className="w-6 h-6 shrink-0 rounded-full bg-leaf-600 text-white flex items-center justify-center text-sm font-bold active:scale-90 transition-transform"
                               aria-label={`Sumar a ${item.product?.nombre}`}
                               tabIndex={-1}
@@ -791,7 +794,7 @@ export default function AdminPedidosPage() {
                               +
                             </button>
                             <span className="text-[10px] text-ink/40">
-                              {enGramos ? "g" : esPorPeso ? "kg" : "uds"}
+                              {esPorPeso ? "kg" : "uds"}
                             </span>
                           </div>
                         )}

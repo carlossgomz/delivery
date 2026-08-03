@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
-import { precioBs as calcPrecioBs } from "@/lib/precio";
+import { precioBs as calcPrecioBs, totalBsLinea } from "@/lib/precio";
 
 type Product = {
   id: string;
@@ -412,10 +412,14 @@ export default function CatalogPage() {
   }, 0);
   // La ganancia se suma POR PRODUCTO, así que el total en Bs se calcula
   // línea por línea (no sumando primero en $ y agregando la ganancia una
-  // sola vez al final).
+  // sola vez al final). Excepción: una línea "por unidad" de un producto
+  // híbrido (ej. "3 tomates") suma la ganancia UNA sola vez por línea, no
+  // por kilo/unidad — el resto del catálogo sigue igual que siempre.
   const totalBsCarrito = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
-    return sum + (p ? calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * cantidadKgEquivalente(p, l) : 0);
+    if (!p) return sum;
+    const esPorUnidadHibrida = Boolean(p.porPeso && p.permiteUnidad && l.vendidoPorUnidad);
+    return sum + totalBsLinea(p.precioUsd, ganancia, tasaCambio, cantidadKgEquivalente(p, l), esPorUnidadHibrida);
   }, 0);
 
   if (loading) {
@@ -814,8 +818,8 @@ export default function CatalogPage() {
                             <div className="flex flex-col gap-1 mt-1.5 pt-1.5 border-t border-leaf-50">
                               <p className="text-[10px] sm:text-xs text-ink/50">
                                 O por unidad: ≈ Bs{" "}
-                                {(calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * pesoEstimadoKg(1, p.pesoEstimadoUnidadGramos)).toFixed(2)}{" "}
-                                c/u (precio final según peso real)
+                                {(p.precioUsd * tasaCambio * pesoEstimadoKg(1, p.pesoEstimadoUnidadGramos)).toFixed(2)}{" "}
+                                c/u + Bs {(ganancia * tasaCambio).toFixed(2)} (una sola vez, no por unidad — precio final según peso real)
                               </p>
                               <div className="flex items-center justify-between gap-1.5">
                                 <button

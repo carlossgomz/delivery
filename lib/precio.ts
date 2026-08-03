@@ -14,3 +14,30 @@ export function precioConGananciaUsd(precioUsd: number, ganancia: number): numbe
 export function precioBs(precioUsd: number, ganancia: number, tasaCambio: number): number {
   return precioConGananciaUsd(precioUsd, ganancia) * (tasaCambio || 0);
 }
+
+// Total en Bs de UNA línea de pedido/carrito (precio x cantidad, con la
+// ganancia ya incluida). Este es el cálculo que usa TODO el catálogo por
+// defecto: la ganancia se suma por cada kg/unidad, así que pedir más
+// siempre suma más ganancia total (3 leches = +$0.30, 4kg de arroz =
+// +$0.40 de ganancia, etc.) — eso no cambia.
+//
+// La ÚNICA excepción es gananciaFijaPorLinea = true, pensado
+// exclusivamente para una línea pedida "por unidad" de un producto
+// híbrido que se vende por peso (ej. cliente pide "3 tomates"): ahí la
+// ganancia se suma UNA sola vez por línea, sin importar cuántos kilos
+// termine pesando, porque en ese caso ya es un monto por venta y no por
+// kilo. El resto del catálogo (incluidos productos por peso pedidos en
+// kg directamente) sigue sin usar este parámetro.
+export function totalBsLinea(
+  precioUsd: number,
+  ganancia: number,
+  tasaCambio: number,
+  cantidad: number,
+  gananciaFijaPorLinea = false
+): number {
+  const tasa = tasaCambio || 0;
+  if (gananciaFijaPorLinea) {
+    return precioUsd * cantidad * tasa + (ganancia || 0) * tasa;
+  }
+  return precioConGananciaUsd(precioUsd, ganancia) * tasa * cantidad;
+}
