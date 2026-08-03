@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
-import { formatCantidad } from "@/lib/peso";
+import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
 import { precioBs as calcPrecioBs } from "@/lib/precio";
 
 type Product = {
@@ -19,9 +19,13 @@ type Product = {
   // unidades.
   porPeso: boolean;
   // Solo aplica si porPeso = true: además de pedirse por peso, se puede
-  // pedir por unidades sueltas (ej. "3 tomates") a precioUnidadUsd.
+  // Solo aplica si porPeso = true: además de pedirse por peso, se puede
+  // pedir por unidades sueltas (ej. "3 tomates") como forma más cómoda de
+  // pedir. El precio SIEMPRE es por peso (precioUsd) — pesoEstimadoUnidadGramos
+  // es el peso promedio de una unidad, usado solo para mostrar un precio
+  // estimado; el precio real se confirma cuando la tienda pesa el pedido.
   permiteUnidad?: boolean;
-  precioUnidadUsd?: number | null;
+  pesoEstimadoUnidadGramos?: number | null;
 };
 
 type Cliente = { id: string; nombre: string };
@@ -385,14 +389,16 @@ export default function CatalogPage() {
     }
   }
 
-  // Precio efectivo de una línea de carrito: para una línea "por unidad"
-  // de un producto híbrido, precioUnidadUsd (fijo por unidad) en vez de
-  // precioUsd (por kilo).
-  function precioUsdLinea(p: Product, l: CartLine): number {
+  // Cantidad "en la unidad de precio" de una línea de carrito: para
+  // producto por peso siempre es kilos (precioUsd es precio por kilo). Si
+  // la línea es "por unidad" de un producto híbrido, l.cantidad son
+  // unidades (ej. 3) y se convierte a un peso ESTIMADO en kg usando el
+  // peso promedio por unidad — el precio nunca deja de ser por peso.
+  function cantidadKgEquivalente(p: Product, l: CartLine): number {
     if (p.porPeso && p.permiteUnidad && l.vendidoPorUnidad) {
-      return p.precioUnidadUsd ?? 0;
+      return pesoEstimadoKg(l.cantidad, p.pesoEstimadoUnidadGramos);
     }
-    return p.precioUsd;
+    return l.cantidad;
   }
 
   // Total para el badge "N producto(s)": suma unidades normalmente, pero
@@ -409,7 +415,7 @@ export default function CatalogPage() {
   // sola vez al final).
   const totalBsCarrito = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
-    return sum + (p ? calcPrecioBs(precioUsdLinea(p, l), ganancia, tasaCambio) * l.cantidad : 0);
+    return sum + (p ? calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * cantidadKgEquivalente(p, l) : 0);
   }, 0);
 
   if (loading) {
@@ -796,14 +802,20 @@ export default function CatalogPage() {
 
                           {/* Producto híbrido: además del selector de kg de
                               arriba, un stepper aparte para pedir por
-                              unidades sueltas (ej. "3 tomates"), con su
-                              propio precio fijo. Es una línea de carrito
-                              distinta a la de peso — el cliente puede usar
-                              una, la otra, o las dos. */}
+                              unidades sueltas (ej. "3 tomates"). El precio
+                              se sigue cobrando por peso (arriba) — acá solo
+                              se le muestra al cliente un precio ESTIMADO
+                              según el peso promedio de una unidad; la
+                              tienda confirma el peso real al armar el
+                              pedido. Es una línea de carrito distinta a la
+                              de peso — el cliente puede usar una, la otra,
+                              o las dos. */}
                           {p.activo && p.porPeso && p.permiteUnidad && (
                             <div className="flex flex-col gap-1 mt-1.5 pt-1.5 border-t border-leaf-50">
                               <p className="text-[10px] sm:text-xs text-ink/50">
-                                O por unidad: Bs {calcPrecioBs(p.precioUnidadUsd ?? 0, ganancia, tasaCambio).toFixed(2)} c/u
+                                O por unidad: ≈ Bs{" "}
+                                {(calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * pesoEstimadoKg(1, p.pesoEstimadoUnidadGramos)).toFixed(2)}{" "}
+                                c/u (precio final según peso real)
                               </p>
                               <div className="flex items-center justify-between gap-1.5">
                                 <button

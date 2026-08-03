@@ -15,9 +15,11 @@ type Product = {
   activo: boolean;
   porPeso: boolean;
   // Solo aplica si porPeso = true: además de pedirse por peso (kg), se
-  // puede pedir por unidades sueltas (ej. "3 tomates") a precioUnidadUsd.
+  // puede pedir por unidades sueltas (ej. "3 tomates"). El precio SIEMPRE
+  // es por peso (precioUsd) — pesoEstimadoUnidadGramos es el peso promedio
+  // de una unidad, usado solo para mostrarle un precio estimado al cliente.
   permiteUnidad?: boolean;
-  precioUnidadUsd?: number | null;
+  pesoEstimadoUnidadGramos?: number | null;
   orden: number;
   createdAt?: string;
 };
@@ -28,7 +30,7 @@ type EditingValue = {
   porPeso: boolean;
   categoria: string;
   permiteUnidad: boolean;
-  precioUnidadUsd: string;
+  pesoEstimadoUnidadGramos: string;
 };
 
 export default function AdminProductosPage() {
@@ -170,7 +172,7 @@ export default function AdminProductosPage() {
           porPeso: Boolean(p.porPeso),
           categoria: p.categoria,
           permiteUnidad: Boolean(p.permiteUnidad),
-          precioUnidadUsd: p.precioUnidadUsd?.toString() ?? "",
+          pesoEstimadoUnidadGramos: p.pesoEstimadoUnidadGramos?.toString() ?? "",
         };
       });
       setEditingValues(iniciales);
@@ -206,7 +208,7 @@ export default function AdminProductosPage() {
 
   function handleProductChange(
     id: string,
-    field: "nombre" | "precioUsd" | "porPeso" | "categoria" | "permiteUnidad" | "precioUnidadUsd",
+    field: "nombre" | "precioUsd" | "porPeso" | "categoria" | "permiteUnidad" | "pesoEstimadoUnidadGramos",
     value: string | boolean
   ) {
     setEditingValues((prev) => ({
@@ -233,7 +235,7 @@ export default function AdminProductosPage() {
         porPeso: val.porPeso,
         categoria: val.categoria,
         permiteUnidad: val.porPeso ? val.permiteUnidad : false,
-        precioUnidadUsd: val.porPeso && val.permiteUnidad ? (parseFloat(val.precioUnidadUsd) || 0) : null,
+        pesoEstimadoUnidadGramos: val.porPeso && val.permiteUnidad ? (parseFloat(val.pesoEstimadoUnidadGramos) || 0) : null,
       };
 
       const res = await fetch(`/api/products/${id}`, {
@@ -508,7 +510,7 @@ export default function AdminProductosPage() {
             porPeso: Boolean(producto.porPeso),
             categoria: producto.categoria,
             permiteUnidad: Boolean(producto.permiteUnidad),
-            precioUnidadUsd: producto.precioUnidadUsd?.toString() ?? "",
+            pesoEstimadoUnidadGramos: producto.pesoEstimadoUnidadGramos?.toString() ?? "",
           },
         }));
         setNuevoProducto({ nombre: "", precioUsd: "", categoria: "", porPeso: false });
@@ -819,7 +821,7 @@ export default function AdminProductosPage() {
                       porPeso: Boolean(product.porPeso),
                       categoria: product.categoria,
                       permiteUnidad: Boolean(product.permiteUnidad),
-                      precioUnidadUsd: product.precioUnidadUsd?.toString() ?? "",
+                      pesoEstimadoUnidadGramos: product.pesoEstimadoUnidadGramos?.toString() ?? "",
                     };
 
                     const precioBs = calcularPrecioBs(edit.precioUsd);
@@ -968,9 +970,13 @@ export default function AdminProductosPage() {
 
                         {/* Venta híbrida: solo tiene sentido si el producto ya
                             se vende por peso. Permite ADEMÁS pedirlo por
-                            unidades sueltas (ej. "3 tomates") con su propio
-                            precio fijo por unidad, sin sacar la opción por
-                            peso. */}
+                            unidades sueltas (ej. "3 tomates") como forma más
+                            cómoda de pedir — el precio SIEMPRE se cobra por
+                            peso (el de arriba), nunca hay un precio fijo por
+                            unidad. El peso estimado por unidad solo sirve
+                            para mostrarle al cliente un precio aproximado;
+                            la tienda confirma el peso real al recibir el
+                            pedido. */}
                         {edit.porPeso && (
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
                             <div>
@@ -981,7 +987,7 @@ export default function AdminProductosPage() {
                                   checked={edit.permiteUnidad}
                                   onChange={(e) => handleProductChange(product.id, "permiteUnidad", e.target.checked)}
                                   className="w-4 h-4 accent-clay-600 cursor-pointer"
-                                  title='Además de por kg, el cliente puede pedir "N unidades" (ej. 3 tomates)'
+                                  title='Además de por kg, el cliente puede pedir "N unidades" (ej. 3 tomates) — el precio se sigue cobrando por peso'
                                 />
                                 Ej: "3 tomates"
                               </label>
@@ -989,18 +995,18 @@ export default function AdminProductosPage() {
 
                             {edit.permiteUnidad && (
                               <div>
-                                <label className="block text-[11px] font-medium text-ink/50 mb-1">Precio por unidad ($)</label>
+                                <label className="block text-[11px] font-medium text-ink/50 mb-1">Peso aprox. por unidad (g)</label>
                                 <div className="relative flex items-center">
-                                  <span className="absolute left-3 text-sm text-ink/40">$</span>
                                   <input
                                     type="number"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    value={edit.precioUnidadUsd}
-                                    onChange={(e) => handleProductChange(product.id, "precioUnidadUsd", e.target.value)}
-                                    className="w-full text-sm pl-7 pr-2 py-2.5 border border-clay-200 hover:border-clay-400 focus:border-clay-600 rounded-lg focus:bg-white focus:outline-none"
+                                    step="1"
+                                    placeholder="Ej: 150"
+                                    value={edit.pesoEstimadoUnidadGramos}
+                                    onChange={(e) => handleProductChange(product.id, "pesoEstimadoUnidadGramos", e.target.value)}
+                                    className="w-full text-sm pl-3 pr-2 py-2.5 border border-clay-200 hover:border-clay-400 focus:border-clay-600 rounded-lg focus:bg-white focus:outline-none"
+                                    title="Peso promedio de UNA unidad, para calcular el precio estimado que ve el cliente"
                                   />
-                                  <span className="absolute right-2 text-[10px] text-ink/40">/unidad</span>
+                                  <span className="absolute right-2 text-[10px] text-ink/40">g/unidad</span>
                                 </div>
                               </div>
                             )}

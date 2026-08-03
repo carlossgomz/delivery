@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import Confetti from "@/app/components/Confetti";
-import { formatCantidad } from "@/lib/peso";
+import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
 import { precioBs as calcPrecioBs } from "@/lib/precio";
 
 type Product = {
@@ -14,7 +14,7 @@ type Product = {
   precioUsd: number;
   porPeso?: boolean;
   permiteUnidad?: boolean;
-  precioUnidadUsd?: number | null;
+  pesoEstimadoUnidadGramos?: number | null;
 };
 type CartLine = { productId: string; cantidad: number; vendidoPorUnidad?: boolean };
 type Cliente = {
@@ -39,8 +39,11 @@ type OrderData = {
     cantidadOriginal?: number | null;
     precioUsd?: number;
     disponible?: boolean | null;
+    // true si el cliente pidió esta línea "por unidad" (ej. "3 tomates").
+    // El precio se cobra igual por peso — "cantidad" es el peso en kg.
     vendidoPorUnidad?: boolean;
-    pesoConfirmadoGramos?: number | null;
+    // Cuántas unidades pidió el cliente originalmente, fijo para mostrarlo.
+    unidadesPedidas?: number | null;
     product?: { nombre: string; porPeso?: boolean };
   }[];
 };
@@ -220,13 +223,15 @@ export default function CheckoutPage() {
   }, [orderId, estado]);
 
   // La ganancia se suma por producto, así que el total en Bs se calcula
-  // línea por línea (ver lib/precio.ts).
+  // línea por línea (ver lib/precio.ts). El precio SIEMPRE es por peso —
+  // una línea "por unidad" de un producto híbrido se convierte primero a
+  // un peso estimado en kg antes de aplicar el precio por kilo.
   const totalBsCarrito = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
     if (!p) return sum;
     const esPorUnidadHibrida = p.porPeso && p.permiteUnidad && l.vendidoPorUnidad;
-    const precioUsd = esPorUnidadHibrida ? (p.precioUnidadUsd ?? 0) : p.precioUsd;
-    return sum + calcPrecioBs(precioUsd, ganancia, tasaCambio) * l.cantidad;
+    const cantidadKg = esPorUnidadHibrida ? pesoEstimadoKg(l.cantidad, p.pesoEstimadoUnidadGramos) : l.cantidad;
+    return sum + calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * cantidadKg;
   }, 0);
 
   // Una vez la tienda confirma disponibilidad, si algún artículo no estaba
@@ -336,8 +341,10 @@ export default function CheckoutPage() {
 
     const listaItems = itemsDisponibles
       .map((it) => {
-        const cant = (it.product?.porPeso && !it.vendidoPorUnidad) ? formatCantidad(it.cantidad, true) : `x${it.cantidad}`;
-        return `• ${it.product?.nombre ?? "Producto"} (${cant})`;
+        const cant = it.product?.porPeso ? formatCantidad(it.cantidad, true) : `x${it.cantidad}`;
+        const detalleUnidades =
+          it.vendidoPorUnidad && it.unidadesPedidas != null ? `, pedido: ${it.unidadesPedidas} und` : "";
+        return `• ${it.product?.nombre ?? "Producto"} (${cant}${detalleUnidades})`;
       })
       .join("\n");
 
@@ -570,7 +577,7 @@ export default function CheckoutPage() {
 
                 <ul className="text-xs sm:text-sm divide-y divide-dashed divide-ink/10">
                   {items.map((it, idx) => {
-                    const cantidadTexto = (it.product?.porPeso && !it.vendidoPorUnidad)
+                    const cantidadTexto = it.product?.porPeso
                       ? formatCantidad(it.cantidad, true)
                       : `${it.cantidad}×`;
                     const lineaBs = calcPrecioBs(it.precioUsd ?? 0, ganancia, order?.tasaCambio ?? tasaCambio) * it.cantidad;
@@ -579,6 +586,9 @@ export default function CheckoutPage() {
                         <div className="flex items-baseline justify-between gap-2">
                           <span className="text-ink/80 truncate">
                             {cantidadTexto} {it.product?.nombre ?? "Producto"}
+                            {it.vendidoPorUnidad && it.unidadesPedidas != null && (
+                              <span className="text-ink/40"> (pedido: {it.unidadesPedidas} und)</span>
+                            )}
                           </span>
                           <span className="text-ink/60 whitespace-nowrap">
                             Bs {lineaBs.toFixed(2)}
@@ -620,10 +630,13 @@ export default function CheckoutPage() {
                 <ul className="text-sm text-ink/80 space-y-1">
                   {itemsSinCambios.map((it) => (
                     <li key={it.productId}>
-                      {(it.product?.porPeso && !it.vendidoPorUnidad)
+                      {it.product?.porPeso
                         ? formatCantidad(it.cantidad, true)
                         : `${it.cantidad}×`}{" "}
                       {it.product?.nombre ?? "Producto"}
+                      {it.vendidoPorUnidad && it.unidadesPedidas != null && (
+                        <span className="text-ink/40"> (pediste: {it.unidadesPedidas} und)</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -639,15 +652,19 @@ export default function CheckoutPage() {
                   {itemsAjustados.map((it) => (
                     <li key={it.productId}>
                       <span className="font-medium">{it.product?.nombre ?? "Producto"}</span>
+                      {it.vendidoPorUnidad && it.unidadesPedidas != null && (
+                        <span className="text-ink/40 text-xs"> (pediste: {it.unidadesPedidas} und)</span>
+                      )}
                       <br />
                       <span className="text-xs text-ink/60">
-                        Pediste{" "}
-                        {(it.product?.porPeso && !it.vendidoPorUnidad)
+                        {it.vendidoPorUnidad ? "Peso estimado" : "Pediste"}{" "}
+                        {it.product?.porPeso
                           ? formatCantidad(it.cantidadOriginal ?? 0, true)
                           : `${it.cantidadOriginal}×`}
                         {" → "}
                         <span className="text-amber-800 font-semibold">
-                          {(it.product?.porPeso && !it.vendidoPorUnidad)
+                          {it.vendidoPorUnidad ? "peso real: " : ""}
+                          {it.product?.porPeso
                             ? formatCantidad(it.cantidad, true)
                             : `${it.cantidad}×`}
                         </span>
@@ -664,10 +681,13 @@ export default function CheckoutPage() {
                 <ul className="text-sm text-ink/80 space-y-1">
                   {itemsNoDisponibles.map((it) => (
                     <li key={it.productId}>
-                      {(it.product?.porPeso && !it.vendidoPorUnidad)
+                      {it.product?.porPeso
                         ? formatCantidad(it.cantidad, true)
                         : `${it.cantidad}×`}{" "}
                       {it.product?.nombre ?? "Producto"}
+                      {it.vendidoPorUnidad && it.unidadesPedidas != null && (
+                        <span className="text-ink/40"> (pediste: {it.unidadesPedidas} und)</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -728,9 +748,14 @@ export default function CheckoutPage() {
               <ul className="text-sm text-ink/80 divide-y divide-leaf-50">
                 {itemsDisponibles.map((it, idx) => (
                   <li key={idx} className="flex items-center justify-between py-1.5">
-                    <span>{it.product?.nombre ?? "Producto"}</span>
+                    <span>
+                      {it.product?.nombre ?? "Producto"}
+                      {it.vendidoPorUnidad && it.unidadesPedidas != null && (
+                        <span className="text-ink/40 text-xs"> (pediste: {it.unidadesPedidas} und)</span>
+                      )}
+                    </span>
                     <span className="text-ink/60">
-                      {(it.product?.porPeso && !it.vendidoPorUnidad) ? formatCantidad(it.cantidad, true) : `×${it.cantidad}`}
+                      {it.product?.porPeso ? formatCantidad(it.cantidad, true) : `×${it.cantidad}`}
                     </span>
                   </li>
                 ))}

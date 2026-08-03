@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
       imagenUrl: body.imagenUrl ?? null,
       porPeso: Boolean(body.porPeso),
       permiteUnidad: Boolean(body.permiteUnidad),
-      precioUnidadUsd: body.precioUnidadUsd !== undefined && body.precioUnidadUsd !== null && body.precioUnidadUsd !== ""
-        ? Number(body.precioUnidadUsd)
+      pesoEstimadoUnidadGramos: body.pesoEstimadoUnidadGramos !== undefined && body.pesoEstimadoUnidadGramos !== null && body.pesoEstimadoUnidadGramos !== ""
+        ? Math.round(Number(body.pesoEstimadoUnidadGramos))
         : null
     }
   });

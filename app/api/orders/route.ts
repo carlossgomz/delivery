@@ -57,18 +57,25 @@ export async function POST(req: NextRequest) {
       items: {
         create: items.map((i) => {
           const p = products.find((pr) => pr.id === i.productId)!;
-          // Si el producto es híbrido (porPeso + permiteUnidad) y esta
-          // línea se pidió "por unidad", se precifica con precioUnidadUsd
-          // (precio fijo por unidad) en vez de precioUsd (precio por kilo).
-          // Si por alguna razón el producto no tiene precioUnidadUsd
-          // cargado, se cae de vuelta a precioUsd para no romper el pedido.
+          // El precio SIEMPRE es por peso (p.precioUsd, precio por kilo) —
+          // nunca hay un precio fijo por unidad. Si el producto es híbrido
+          // y esta línea se pidió "por unidad" (ej. "3 tomates"), lo que
+          // mandó el cliente en "cantidad" es la CANTIDAD DE UNIDADES, no
+          // kilos: se convierte a un peso ESTIMADO usando el peso promedio
+          // por unidad que cargó la tienda (Product.pesoEstimadoUnidadGramos).
+          // Ese estimado es solo para mostrar un precio aproximado — la
+          // tienda confirma el peso real al chequear disponibilidad.
           const esPorUnidadHibrida = Boolean(p.porPeso && p.permiteUnidad && i.vendidoPorUnidad);
-          const precioUsd = esPorUnidadHibrida && p.precioUnidadUsd ? p.precioUnidadUsd : p.precioUsd;
+          const unidadesPedidas = esPorUnidadHibrida ? Math.round(i.cantidad) : null;
+          const cantidadKg = esPorUnidadHibrida
+            ? (unidadesPedidas! * (p.pesoEstimadoUnidadGramos ?? 0)) / 1000
+            : i.cantidad;
           return {
             productId: i.productId,
-            cantidad: i.cantidad,
-            precioUsd,
-            vendidoPorUnidad: esPorUnidadHibrida
+            cantidad: cantidadKg,
+            precioUsd: p.precioUsd,
+            vendidoPorUnidad: esPorUnidadHibrida,
+            ...(unidadesPedidas != null && { unidadesPedidas })
           };
         })
       }

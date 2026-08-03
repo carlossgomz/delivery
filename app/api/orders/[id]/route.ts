@@ -180,11 +180,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       id: string;
       disponible: boolean;
       cantidad?: number;
-      pesoConfirmadoGramos?: number | null;
     }[]) {
       const actual = existentes.find((e) => e.id === it.id);
       const data: Record<string, unknown> = { disponible: it.disponible };
 
+      // Para líneas vendidoPorUnidad = true (ej. "3 tomates"), esto es
+      // donde la tienda confirma el PESO REAL (en kg, aunque en la
+      // pantalla del admin se escriba/vea en gramos) — reemplaza el peso
+      // estimado con el que se calculó al crear el pedido. Mismo mecanismo
+      // que para cualquier producto por peso: no hace falta un campo aparte.
       if (
         actual &&
         typeof it.cantidad === "number" &&
@@ -193,16 +197,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       ) {
         data.cantidadOriginal = (actual as any).cantidadOriginal ?? actual.cantidad;
         data.cantidad = it.cantidad;
-      }
-
-      // Peso real (gramos) que la tienda pesó para un artículo pedido
-      // "por unidad" (ej. "3 tomates" -> pesó 340g). Puramente informativo
-      // para la tienda, no afecta el precio ni el total del pedido.
-      if (it.pesoConfirmadoGramos !== undefined) {
-        data.pesoConfirmadoGramos =
-          it.pesoConfirmadoGramos === null || Number.isNaN(it.pesoConfirmadoGramos)
-            ? null
-            : Math.round(it.pesoConfirmadoGramos);
       }
 
       await prisma.orderItem.update({ where: { id: it.id }, data: data as any });

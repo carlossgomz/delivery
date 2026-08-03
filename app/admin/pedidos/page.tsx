@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatCantidad, formatPesoConfirmado } from "@/lib/peso";
+import { formatCantidad } from "@/lib/peso";
 import { fechaVenezolana, formatFechaHoraVzla } from "@/lib/timezone";
 
 type OrderItem = {
@@ -10,12 +10,14 @@ type OrderItem = {
   cantidadOriginal?: number | null;
   precioUsd: number;
   disponible: boolean | null;
-  // true si esta línea se pidió "por unidad" (ej. "3 tomates") en un
-  // producto híbrido que también se vende por peso.
+  // true si el cliente pidió esta línea "por unidad" (ej. "3 tomates") en
+  // vez de escribir el peso directamente, para un producto híbrido. El
+  // precio se sigue cobrando por peso igual — "cantidad" es el peso en kg
+  // (estimado al principio, real una vez que la tienda lo confirma).
   vendidoPorUnidad?: boolean;
-  // Peso real en gramos que la tienda pesó para esta línea (solo aplica
-  // si vendidoPorUnidad = true). Puramente informativo.
-  pesoConfirmadoGramos?: number | null;
+  // Cuántas unidades pidió el cliente originalmente (ej. 3), fijo para
+  // mostrarlo aunque después se ajuste el peso. Solo si vendidoPorUnidad.
+  unidadesPedidas?: number | null;
   product: { nombre: string; porPeso?: boolean; permiteUnidad?: boolean };
 };
 
@@ -103,12 +105,6 @@ export default function AdminPedidosPage() {
   // salieron 220g). Se guarda aparte por la misma razón: que el refresco
   // automático no pise un cambio que el admin todavía no guardó.
   const [cambiosCantidad, setCambiosCantidad] = useState<Record<string, Record<string, number>>>({});
-
-  // Igual que cambiosCantidad pero para el peso real (en gramos) que la
-  // tienda anota al pesar un artículo pedido "por unidad" en un producto
-  // híbrido (ej. "3 tomates" -> pesó 340g). Se guarda aparte por la misma
-  // razón: que el refresco automático no pise un cambio sin guardar.
-  const [cambiosPeso, setCambiosPeso] = useState<Record<string, Record<string, number | null>>>({});
 
   // Interruptor "atendiendo en tienda" (antes vivía en Configuración).
   // Lo opera el empleado de delivery desde acá, junto al resto de su trabajo
@@ -298,26 +294,11 @@ export default function AdminPedidosPage() {
     return pendiente !== undefined ? pendiente : item.cantidad;
   }
 
-  function actualizarPeso(order: Order, itemId: string, value: number | null) {
-    setCambiosPeso((prev) => ({
-      ...prev,
-      [order.id]: { ...(prev[order.id] || {}), [itemId]: value }
-    }));
-  }
-
-  // Peso real (gramos) a mostrar en el campo editable: prioriza el cambio
-  // sin guardar sobre lo que ya haya en el servidor.
-  function pesoMostrado(order: Order, item: OrderItem): number | null {
-    const pendiente = cambiosPeso[order.id]?.[item.id];
-    return pendiente !== undefined ? pendiente : item.pesoConfirmadoGramos ?? null;
-  }
-
   async function guardarDisponibilidad(order: Order) {
     try {
       const itemsList = order.items || [];
       const pendientesDisponible = cambiosSinGuardar[order.id] || {};
       const pendientesCantidad = cambiosCantidad[order.id] || {};
-      const pendientesPeso = cambiosPeso[order.id] || {};
       await fetch(`/api/orders/${order.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -325,11 +306,7 @@ export default function AdminPedidosPage() {
           items: itemsList.map((i) => ({
             id: i.id,
             disponible: pendientesDisponible[i.id] !== undefined ? pendientesDisponible[i.id] : !!i.disponible,
-            cantidad: pendientesCantidad[i.id] !== undefined ? pendientesCantidad[i.id] : i.cantidad,
-            ...(i.vendidoPorUnidad && {
-              pesoConfirmadoGramos:
-                pendientesPeso[i.id] !== undefined ? pendientesPeso[i.id] : i.pesoConfirmadoGramos ?? null
-            })
+            cantidad: pendientesCantidad[i.id] !== undefined ? pendientesCantidad[i.id] : i.cantidad
           }))
         })
       });
@@ -347,10 +324,6 @@ export default function AdminPedidosPage() {
         return resto;
       });
       setCambiosCantidad((prev) => {
-        const { [order.id]: _quitar, ...resto } = prev;
-        return resto;
-      });
-      setCambiosPeso((prev) => {
         const { [order.id]: _quitar, ...resto } = prev;
         return resto;
       });
@@ -700,30 +673,35 @@ export default function AdminPedidosPage() {
 
               <ul className="text-sm divide-y divide-leaf-50">
                 {items.map((item) => {
-                  // Para un producto híbrido (porPeso + permiteUnidad), esta
-                  // línea puntual puede haberse pedido "por unidad" en vez
-                  // de por peso — en ese caso se muestra y trata como
-                  // unidad, no como kilos, aunque el producto sí sea porPeso.
-                  const esPorPesoEfectivo = Boolean(item.product?.porPeso) && !item.vendidoPorUnidad;
+                  // A diferencia de antes: el precio y la cantidad SIEMPRE
+                  // son por peso para un producto porPeso, incluso si el
+                  // cliente lo pidió "por unidad" (ej. "3 tomates") — eso
+                  // solo cambia cómo se lo mostramos al cliente, no cómo se
+                  // cobra ni cómo lo confirma la tienda.
+                  const esPorPeso = Boolean(item.product?.porPeso);
+                  // Solo para líneas vendidoPorUnidad: mostramos el input
+                  // de cantidad en GRAMOS (más natural para pesar) en vez
+                  // de kg, aunque por dentro siga guardándose en kg.
+                  const enGramos = esPorPeso && item.vendidoPorUnidad;
                   return (
                   <li key={item.id} className="flex items-center justify-between py-2 gap-2">
                     <span className="min-w-0">
-                      {esPorPesoEfectivo
+                      {esPorPeso
                         ? formatCantidad(item.cantidad, true)
                         : `${item.cantidad}×`}{" "}
                       {item.product?.nombre ?? "Producto"}
-                      {item.cantidadOriginal != null && (
-                        <span className="block text-[10px] text-clay-600">
-                          Ajustado (pedido:{" "}
-                          {esPorPesoEfectivo
-                            ? formatCantidad(item.cantidadOriginal, true)
-                            : `${item.cantidadOriginal}×`}
-                          )
+                      {item.vendidoPorUnidad && item.unidadesPedidas != null && (
+                        <span className="block text-[10px] text-ink/50">
+                          Cliente pidió: {item.unidadesPedidas} unidad{item.unidadesPedidas === 1 ? "" : "es"} (peso estimado)
                         </span>
                       )}
-                      {item.vendidoPorUnidad && item.pesoConfirmadoGramos != null && (
-                        <span className="block text-[10px] text-ink/50">
-                          Tienda: {formatPesoConfirmado(item.pesoConfirmadoGramos)}
+                      {item.cantidadOriginal != null && (
+                        <span className="block text-[10px] text-clay-600">
+                          {item.vendidoPorUnidad ? "Peso estimado" : "Ajustado (pedido"}:{" "}
+                          {esPorPeso
+                            ? formatCantidad(item.cantidadOriginal, true)
+                            : `${item.cantidadOriginal}×`}
+                          {!item.vendidoPorUnidad && ")"}
                         </span>
                       )}
                     </span>
@@ -743,45 +721,23 @@ export default function AdminPedidosPage() {
                             <input
                               type="number"
                               min={0}
-                              step={esPorPesoEfectivo ? 0.05 : 1}
-                              value={cantidadMostrada(order, item)}
-                              onChange={(e) =>
-                                actualizarCantidad(order, item.id, parseFloat(e.target.value) || 0)
-                              }
+                              step={enGramos ? 1 : esPorPeso ? 0.05 : 1}
+                              value={enGramos ? Math.round(cantidadMostrada(order, item) * 1000) : cantidadMostrada(order, item)}
+                              onChange={(e) => {
+                                const valor = parseFloat(e.target.value) || 0;
+                                actualizarCantidad(order, item.id, enGramos ? valor / 1000 : valor);
+                              }}
                               className="w-16 text-xs border border-leaf-100 rounded px-1.5 py-1 text-right focus:outline-none focus:border-leaf-500"
-                              aria-label={`Cantidad real disponible de ${item.product?.nombre}`}
-                              title="Editar si la cantidad/peso real disponible es distinta a lo pedido"
+                              aria-label={`Peso real pesado de ${item.product?.nombre}`}
+                              title={
+                                enGramos
+                                  ? "Pesá las unidades pedidas y anotá acá el peso real en gramos"
+                                  : "Editar si la cantidad/peso real disponible es distinta a lo pedido"
+                              }
                             />
                             <span className="text-[10px] text-ink/40">
-                              {esPorPesoEfectivo ? "kg" : "uds"}
+                              {enGramos ? "g" : esPorPeso ? "kg" : "uds"}
                             </span>
-                          </div>
-                        )}
-                        {/* Solo para líneas "por unidad" de un producto
-                            híbrido: la tienda anota el peso real que dio al
-                            pesar las unidades (ej. 3 tomates -> 340g). Es
-                            un dato interno, no cambia lo que paga el
-                            cliente. */}
-                        {disponibleMostrado(order, item) && item.vendidoPorUnidad && (
-                          <div className="flex items-center gap-1">
-                            <input
-                              type="number"
-                              min={0}
-                              step={1}
-                              placeholder="peso"
-                              value={pesoMostrado(order, item) ?? ""}
-                              onChange={(e) =>
-                                actualizarPeso(
-                                  order,
-                                  item.id,
-                                  e.target.value === "" ? null : parseFloat(e.target.value) || 0
-                                )
-                              }
-                              className="w-16 text-xs border border-clay-200 rounded px-1.5 py-1 text-right focus:outline-none focus:border-clay-500"
-                              aria-label={`Peso real pesado de ${item.product?.nombre}`}
-                              title="Peso real (g) que dio al pesar estas unidades — solo para inventario, no cambia el precio"
-                            />
-                            <span className="text-[10px] text-ink/40">g</span>
                           </div>
                         )}
                       </div>
