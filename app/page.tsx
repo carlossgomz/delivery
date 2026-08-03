@@ -563,8 +563,8 @@ export default function CatalogPage() {
                 >
                   <span
                     className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden flex items-center justify-center transition-all ${seleccionada
-                        ? "ring-2 ring-leaf-600 ring-offset-2 ring-offset-cream shadow-sm"
-                        : "ring-1 ring-leaf-100"
+                      ? "ring-2 ring-leaf-600 ring-offset-2 ring-offset-cream shadow-sm"
+                      : "ring-1 ring-leaf-100"
                       } ${imagenCat ? "bg-leaf-50" : "bg-leaf-100/70"}`}
                   >
                     {imagenCat ? (
@@ -816,11 +816,6 @@ export default function CatalogPage() {
                               o las dos. */}
                           {p.activo && p.porPeso && p.permiteUnidad && (
                             <div className="flex flex-col gap-1 mt-1.5 pt-1.5 border-t border-leaf-50">
-                              <p className="text-[10px] sm:text-xs text-ink/50">
-                                O por unidad: ≈ Bs{" "}
-                                {(p.precioUsd * tasaCambio * pesoEstimadoKg(1, p.pesoEstimadoUnidadGramos)).toFixed(2)}{" "}
-                                c/u + Bs {(ganancia * tasaCambio).toFixed(2)} (una sola vez, no por unidad — precio final según peso real)
-                              </p>
                               <div className="flex items-center justify-between gap-1.5">
                                 <button
                                   onClick={() => ajustarUnidadesHibrido(p.id, -1)}
