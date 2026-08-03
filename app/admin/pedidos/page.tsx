@@ -104,7 +104,13 @@ export default function AdminPedidosPage() {
   // pidieron 3 mayonesas y solo hay 1, o pidieron 200g de queso y al pesar
   // salieron 220g). Se guarda aparte por la misma razón: que el refresco
   // automático no pise un cambio que el admin todavía no guardó.
-  const [cambiosCantidad, setCambiosCantidad] = useState<Record<string, Record<string, number>>>({});
+  // Se guarda como TEXTO (no número) a propósito: si se guardara ya
+  // parseado, cada vez que el campo quedaba vacío a mitad de escribir (por
+  // ej. al borrar "340" para escribir "220") el valor se forzaba a 0 de
+  // inmediato, lo que hacía sentir que "se borraba" lo que se escribía en
+  // el celular. Guardando el texto tal cual se puede borrar y reescribir
+  // con total libertad; recién se convierte a número al guardar.
+  const [cambiosCantidad, setCambiosCantidad] = useState<Record<string, Record<string, string>>>({});
 
   // Interruptor "atendiendo en tienda" (antes vivía en Configuración).
   // Lo opera el empleado de delivery desde acá, junto al resto de su trabajo
@@ -280,18 +286,30 @@ export default function AdminPedidosPage() {
     return pendiente !== undefined ? pendiente : !!item.disponible;
   }
 
-  function actualizarCantidad(order: Order, itemId: string, value: number) {
+  function actualizarCantidad(order: Order, itemId: string, texto: string) {
     setCambiosCantidad((prev) => ({
       ...prev,
-      [order.id]: { ...(prev[order.id] || {}), [itemId]: value }
+      [order.id]: { ...(prev[order.id] || {}), [itemId]: texto }
     }));
   }
 
-  // Cantidad/peso real a mostrar en el campo editable: prioriza el cambio
-  // sin guardar sobre lo pedido originalmente, igual que con "disponible".
-  function cantidadMostrada(order: Order, item: OrderItem): number {
+  // Texto a mostrar en el campo editable: prioriza el cambio sin guardar
+  // (tal cual se está escribiendo) sobre lo pedido originalmente. Si el
+  // renglón se pidió "por unidad" (enGramos), el valor de base se muestra
+  // convertido a gramos en vez de kg, porque es más natural para pesar.
+  function textoCantidadMostrada(order: Order, item: OrderItem, enGramos: boolean): string {
     const pendiente = cambiosCantidad[order.id]?.[item.id];
-    return pendiente !== undefined ? pendiente : item.cantidad;
+    if (pendiente !== undefined) return pendiente;
+    return enGramos ? String(Math.round(item.cantidad * 1000)) : String(item.cantidad);
+  }
+
+  // Ajuste rápido con botones +/- (en vez de tener que escribir), tanto
+  // para sumar como para restar del valor actual mostrado.
+  function nudgeCantidad(order: Order, item: OrderItem, enGramos: boolean, delta: number) {
+    const actualTexto = textoCantidadMostrada(order, item, enGramos);
+    const actual = parseFloat(actualTexto) || 0;
+    const nuevo = Math.max(0, actual + delta);
+    actualizarCantidad(order, item.id, enGramos ? String(Math.round(nuevo)) : String(nuevo));
   }
 
   async function guardarDisponibilidad(order: Order) {
@@ -303,11 +321,25 @@ export default function AdminPedidosPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: itemsList.map((i) => ({
-            id: i.id,
-            disponible: pendientesDisponible[i.id] !== undefined ? pendientesDisponible[i.id] : !!i.disponible,
-            cantidad: pendientesCantidad[i.id] !== undefined ? pendientesCantidad[i.id] : i.cantidad
-          }))
+          items: itemsList.map((i) => {
+            const pendienteTexto = pendientesCantidad[i.id];
+            let cantidad = i.cantidad;
+            if (pendienteTexto !== undefined) {
+              const num = parseFloat(pendienteTexto);
+              // Texto vacío/inválido (ej. quedó en blanco un instante
+              // mientras se reescribía): no se manda nada raro, se
+              // conserva la cantidad que ya había.
+              if (!isNaN(num) && num >= 0) {
+                const enGramos = Boolean(i.product?.porPeso) && i.vendidoPorUnidad;
+                cantidad = enGramos ? num / 1000 : num;
+              }
+            }
+            return {
+              id: i.id,
+              disponible: pendientesDisponible[i.id] !== undefined ? pendientesDisponible[i.id] : !!i.disponible,
+              cantidad
+            };
+          })
         })
       });
       const res = await fetch(`/api/orders/${order.id}`, {
@@ -682,7 +714,7 @@ export default function AdminPedidosPage() {
                   // Solo para líneas vendidoPorUnidad: mostramos el input
                   // de cantidad en GRAMOS (más natural para pesar) en vez
                   // de kg, aunque por dentro siga guardándose en kg.
-                  const enGramos = esPorPeso && item.vendidoPorUnidad;
+                  const enGramos = Boolean(esPorPeso && item.vendidoPorUnidad);
                   return (
                   <li key={item.id} className="flex items-center justify-between py-2 gap-2">
                     <span className="min-w-0">
@@ -718,15 +750,29 @@ export default function AdminPedidosPage() {
                         </label>
                         {disponibleMostrado(order, item) && (
                           <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => nudgeCantidad(order, item, enGramos, enGramos ? -25 : esPorPeso ? -0.25 : -1)}
+                              className="w-6 h-6 shrink-0 rounded-full border border-leaf-300 text-leaf-700 flex items-center justify-center text-sm font-bold active:scale-90 transition-transform"
+                              aria-label={`Restar de ${item.product?.nombre}`}
+                              tabIndex={-1}
+                            >
+                              −
+                            </button>
                             <input
-                              type="number"
-                              min={0}
-                              step={enGramos ? 1 : esPorPeso ? 0.05 : 1}
-                              value={enGramos ? Math.round(cantidadMostrada(order, item) * 1000) : cantidadMostrada(order, item)}
+                              type="text"
+                              inputMode="decimal"
+                              value={textoCantidadMostrada(order, item, enGramos)}
                               onChange={(e) => {
-                                const valor = parseFloat(e.target.value) || 0;
-                                actualizarCantidad(order, item.id, enGramos ? valor / 1000 : valor);
+                                // Solo se permiten dígitos y un punto decimal
+                                // mientras se escribe — así el celular no
+                                // "traba" el campo con caracteres sueltos,
+                                // pero tampoco se fuerza a un número válido
+                                // hasta que la persona termine de escribir.
+                                const texto = e.target.value.replace(/[^0-9.]/g, "");
+                                actualizarCantidad(order, item.id, texto);
                               }}
+                              onFocus={(e) => e.target.select()}
                               className="w-16 text-xs border border-leaf-100 rounded px-1.5 py-1 text-right focus:outline-none focus:border-leaf-500"
                               aria-label={`Peso real pesado de ${item.product?.nombre}`}
                               title={
@@ -735,6 +781,15 @@ export default function AdminPedidosPage() {
                                   : "Editar si la cantidad/peso real disponible es distinta a lo pedido"
                               }
                             />
+                            <button
+                              type="button"
+                              onClick={() => nudgeCantidad(order, item, enGramos, enGramos ? 25 : esPorPeso ? 0.25 : 1)}
+                              className="w-6 h-6 shrink-0 rounded-full bg-leaf-600 text-white flex items-center justify-center text-sm font-bold active:scale-90 transition-transform"
+                              aria-label={`Sumar a ${item.product?.nombre}`}
+                              tabIndex={-1}
+                            >
+                              +
+                            </button>
                             <span className="text-[10px] text-ink/40">
                               {enGramos ? "g" : esPorPeso ? "kg" : "uds"}
                             </span>
