@@ -1,0 +1,4650 @@
+[
+  {
+    "codigo": "6930302103751",
+    "nombre": "3B PAÑAL TALLA M DE 6-11KG. 11UND.",
+    "precioUsd": 4.27,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtgog001vs05lgnjyjtf3.jpg"
+  },
+  {
+    "codigo": "6970841242423",
+    "nombre": "3B PROTECTORES DIARIOS 20UND.",
+    "precioUsd": 1.43,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtror0028s05la8npel9l.jpg"
+  },
+  {
+    "codigo": "6970841242409",
+    "nombre": "3B TOALLAS SANITARIAS DIURNA TELA 10UND.",
+    "precioUsd": 1.84,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtquk0027s05lhpqvt5ug.jpg"
+  },
+  {
+    "codigo": "7591031003588",
+    "nombre": "7UP 1.5LTS",
+    "precioUsd": 1.01,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv38t003ss05lldzpmq5x.jpg"
+  },
+  {
+    "codigo": "7591031003557",
+    "nombre": "7UP 350ML BOTELLA",
+    "precioUsd": 0.71,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv2eo003rs05l24lgaj2q.jpg"
+  },
+  {
+    "codigo": "7591031003830",
+    "nombre": "7UP RETORNABLE 1.25LTS",
+    "precioUsd": 1.07,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv477003ts05ltapemu4h.jpg"
+  },
+  {
+    "codigo": "7500435251013",
+    "nombre": "ACE REGULAR DETERGENTE 400GRS.",
+    "precioUsd": 2.29,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtwsy002es05lpq9lz2xn.jpg"
+  },
+  {
+    "codigo": "7500435251006",
+    "nombre": "ACE REGULAR DETERGENTE 800GRS.",
+    "precioUsd": 4.56,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtvyt002ds05lgp7j0m9f.jpg"
+  },
+  {
+    "codigo": "7591104486300",
+    "nombre": "ADOBO COMPLETO LA COMADRE 200GRS.",
+    "precioUsd": 2.6,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw313004ys05ls4rc60c7.jpg"
+  },
+  {
+    "codigo": "8801038562445",
+    "nombre": "AFEITADORA DORCO CABALLERO TG708N",
+    "precioUsd": 0.8,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3kk100dus05lfnehrx2g.jpg"
+  },
+  {
+    "codigo": "8801038587493",
+    "nombre": "AFEITADORA DORCO DAMA TG708N",
+    "precioUsd": 0.8,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3ldr00dvs05lxb1wb9dg.jpg"
+  },
+  {
+    "codigo": "7599467000102",
+    "nombre": "AFEITADORA LUMI NOVA UNISEX",
+    "precioUsd": 0.97,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1vnv00bts05l8o1kuxit.jpg"
+  },
+  {
+    "codigo": "6924565911783",
+    "nombre": "AFEITADORA MAX DAMAS SINCERE CARE 3",
+    "precioUsd": 1.41,
+    "categoria": "Aseo Personal",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtfu5001us05lzet404m3.jpg"
+  },
+  {
+    "codigo": "7591127343574",
+    "nombre": "AGUA NEVADA SABORIZADA SABOR MANZANA 1.5ML. PET.",
+    "precioUsd": 1.55,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0mhb0015vx18wmvbtb49.jpg"
+  },
+  {
+    "codigo": "7591127344571",
+    "nombre": "AGUA NEVADA SABORIZADA SABOR MANZANA 355ML.",
+    "precioUsd": 0.83,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwkt9005js05l4zj7xc2w.jpg"
+  },
+  {
+    "codigo": "7591127363503",
+    "nombre": "AGUA POTABLE NEVADA 1.5LTS.",
+    "precioUsd": 1.79,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwlnr005ks05l94ncr5nx.jpg"
+  },
+  {
+    "codigo": "7591127363800",
+    "nombre": "AGUA POTABLE NEVADA 600ML.",
+    "precioUsd": 0.96,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwmi6005ls05lgghiw9hn.jpg"
+  },
+  {
+    "codigo": "1000000000029",
+    "nombre": "AJAX DESINFECTANTE 500ML.",
+    "precioUsd": 4.23,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qbvd0000gg3knlzzfjaf.jpg"
+  },
+  {
+    "codigo": "NEW-1000000000038",
+    "nombre": "AJI DULCE",
+    "precioUsd": 2.56,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0kcr0012vx18uzvrs60k.jpg"
+  },
+  {
+    "codigo": "1000000000030",
+    "nombre": "ALAS DE POLLO X KILO",
+    "precioUsd": 6,
+    "categoria": "Carnes y Embutidos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qcnh0001gg3kjejno3nz.jpg"
+  },
+  {
+    "codigo": "7597257001650",
+    "nombre": "ALIDENT CREMA DENTAL GEL AZUL ICE COOL MINT 100GRS.",
+    "precioUsd": 1.92,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0w1q00ans05lybcls2y5.jpg"
+  },
+  {
+    "codigo": "7597257001667",
+    "nombre": "ALIDENT CREMA DENTAL GEL VERDE ALIENTO FRESCO 100GRS.",
+    "precioUsd": 1.92,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0wyc00aos05l6bzu5981.jpg"
+  },
+  {
+    "codigo": "7597257001629",
+    "nombre": "ALIDENT CREMA DENTAL TRIPLE ACCION 100GRS.",
+    "precioUsd": 1.92,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0v7y00ams05lc074dgoc.jpg"
+  },
+  {
+    "codigo": "7597597002058",
+    "nombre": "ALIVE DETERGENTE CON SUAVIZANTE 1KILO.",
+    "precioUsd": 3.57,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1bmd00b5s05lf3vyivkq.jpg"
+  },
+  {
+    "codigo": "7597597002041",
+    "nombre": "ALIVE DETERGENTE CON SUAVIZANTE 500GRS.",
+    "precioUsd": 1.79,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1aro00b4s05ll2pv23db.jpg"
+  },
+  {
+    "codigo": "1000000000031",
+    "nombre": "ALIVE DETERGENTE FLORAL 1KILO.",
+    "precioUsd": 3.57,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qdfl0002gg3kgunp8pbs.jpg"
+  },
+  {
+    "codigo": "1000000000032",
+    "nombre": "ALIVE DETERGENTE LIMON 1KILO.",
+    "precioUsd": 3.57,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qe7n0003gg3kzc2qzrhy.jpg"
+  },
+  {
+    "codigo": "7597597001969",
+    "nombre": "ALIVE DETERGENTE TODO TIPO DE ROPA 1KILO.",
+    "precioUsd": 3.57,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn19xf00b3s05lnpj6n4eh.jpg"
+  },
+  {
+    "codigo": "6957931416438",
+    "nombre": "ALIVE PROTECTORES DIARIOS 20UND.",
+    "precioUsd": 0.83,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtq0f0026s05l44b7hrnh.jpg"
+  },
+  {
+    "codigo": "7597597007572",
+    "nombre": "ALIVE SUAVIZANTE FLORAL 180ML.",
+    "precioUsd": 1.01,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1daz00b7s05lcr40vtox.jpg"
+  },
+  {
+    "codigo": "7597597007237",
+    "nombre": "ALIVE SUAVIZANTE FRESCA PRIMAVERA 180ML.",
+    "precioUsd": 1.01,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1cgy00b6s05lm3zidptg.jpg"
+  },
+  {
+    "codigo": "7597597009682",
+    "nombre": "ALIVE SUAVIZANTE LAVANDA 200ML.",
+    "precioUsd": 1.43,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1eye00b9s05l3nr4q6l5.jpg"
+  },
+  {
+    "codigo": "7597597009668",
+    "nombre": "ALIVE SUAVIZANTE VAINILLA 200ML.",
+    "precioUsd": 1.43,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1e4u00b8s05lfs125uzh.jpg"
+  },
+  {
+    "codigo": "7597257002305",
+    "nombre": "ALIVE TOALLAS SANITARIAS DIURNA TELA 8UND.",
+    "precioUsd": 1.43,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0xsk00aps05l6ptg4yok.jpg"
+  },
+  {
+    "codigo": "7597257000059",
+    "nombre": "ALIVE TOALLAS SANITARIAS NOCTURNA TELA 8UND.",
+    "precioUsd": 2.36,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0ue100als05l7rdd1b65.jpg"
+  },
+  {
+    "codigo": "7599450000225",
+    "nombre": "AMANECER ACEITE DE SOYA 500ML.",
+    "precioUsd": 2.63,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1t3500bqs05l0bu6pq69.jpg"
+  },
+  {
+    "codigo": "7599450000034",
+    "nombre": "AMANECER ARROZ PREMIUM 900GRS.",
+    "precioUsd": 1.64,
+    "categoria": "Cereales y Granos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1o4a00bks05lt30j7u9w.jpg"
+  },
+  {
+    "codigo": "7599450000362",
+    "nombre": "AMANECER ARROZ TRADICIONAL 900GRS.",
+    "precioUsd": 1.32,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1ur100bss05ltfkbxh71.jpg"
+  },
+  {
+    "codigo": "7599450000065",
+    "nombre": "AMANECER ARVEJAS 400GRS.",
+    "precioUsd": 1.86,
+    "categoria": "Cereales y Granos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1prp00bms05leabv6hc4.jpg"
+  },
+  {
+    "codigo": "7599450000089",
+    "nombre": "AMANECER CARAOTAS NEGRAS 400GRS.",
+    "precioUsd": 1.54,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1rfh00bos05lqvcjg01j.jpg"
+  },
+  {
+    "codigo": "7599450000300",
+    "nombre": "AMANECER LECHE EN POLVO COMPLETA 125GRS.",
+    "precioUsd": 2.74,
+    "categoria": "Lácteos y Quesos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1twx00brs05ljayxvvoh.jpg"
+  },
+  {
+    "codigo": "7599450000072",
+    "nombre": "AMANECER LENTEJAS 400GRS.",
+    "precioUsd": 1.74,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1qli00bns05lkd0ylp4l.jpg"
+  },
+  {
+    "codigo": "7599450000058",
+    "nombre": "AMANECER MAIZ PARA COTUFA 400GRS.",
+    "precioUsd": 1.71,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1oy800bls05ljpdyjdq3.jpg"
+  },
+  {
+    "codigo": "8993379286385",
+    "nombre": "ANITA JABON AMARILLO 80GRS. AVENA",
+    "precioUsd": 0.71,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3qi200e1s05lwt5mfbdu.jpg"
+  },
+  {
+    "codigo": "8993379260217",
+    "nombre": "ANITA JABON AZUL 125GRS. GRS. AVOCADO EXTRACT.",
+    "precioUsd": 1.26,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3ouv00dzs05lmt47yhst.jpg"
+  },
+  {
+    "codigo": "8993379108021",
+    "nombre": "ANITA JABON AZUL 80GRS. AVOCADO",
+    "precioUsd": 0.71,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3n0y00dxs05ln2ekknil.jpg"
+  },
+  {
+    "codigo": "8993379108045",
+    "nombre": "ANITA JABON MORADO 80GRS. ALMOND EXTRACT.",
+    "precioUsd": 0.71,
+    "categoria": "Aseo Personal",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3nus00dys05l69vlov3o.jpg"
+  },
+  {
+    "codigo": "8993379260224",
+    "nombre": "ANITA JABON ROSADO 125GRS. PEARL EXTRACT.",
+    "precioUsd": 1.26,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3pof00e0s05lj0dspq2e.jpg"
+  },
+  {
+    "codigo": "8993379108014",
+    "nombre": "ANITA JABON ROSADO 80GRS. PEARL EXTRACT.",
+    "precioUsd": 0.71,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3m7d00dws05lw110dmnj.jpg"
+  },
+  {
+    "codigo": "7500435250917",
+    "nombre": "ARIEL CON DOWNY DETERGENTE 800GRS.",
+    "precioUsd": 6.2,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtuac002bs05ld3m38nzx.jpg"
+  },
+  {
+    "codigo": "7500435250962",
+    "nombre": "ARIEL DETERGENTE 800GRS.",
+    "precioUsd": 5.51,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtv4l002cs05lxpiukuyq.jpg"
+  },
+  {
+    "codigo": "7591184002537",
+    "nombre": "AVENA EN HOJUELAS QUAKER 200GRS.",
+    "precioUsd": 1.09,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxkcy006ps05ltyniyeo6.jpg"
+  },
+  {
+    "codigo": "7591184002018",
+    "nombre": "AVENA EN HOJUELAS QUAKER 400GRS.",
+    "precioUsd": 2.14,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxjit006os05lajt5veih.jpg"
+  },
+  {
+    "codigo": "7509546694566",
+    "nombre": "AXION MULTIUSO LAVAPLATO 235GRS.",
+    "precioUsd": 1.96,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu4cy002ns05l66j9uor1.jpg"
+  },
+  {
+    "codigo": "7599450000102",
+    "nombre": "AZUCAR REFINADA AMANECER 1KILO.",
+    "precioUsd": 2.23,
+    "categoria": "Azúcar y Endulzantes",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1s9a00bps05lxdomdbo7.jpg"
+  },
+  {
+    "codigo": "75903183",
+    "nombre": "BELMON CIGARRO 1/2 CAJA 10UND.",
+    "precioUsd": 1.69,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmrxtg0003s05ljdic9c1k.jpg"
+  },
+  {
+    "codigo": "75903169",
+    "nombre": "BELMON CIGARRO CAJA 20UND.",
+    "precioUsd": 3.39,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmrwz10002s05l8351a1gc.jpg"
+  },
+  {
+    "codigo": "175903169",
+    "nombre": "BELMON CIGARRO DETALLADO X UND.",
+    "precioUsd": 0.19,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsagi000is05lsj9gdb3q.jpg"
+  },
+  {
+    "codigo": "7501014511016",
+    "nombre": "BIC BOLIGRAFO TINTA AZUL PUNTA MEDIA",
+    "precioUsd": 0.7,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pztdy0000vx1894jdt2as.jpg"
+  },
+  {
+    "codigo": "7591133001871",
+    "nombre": "BIMBO BIMBOLETES VAINILLA 55GRS.",
+    "precioUsd": 1.09,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwxi6005ys05l0kj2k6yl.jpg"
+  },
+  {
+    "codigo": "7591133002052",
+    "nombre": "BIMBO BUENAZO 60GRS.",
+    "precioUsd": 1.09,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwycg005zs05lbfidw4bq.jpg"
+  },
+  {
+    "codigo": "7591133031571",
+    "nombre": "BIMBO PAN HAMBURGUESA 8 PANES 630GRS.",
+    "precioUsd": 4.11,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwz6n0060s05l5qz0ezl0.jpg"
+  },
+  {
+    "codigo": "7591167000918",
+    "nombre": "BIMBO PAN PERRO JUMBO 8UND. 500GRS.",
+    "precioUsd": 3.31,
+    "categoria": "Panadería",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxgzu006ls05l4w0sl12e.jpg"
+  },
+  {
+    "codigo": "7591133001031",
+    "nombre": "BIMBO PAN SANDWICH BLANCO 500GRS.",
+    "precioUsd": 2.26,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwuza005vs05l2gmj3mp8.jpg"
+  },
+  {
+    "codigo": "7591133001444",
+    "nombre": "BIMBO PANQUE SABOR VAINILLA 60GRS.",
+    "precioUsd": 1.09,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzu490001vx18av8h4e7a.jpg"
+  },
+  {
+    "codigo": "7591167000895",
+    "nombre": "BIMBO TORTILLAS CLASICAS 12UND 330GRS.",
+    "precioUsd": 3.43,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxg5q006ks05lfncd6uy5.jpg"
+  },
+  {
+    "codigo": "PROD-1785615963424",
+    "nombre": "BOLI KRUNCH 85G",
+    "precioUsd": 1.57,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": null
+  },
+  {
+    "codigo": "1000000000033",
+    "nombre": "BOLSAS PARA BASURA NEGRA 40KGS.",
+    "precioUsd": 0.5,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qezo0004gg3kghqgdlu0.jpg"
+  },
+  {
+    "codigo": "6935787900134",
+    "nombre": "BOMBILLO LED BRILLALUZ 30W LUZ BLANCA",
+    "precioUsd": 2.43,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtk4k001zs05lesr8s21x.jpg"
+  },
+  {
+    "codigo": "6935787900189",
+    "nombre": "BOMBILLO LED BRILLALUZ 40W LUZ BLANCA",
+    "precioUsd": 2.71,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtkyv0020s05lvahrokhy.jpg"
+  },
+  {
+    "codigo": "7595012766301",
+    "nombre": "BOMBILLO LED NALY 30W LUZ BLANCA",
+    "precioUsd": 2.43,
+    "categoria": "Ferretería y Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0cy500a0s05l03lsygdk.jpg"
+  },
+  {
+    "codigo": "7595461001206",
+    "nombre": "CAFE AMANECER 100GRS.",
+    "precioUsd": 1.84,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0h2n00a5s05lfe8ivfgu.jpg"
+  },
+  {
+    "codigo": "7595461000049",
+    "nombre": "CAFE AMANECER 200GRS.",
+    "precioUsd": 3.57,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0elo00a2s05l7n7ambrs.jpg"
+  },
+  {
+    "codigo": "7595461000032",
+    "nombre": "CAFE AMANECER 500GRS.",
+    "precioUsd": 8.91,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0n6r0016vx18u7un5mol.jpg"
+  },
+  {
+    "codigo": "7591052001877",
+    "nombre": "CAFE BUEN CAFE 100GRS.",
+    "precioUsd": 1.79,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzuti0002vx189e5sx5ls.jpg"
+  },
+  {
+    "codigo": "7591052000917",
+    "nombre": "CAFE BUEN CAFE 200GRS.",
+    "precioUsd": 3.51,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzvit0003vx18ll1tenls.jpg"
+  },
+  {
+    "codigo": "7591052000719",
+    "nombre": "CAFE BUEN CAFE 500GRS.",
+    "precioUsd": 8.73,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzw850004vx181acd1w1z.jpg"
+  },
+  {
+    "codigo": "7595461001213",
+    "nombre": "CAFE DELLA NONNA 100GRS.",
+    "precioUsd": 1.84,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0hwe00a6s05lyld35yne.jpg"
+  },
+  {
+    "codigo": "7595461000155",
+    "nombre": "CAFE DELLA NONNA 200GRS.",
+    "precioUsd": 3.57,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0ffa00a3s05lzbyp6419.jpg"
+  },
+  {
+    "codigo": "7595461000148",
+    "nombre": "CAFE DELLA NONNA 500GRS.",
+    "precioUsd": 8.91,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0nwn0017vx18oxnu5gcq.jpg"
+  },
+  {
+    "codigo": "7595461000292",
+    "nombre": "CAFE FAVORITO 100GRS.",
+    "precioUsd": 1.62,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0g8s00a4s05lgfml5at8.jpg"
+  },
+  {
+    "codigo": "7595461000308",
+    "nombre": "CAFE FAVORITO 200GRS.",
+    "precioUsd": 3.14,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0om60018vx18xtgzagff.jpg"
+  },
+  {
+    "codigo": "7596540000455",
+    "nombre": "CAFE FLOR DE ARAUCA 200GRS.",
+    "precioUsd": 3.81,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzwxi0005vx18ybh8j0nb.jpg"
+  },
+  {
+    "codigo": "7591164000461",
+    "nombre": "CALEDONIA CHARMY BROWNIE 192GRS.",
+    "precioUsd": 2.13,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxfbl006js05lsz2brh56.jpg"
+  },
+  {
+    "codigo": "7591164000065",
+    "nombre": "CALEDONIA CHARMY CHOCOLATE 192GRS.",
+    "precioUsd": 1.66,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxa71006ds05lut67kxpr.jpg"
+  },
+  {
+    "codigo": "7591164000041",
+    "nombre": "CALEDONIA CHARMY VAINILLA 192GRS.",
+    "precioUsd": 1.66,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx9cu006cs05l82v2ktor.jpg"
+  },
+  {
+    "codigo": "NEW-1000000000039",
+    "nombre": "CAMBUR",
+    "precioUsd": 1.14,
+    "categoria": "Vegetales",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0l2a0013vx18asfmfpmz.jpg"
+  },
+  {
+    "codigo": "7591167022446",
+    "nombre": "CANELITAS MARINELA 60GRS.",
+    "precioUsd": 0.78,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxhua006ms05lgh9qrnvf.jpg"
+  },
+  {
+    "codigo": "7591088630997",
+    "nombre": "CARABOBO LECHE COMPLETA LARGA DURACION  1LTS.",
+    "precioUsd": 3.47,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0pbj0019vx188zot8mr5.jpg"
+  },
+  {
+    "codigo": "1000000000002",
+    "nombre": "CARAMELOS DURO VARIOS SABORES",
+    "precioUsd": 0.07,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmslt2000vs05lfmqtqd56.jpg"
+  },
+  {
+    "codigo": "1000000000003",
+    "nombre": "CASABE.",
+    "precioUsd": 1,
+    "categoria": "Casabe y Otros",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsmn7000ws05lxo7li21q.jpg"
+  },
+  {
+    "codigo": "PROD-1785679949531",
+    "nombre": "CATALINA PAQUETE 8UND",
+    "precioUsd": 0.46,
+    "categoria": "Casabe y Otros",
+    "activo": true,
+    "imagenUrl": null
+  },
+  {
+    "codigo": "1000000000024",
+    "nombre": "CEBOLLA",
+    "precioUsd": 1.86,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt4db001hs05l89m8z9qm.jpg"
+  },
+  {
+    "codigo": "1000000000004",
+    "nombre": "CHIMO EL TIGRITO",
+    "precioUsd": 1,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsnhh000xs05lxa1454e0.jpg"
+  },
+  {
+    "codigo": "7591127713322",
+    "nombre": "CHINOTO 1LTS. PET.",
+    "precioUsd": 1.2,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwqpa005qs05lnf6mucci.jpg"
+  },
+  {
+    "codigo": "7591127713605",
+    "nombre": "CHINOTO 2LTS. PET.",
+    "precioUsd": 2.2,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwrmk005rs05lewl3cnw7.jpg"
+  },
+  {
+    "codigo": "7591240788207",
+    "nombre": "CICLON LIMPIADOR DE POCETAS 1LTS.",
+    "precioUsd": 7.09,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmykkh007vs05lrxgawtwn.jpg"
+  },
+  {
+    "codigo": "7591240708069",
+    "nombre": "CLORO BLAN-CLORO 1LTS.",
+    "precioUsd": 2.6,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyjqm007us05lhs5jxxke.jpg"
+  },
+  {
+    "codigo": "7593357000326",
+    "nombre": "CLORO KRIS 1LTS.",
+    "precioUsd": 2.4,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn05ey009rs05lj658pn25.jpg"
+  },
+  {
+    "codigo": "7593357002511",
+    "nombre": "CLORO KRIS 500CM3",
+    "precioUsd": 1.57,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn072k009ts05lgvddifgt.jpg"
+  },
+  {
+    "codigo": "7622202308765",
+    "nombre": "CLUB SOCIAL GALLETA INTEGRAL MULTICEREALES",
+    "precioUsd": 2.32,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzxn20006vx18b7pgiinq.jpg"
+  },
+  {
+    "codigo": "17622202308765",
+    "nombre": "CLUB SOCIAL GALLETA INTEGRAL MULTICEREALES X UNIDAD",
+    "precioUsd": 0.54,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzycp0007vx18n7tjhhkq.jpg"
+  },
+  {
+    "codigo": "7591127122520",
+    "nombre": "COCA-COLA ORIGINAL 1.25LTS. RETONABLE",
+    "precioUsd": 0.96,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwhge005fs05l3vsoxmuz.jpg"
+  },
+  {
+    "codigo": "7591127123527",
+    "nombre": "COCA-COLA ORIGINAL 1.5LTS. PET.",
+    "precioUsd": 1.55,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwj4x005hs05lxmz1a5fm.jpg"
+  },
+  {
+    "codigo": "7591127123329",
+    "nombre": "COCA-COLA ORIGINAL 1LTS. PET.",
+    "precioUsd": 1.2,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwian005gs05lhsd662vq.jpg"
+  },
+  {
+    "codigo": "7591127123626",
+    "nombre": "COCA-COLA ORIGINAL 2LTS. PET.",
+    "precioUsd": 1.91,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwjz2005is05l1ky58vua.jpg"
+  },
+  {
+    "codigo": "7591127104540",
+    "nombre": "COCA-COLA ORIGINAL 355ML PET.",
+    "precioUsd": 0.83,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwgmb005es05lxeesudwk.jpg"
+  },
+  {
+    "codigo": "7591016871089",
+    "nombre": "COCOSETTE 50GRS. NESTLE",
+    "precioUsd": 1.24,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzz2l0008vx18x9fnl9v2.jpg"
+  },
+  {
+    "codigo": "6910021007206",
+    "nombre": "COLGATE CEPILLO DENTAL PREMIER CLEAN MEDIO",
+    "precioUsd": 1.57,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmte5u001ss05lh9lujux2.jpg"
+  },
+  {
+    "codigo": "7891024134702",
+    "nombre": "COLGATE CREMA DENTAL MAXIMA PROTECCION 90GRS.",
+    "precioUsd": 1.94,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn33tq00das05laxz646jr.jpg"
+  },
+  {
+    "codigo": "1000000000034",
+    "nombre": "COLGATE CREMA DENTAL TRIPLE ACCION 60ML.",
+    "precioUsd": 2.27,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qfrr0005gg3k1gotitc7.jpg"
+  },
+  {
+    "codigo": "7509546056098",
+    "nombre": "COLGATE CREMA DENTAL TRIPLE ACCION XTRA BLANCURA 75GRS.",
+    "precioUsd": 4.26,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu05n002is05l1jvdd3al.jpg"
+  },
+  {
+    "codigo": "7891024034095",
+    "nombre": "COLGATE KIDS 50GRS.",
+    "precioUsd": 2.97,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn326300d8s05lkq818pzw.jpg"
+  },
+  {
+    "codigo": "1000000000018",
+    "nombre": "COLOMBINA CHUPETA BON BON BUM",
+    "precioUsd": 0.3,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmszc1001bs05l6ut7s6ud.jpg"
+  },
+  {
+    "codigo": "PROD-1785617802229",
+    "nombre": "COLOMBINA DANDY CHOCOLATE 19G",
+    "precioUsd": 0.78,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": null
+  },
+  {
+    "codigo": "75903206",
+    "nombre": "CONSUL CIGARRO CAJA 20UND.",
+    "precioUsd": 1.76,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmryni0004s05lxujfncd3.jpg"
+  },
+  {
+    "codigo": "175903206",
+    "nombre": "CONSUL CIGARRO DETALLADO X UND.",
+    "precioUsd": 0.1,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsbaj000js05l7xt0mws0.jpg"
+  },
+  {
+    "codigo": "7591058001024",
+    "nombre": "COPOSA ACEITE VEGETAL 850ML.",
+    "precioUsd": 4.37,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvl0w004ds05lewzp1lex.jpg"
+  },
+  {
+    "codigo": "658325028270",
+    "nombre": "CREMA DE LECHE WYNCO 200GRS.",
+    "precioUsd": 2.77,
+    "categoria": "Lácteos y Quesos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsfhe000os05l5kc8gekj.jpg"
+  },
+  {
+    "codigo": "7896256605167",
+    "nombre": "CREMOR LECHE CONDENSADA 395GRS.",
+    "precioUsd": 2.79,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3fid00dos05l7sqd3lb0.jpg"
+  },
+  {
+    "codigo": "1000000000017",
+    "nombre": "CUBITO CALDO DE POLLO",
+    "precioUsd": 0.29,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsyhu001as05ltgqi7mot.jpg"
+  },
+  {
+    "codigo": "7590005184339",
+    "nombre": "DERMOX CREMA CORPORAL ACIDO HIALURONICO 200ML.",
+    "precioUsd": 5.1,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmudo3002ys05l581ziur3.jpg"
+  },
+  {
+    "codigo": "7591072003622",
+    "nombre": "DIABLITO UNDER WOOD 115GRS.",
+    "precioUsd": 3.78,
+    "categoria": "Carnes y Embutidos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9pzzs30009vx18021paimd.jpg"
+  },
+  {
+    "codigo": "7591072000027",
+    "nombre": "DIABLITO UNDER WOOD 54GRS.",
+    "precioUsd": 2.2,
+    "categoria": "Carnes y Embutidos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q00hd000avx18kmhgs1z8.jpg"
+  },
+  {
+    "codigo": "7591309000042",
+    "nombre": "DIOXOGEN ORIGINAL DESODORANTE 90GRS.",
+    "precioUsd": 4.27,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmymaz007xs05ligvb262a.jpg"
+  },
+  {
+    "codigo": "7591309000066",
+    "nombre": "DIOXOGEN TALCO DESODORANTE 90GRS.",
+    "precioUsd": 4.27,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyn4r007ys05l75ak1757.jpg"
+  },
+  {
+    "codigo": "7591155001460",
+    "nombre": "DON PEDRO SALSA PICANTE 150CC.",
+    "precioUsd": 2.54,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx8ib006bs05lgxojeop5.jpg"
+  },
+  {
+    "codigo": "7591098000698",
+    "nombre": "DON TOALLIN TOALLAS MULTIUSOS 50 HOJAS",
+    "precioUsd": 1.04,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvvyz004qs05l74a4yer8.jpg"
+  },
+  {
+    "codigo": "7599325000435",
+    "nombre": "DOÑA MARA COCO LOCO 180GRS.",
+    "precioUsd": 1.27,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1ln600bhs05lb6q4o760.jpg"
+  },
+  {
+    "codigo": "7597459000567",
+    "nombre": "DOÑA TITA AZUCAR 500GRS.",
+    "precioUsd": 1.27,
+    "categoria": "Azúcar y Endulzantes",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn16ia00azs05lhcjpl1tb.jpg"
+  },
+  {
+    "codigo": "7597459000550",
+    "nombre": "DOÑA TITA BBQ 290GRS.",
+    "precioUsd": 4,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn15of00ays05loatyrz27.jpg"
+  },
+  {
+    "codigo": "7597459000611",
+    "nombre": "DOÑA TITA MAYONESA 175GRS.",
+    "precioUsd": 2.14,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn17c400b0s05lud5dtvf7.jpg"
+  },
+  {
+    "codigo": "7597459000680",
+    "nombre": "DOÑA TITA SALSA DE TOMATE 198GRS.",
+    "precioUsd": 1.61,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn193700b2s05ldib9k5j4.jpg"
+  },
+  {
+    "codigo": "7597459000673",
+    "nombre": "DOÑA TITA SALSA DE TOMATE 397GRS.",
+    "precioUsd": 2.47,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn188v00b1s05lyv9yovwh.jpg"
+  },
+  {
+    "codigo": "7597459000352",
+    "nombre": "DOÑA TITA VINAGRE 500ML.",
+    "precioUsd": 1.39,
+    "categoria": "Aceites y Condimentos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn14uc00axs05lc9ytmesd.jpg"
+  },
+  {
+    "codigo": "7591188002106",
+    "nombre": "EDACA VAINILLA 120ML.",
+    "precioUsd": 2.71,
+    "categoria": "Azúcar y Endulzantes",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxl73006qs05lep4bk1v9.jpg"
+  },
+  {
+    "codigo": "7591049861545",
+    "nombre": "EL REY ACEITE VEGETAL 1LTS.",
+    "precioUsd": 4.11,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvk6p004cs05lc5fqgljv.jpg"
+  },
+  {
+    "codigo": "7591210000414",
+    "nombre": "EL TUNAL JUGO DE DURAZNO LARGA DURACION 1LTS.",
+    "precioUsd": 3.15,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy1810079s05lic00muej.jpg"
+  },
+  {
+    "codigo": "7591210000391",
+    "nombre": "EL TUNAL JUGO DE MANZANA LARGA DURACION 1LTS.",
+    "precioUsd": 3.15,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxzje0077s05li2v1fcjs.jpg"
+  },
+  {
+    "codigo": "7591210000407",
+    "nombre": "EL TUNAL JUGO DE PERA LARGA DURACION 1LTS.",
+    "precioUsd": 3.15,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy0ds0078s05ljfyln41x.jpg"
+  },
+  {
+    "codigo": "7591210000384",
+    "nombre": "EL TUNAL JUGO NARANJADA 60% LARGA DURACION 1LTS.",
+    "precioUsd": 4.06,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxyp40076s05l2fhufhr6.jpg"
+  },
+  {
+    "codigo": "7595751000186",
+    "nombre": "ESPONJA DE ACERO INOXIDABLE IZY",
+    "precioUsd": 1.4,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0iq200a7s05l8lhx93bd.jpg"
+  },
+  {
+    "codigo": "7591202200723",
+    "nombre": "EUREKA ACEITUNAS C/HUESO 200GRS.",
+    "precioUsd": 3.53,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxnpu006ts05ldh7qyrok.jpg"
+  },
+  {
+    "codigo": "7591202101013",
+    "nombre": "EUREKA MOSTAZA 190GRS.",
+    "precioUsd": 2.37,
+    "categoria": "Salsas y Aderezos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxmvl006ss05lgdogpvi2.jpg"
+  },
+  {
+    "codigo": "7593251000118",
+    "nombre": "EVEBA ATUN SOLIDO AL NATURAL 170GRS.",
+    "precioUsd": 3.41,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn03rg009ps05ltvow1h7u.jpg"
+  },
+  {
+    "codigo": "7593251000279",
+    "nombre": "EVEBA ATUN SOLIDO EN ACEITE VEGETAL 170GRS.",
+    "precioUsd": 3.71,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn04l6009qs05lh5ua46lg.jpg"
+  },
+  {
+    "codigo": "7590005162085",
+    "nombre": "EVERY NIGHT CREMA CORPORAL PIEL NORMAL A SECA 200ML.",
+    "precioUsd": 5.1,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu64c002ps05l7gbt22ln.jpg"
+  },
+  {
+    "codigo": "7590005162047",
+    "nombre": "EVERY NIGHT CREMA CORPORAL TODO TIPO PIEL 200ML.",
+    "precioUsd": 5.1,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu5a6002os05lhtbu9uop.jpg"
+  },
+  {
+    "codigo": "7590005162801",
+    "nombre": "EVERY NIGHT DESODORANTE BABY PINK 90GRS.",
+    "precioUsd": 2.84,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu7t2002rs05ls8shxkp9.jpg"
+  },
+  {
+    "codigo": "7590005162849",
+    "nombre": "EVERY NIGHT DESODORANTE COLONIA 90GRS.",
+    "precioUsd": 2.84,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmub5z002vs05lyauhpf9i.jpg"
+  },
+  {
+    "codigo": "7590005168834",
+    "nombre": "EVERY NIGHT DESODORANTE FOR MEN FRESH 90GRS.",
+    "precioUsd": 2.84,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuctx002xs05l37gj0vhv.jpg"
+  },
+  {
+    "codigo": "7590005168810",
+    "nombre": "EVERY NIGHT DESODORANTE FOR MEN SPORT 90GRS.",
+    "precioUsd": 2.84,
+    "categoria": "Aseo Personal",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuc01002ws05lbewxomgy.jpg"
+  },
+  {
+    "codigo": "7590005162757",
+    "nombre": "EVERY NIGHT DESODORANTE FRESH 90GRS.",
+    "precioUsd": 2.84,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu6yq002qs05lhcozmsss.jpg"
+  },
+  {
+    "codigo": "7590005162818",
+    "nombre": "EVERY NIGHT DESODORANTE NATURELLE 90GRS.",
+    "precioUsd": 2.84,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu8n8002ss05l5gt4g5oc.jpg"
+  },
+  {
+    "codigo": "7590005162832",
+    "nombre": "EVERY NIGHT DESODORANTE POWDER 90GRS.",
+    "precioUsd": 2.84,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuabs002us05lzmfs1ke2.jpg"
+  },
+  {
+    "codigo": "7590005162825",
+    "nombre": "EVERY NIGHT DESODORANTE SPRING FRESH 90GRS.",
+    "precioUsd": 2.67,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu9hj002ts05l9j4dyik2.jpg"
+  },
+  {
+    "codigo": "1000000000035",
+    "nombre": "FABULOSO DESINFECTANTE ULTRA FRESCURA 500ML.",
+    "precioUsd": 3.76,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qgju0006gg3kaegnqq9r.jpg"
+  },
+  {
+    "codigo": "7591127603524",
+    "nombre": "FANTA NARANJA 1.5LTS. PET.",
+    "precioUsd": 1.54,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwo6b005ns05lckl45933.jpg"
+  },
+  {
+    "codigo": "7591127603326",
+    "nombre": "FANTA NARANJA 1LTS. PET.",
+    "precioUsd": 1.2,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwnc8005ms05llfs7uk7h.jpg"
+  },
+  {
+    "codigo": "7591127623324",
+    "nombre": "FANTA TORONJA 1LTS. PET.",
+    "precioUsd": 1.2,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwpv3005ps05lgea65g8f.jpg"
+  },
+  {
+    "codigo": "7591127613325",
+    "nombre": "FANTA UVA 1LTS. PET.",
+    "precioUsd": 1.2,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwp0w005os05l9qkkyo20.jpg"
+  },
+  {
+    "codigo": "7591720029608",
+    "nombre": "FLAQUITO CHOCOLATE 30GRS.",
+    "precioUsd": 2.27,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz5hj008ks05lf42xygi3.jpg"
+  },
+  {
+    "codigo": "7591720030499",
+    "nombre": "FLAQUITO NEVADO 30GRS.",
+    "precioUsd": 2.27,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz6ba008ls05lw1q8qslg.jpg"
+  },
+  {
+    "codigo": "7591039504124",
+    "nombre": "FLIPS CHOCOLATE 220GRS.GRS.",
+    "precioUsd": 4.66,
+    "categoria": "Cereales y Granos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv7jc003xs05lg3xp5jlq.jpg"
+  },
+  {
+    "codigo": "7591039504957",
+    "nombre": "FLIPS CHOCOLATE 28GRS.",
+    "precioUsd": 0.71,
+    "categoria": "Cereales y Granos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv8dh003ys05lrsn9loen.jpg"
+  },
+  {
+    "codigo": "7591039996288",
+    "nombre": "FLIPS DULCE DE LECHE 120GRS.",
+    "precioUsd": 2.93,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvfzq0047s05lw4belb5g.jpg"
+  },
+  {
+    "codigo": "7591039505121",
+    "nombre": "FLIPS DULCE DE LECHE 220GRS.GRS.",
+    "precioUsd": 4.66,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv97f003zs05l53raxs4p.jpg"
+  },
+  {
+    "codigo": "7591039505954",
+    "nombre": "FLIPS DULCE DE LECHE 28GRS.",
+    "precioUsd": 0.71,
+    "categoria": "Cereales y Granos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmva1i0040s05lgnvdos3p.jpg"
+  },
+  {
+    "codigo": "759190401130",
+    "nombre": "FORORO VALLE HONDO",
+    "precioUsd": 1.37,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsi2w000rs05l4lf9jo8v.jpg"
+  },
+  {
+    "codigo": "7891151039772",
+    "nombre": "FREEGELLS CARAMELO EXTRA STRONG",
+    "precioUsd": 0.56,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn36e700dds05l6iafzv06.jpg"
+  },
+  {
+    "codigo": "7891151039796",
+    "nombre": "FREEGELLS CARAMELO MINT MENTHOL",
+    "precioUsd": 0.56,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn378100des05l49fe6ker.jpg"
+  },
+  {
+    "codigo": "7891151031202",
+    "nombre": "FREEGELLS CHICLE EXTRA FORTE 8GRS.",
+    "precioUsd": 0.62,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn35h600dcs05l33pbosrn.jpg"
+  },
+  {
+    "codigo": "7891151031141",
+    "nombre": "FREEGELLS CHICLE MENTA 8GRS.",
+    "precioUsd": 0.62,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn34nh00dbs05lillb7raa.jpg"
+  },
+  {
+    "codigo": "7591127853622",
+    "nombre": "FRESCOLITA 2LTS. PET.",
+    "precioUsd": 2.2,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwsgo005ss05l1mastmcf.jpg"
+  },
+  {
+    "codigo": "7591206000381",
+    "nombre": "FRITO LAY CHEESE TRIS 150GRS.",
+    "precioUsd": 2.4,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxojz006us05lul59c50b.jpg"
+  },
+  {
+    "codigo": "7591206003924",
+    "nombre": "FRITO LAY CHEESE TRIS 50GRS.",
+    "precioUsd": 1.09,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxr5b006xs05l11afmhu7.jpg"
+  },
+  {
+    "codigo": "7591206285610",
+    "nombre": "FRITO LAY DORITO DINAMITA 150GRS.",
+    "precioUsd": 3.77,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxw6r0073s05lbixt5wpy.jpg"
+  },
+  {
+    "codigo": "7591206003252",
+    "nombre": "FRITO LAY DORITO MEGA QUESO 150GRS.",
+    "precioUsd": 3.77,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxq8c006ws05lz9lhbxnf.jpg"
+  },
+  {
+    "codigo": "7591206002521",
+    "nombre": "FRITO LAY DORITO MEGA QUESO 45GRS.",
+    "precioUsd": 1.33,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxpe4006vs05l4sc1sy0a.jpg"
+  },
+  {
+    "codigo": "7591206284972",
+    "nombre": "FRITO LAY NATU CHIPS PLATANITOS 80GRS.",
+    "precioUsd": 2.46,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxtnu0070s05lfs7cyspm.jpg"
+  },
+  {
+    "codigo": "7591206285252",
+    "nombre": "FRITO LAY PEPITO EL ORIGINAL 25GRS.",
+    "precioUsd": 0.84,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxui70071s05lz7f3da0e.jpg"
+  },
+  {
+    "codigo": "7591206285269",
+    "nombre": "FRITO LAY PEPITO EL ORIGINAL 80GRS.",
+    "precioUsd": 1.64,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxvcc0072s05laebya737.jpg"
+  },
+  {
+    "codigo": "7591206016214",
+    "nombre": "FRITO LAY PEPITO MUNDO MARINO 25GRS.",
+    "precioUsd": 0.84,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxrze006ys05ls5ndpwbx.jpg"
+  },
+  {
+    "codigo": "7591206114361",
+    "nombre": "FRITO LAY RUFFLES QUESO PAPAS ONDULADAS 36GRS.",
+    "precioUsd": 1.47,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxsth006zs05lxlwvgba9.jpg"
+  },
+  {
+    "codigo": "7590011890910",
+    "nombre": "GALLETA BELVITA HONY PAQUETE 9 UND. NABISCO",
+    "precioUsd": 3.89,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmum4m0038s05l7epf6h79.jpg"
+  },
+  {
+    "codigo": "17590011890910",
+    "nombre": "GALLETA BELVITA HONY X UNIDAD",
+    "precioUsd": 0.62,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q016u000bvx188osofewy.jpg"
+  },
+  {
+    "codigo": "7590011890866",
+    "nombre": "GALLETA BELVITA KRAKER PAQUETE 9 UND. NABISCO",
+    "precioUsd": 3.89,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmulad0037s05le4bp5ynh.jpg"
+  },
+  {
+    "codigo": "17590011890866",
+    "nombre": "GALLETA BELVITA KRAKER X UNIDAD",
+    "precioUsd": 0.62,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q01w3000cvx184k4747be.jpg"
+  },
+  {
+    "codigo": "7622210611307",
+    "nombre": "GALLETA CLUB SOCIAL INTEGRAL PAQUETE 6 UND. NABISCO",
+    "precioUsd": 2.31,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2cbj00cds05loxnj0a5o.jpg"
+  },
+  {
+    "codigo": "17622210611307",
+    "nombre": "GALLETA CLUB SOCIAL INTEGRAL X UNIDAD",
+    "precioUsd": 0.54,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q02m6000dvx18xscy4geh.jpg"
+  },
+  {
+    "codigo": "7622210610652",
+    "nombre": "GALLETA CLUB SOCIAL ORIGINAL PAQUETE 6 UND. NABISCO",
+    "precioUsd": 2.13,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2bhs00ccs05lyqxpdp7l.jpg"
+  },
+  {
+    "codigo": "17622210610652",
+    "nombre": "GALLETA CLUB SOCIAL ORIGINAL X UNIDAD",
+    "precioUsd": 0.5,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q03bj000evx1815jmlozz.jpg"
+  },
+  {
+    "codigo": "7591082012584",
+    "nombre": "GALLETA DELICIAS MARIA CHOCOLATE 34GRS.",
+    "precioUsd": 1.14,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvsmr004ms05ltrdfcm4p.jpg"
+  },
+  {
+    "codigo": "7591164000133",
+    "nombre": "GALLETA TIP-TOP CHOCO MANI 96GRS.",
+    "precioUsd": 1.01,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxeea006is05lb6rck9yz.jpg"
+  },
+  {
+    "codigo": "7591164000096",
+    "nombre": "GALLETA TIP-TOP CHOCOLATE 96GRS.",
+    "precioUsd": 1.01,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxb17006es05ldzr2m3zo.jpg"
+  },
+  {
+    "codigo": "7591164000119",
+    "nombre": "GALLETA TIP-TOP COCO 96GRS.",
+    "precioUsd": 1.01,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxcpw006gs05l7mrm6tbp.jpg"
+  },
+  {
+    "codigo": "7591164000126",
+    "nombre": "GALLETA TIP-TOP MANI 96GRS.",
+    "precioUsd": 1.01,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxdk5006hs05lbh2ccbey.jpg"
+  },
+  {
+    "codigo": "7591164000102",
+    "nombre": "GALLETA TIP-TOP VAINILLA 96GRS.",
+    "precioUsd": 1.01,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxbvj006fs05lub022mfx.jpg"
+  },
+  {
+    "codigo": "7591031005995",
+    "nombre": "GATORADE PERFORM 500CM3.",
+    "precioUsd": 2.53,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0414000fvx18pvy3n1pr.jpg"
+  },
+  {
+    "codigo": "6554564954155",
+    "nombre": "GLENDY ACEITE OLIVA EXTRA VIRGEN 250ML.",
+    "precioUsd": 5.43,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtdbq001rs05lrrb2704n.jpg"
+  },
+  {
+    "codigo": "7591031003359",
+    "nombre": "GOLDEN KOLITA 1.5LTS.",
+    "precioUsd": 1.01,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv1kg003qs05l92w3w85p.jpg"
+  },
+  {
+    "codigo": "170227802057",
+    "nombre": "GOLDEN KOLITA 350ML. BOTELLA",
+    "precioUsd": 0.71,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsdt5000ms05lw6n6jr1n.jpg"
+  },
+  {
+    "codigo": "7591031001492",
+    "nombre": "GOLDEN KOLITA RETORNABLE 1.25LTS.",
+    "precioUsd": 1.07,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuz1t003ns05l6ihnmrn3.jpg"
+  },
+  {
+    "codigo": "7591031000037",
+    "nombre": "GOLDEN MANZANA 1.5LTS.",
+    "precioUsd": 1.01,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuy7k003ms05lsqyzo67k.jpg"
+  },
+  {
+    "codigo": "130127801457",
+    "nombre": "GOLDEN MANZANA 350ML BOTELLA",
+    "precioUsd": 0.71,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmscz0000ls05lw923wz0h.jpg"
+  },
+  {
+    "codigo": "7591031001515",
+    "nombre": "GOLDEN MANZANA RETORNABLE 1.25LTS.",
+    "precioUsd": 1.07,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuzw6003os05lcxu8q0jv.jpg"
+  },
+  {
+    "codigo": "7599729000079",
+    "nombre": "GOMITAS BRUSLI GUSANITO 40GRS.",
+    "precioUsd": 0.64,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1whq00bus05l1iffaz0y.jpg"
+  },
+  {
+    "codigo": "7599729000130",
+    "nombre": "GOMITAS BRUSLI OSITOS 40GRS.",
+    "precioUsd": 0.64,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1xbl00bvs05l4dfgehl2.jpg"
+  },
+  {
+    "codigo": "7897190307841",
+    "nombre": "GUDS BALL CHICLE 18GRS.",
+    "precioUsd": 0.44,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3gc400dps05lkq97ibcv.jpg"
+  },
+  {
+    "codigo": "7599761000556",
+    "nombre": "GUM FRESH FRESA 0.10GRS.",
+    "precioUsd": 0.14,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": null
+  },
+  {
+    "codigo": "7591002200152",
+    "nombre": "HARINA P.A.N. MAIZ AMARILLO 1KILO",
+    "precioUsd": 1.78,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmus01003fs05lfvf35vwp.jpg"
+  },
+  {
+    "codigo": "7591002200145",
+    "nombre": "HARINA P.A.N. MAIZ BLANCO 1KILO",
+    "precioUsd": 1.81,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmur5r003es05lnqgafcfh.jpg"
+  },
+  {
+    "codigo": "7591002200046",
+    "nombre": "HARINA P.A.N. MAIZ Y ARROZ BLANCO 1KILO",
+    "precioUsd": 1.69,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuqbe003ds05lmct0r4x8.jpg"
+  },
+  {
+    "codigo": "75916237",
+    "nombre": "HEINZ 57 SALSA 194GRS.",
+    "precioUsd": 1.94,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms3oa000as05lwf9zw55s.jpg"
+  },
+  {
+    "codigo": "75916060",
+    "nombre": "HEINZ COMPOTA FRUTAS TROPICALES 113GRS.",
+    "precioUsd": 1.4,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms0bu0006s05l5pwmpuqq.jpg"
+  },
+  {
+    "codigo": "7591112158930",
+    "nombre": "HEINZ COMPOTA FRUTAS TROPICALES 186GRS.",
+    "precioUsd": 1.49,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwd6t005as05lnsl0l30s.jpg"
+  },
+  {
+    "codigo": "7591112158886",
+    "nombre": "HEINZ COMPOTA MANZANA 186GRS.",
+    "precioUsd": 1.49,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwbie0058s05l23w83nzd.jpg"
+  },
+  {
+    "codigo": "7591112158916",
+    "nombre": "HEINZ COMPOTA MELOCOTON 186GRS.",
+    "precioUsd": 1.49,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwccj0059s05lwpo7jn0a.jpg"
+  },
+  {
+    "codigo": "75916091",
+    "nombre": "HEINZ COMPOTA PERA 113GRS.",
+    "precioUsd": 1.4,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms15y0007s05l286m94jw.jpg"
+  },
+  {
+    "codigo": "7591112041041",
+    "nombre": "HEINZ MOSTAZA 490GRS.",
+    "precioUsd": 5.03,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw6gs0052s05l1qb7fgrp.jpg"
+  },
+  {
+    "codigo": "7591112022675",
+    "nombre": "HEINZ PASTA DE TOMATE 200GRS.",
+    "precioUsd": 3.6,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw5mt0051s05lhtq62hv9.jpg"
+  },
+  {
+    "codigo": "75916220",
+    "nombre": "HEINZ SALSA DE TOMATE 198GRS.",
+    "precioUsd": 1.94,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms2u80009s05l88hdsk40.jpg"
+  },
+  {
+    "codigo": "75916107",
+    "nombre": "HEINZ SALSA DE TOMATE 293GRS.",
+    "precioUsd": 2.77,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms2070008s05liz2jp0r4.jpg"
+  },
+  {
+    "codigo": "7591112015103",
+    "nombre": "HEINZ VINAGRE 1000CM3",
+    "precioUsd": 3.27,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw4si0050s05l6jw7iko2.jpg"
+  },
+  {
+    "codigo": "1000000000006",
+    "nombre": "HUEVO CARTON 36UND.",
+    "precioUsd": 4.83,
+    "categoria": "Casabe y Otros",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsp5t000zs05l7ugxjjkw.jpg"
+  },
+  {
+    "codigo": "NEW-1000000000037",
+    "nombre": "HUEVO X UNIDAD DETALLADO",
+    "precioUsd": 0.21,
+    "categoria": "Casabe y Otros",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q04t7000gvx18yllhhnk9.jpg"
+  },
+  {
+    "codigo": "7896018700628",
+    "nombre": "HUGGIES TOALLITAS HUMEDAS 48UND.",
+    "precioUsd": 3.3,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn381u00dfs05llkg8l7zu.jpg"
+  },
+  {
+    "codigo": "7591221611258",
+    "nombre": "IBERIA ADOBO COMPLETO SAL CONDIMENTADA 40GRS.",
+    "precioUsd": 1.06,
+    "categoria": "Sal y Especias",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyhtv007ss05l2n7o5js4.jpg"
+  },
+  {
+    "codigo": "7591221611524",
+    "nombre": "IBERIA AJILLO MIX 30GRS.",
+    "precioUsd": 1.53,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyiwn007ts05ll663yrs2.jpg"
+  },
+  {
+    "codigo": "7591221610022",
+    "nombre": "IBERIA AJO PURO EN POLVO 30GRS.",
+    "precioUsd": 1.86,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmycuw007ms05lzgrz3gpi.jpg"
+  },
+  {
+    "codigo": "7591221610398",
+    "nombre": "IBERIA COLOR ONOTO MOLIDO 25GRS.",
+    "precioUsd": 1.11,
+    "categoria": "Sal y Especias",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmydom007ns05lw5qod4h6.jpg"
+  },
+  {
+    "codigo": "7591221610466",
+    "nombre": "IBERIA COMINO MOLIDO 20GRS.",
+    "precioUsd": 1.71,
+    "categoria": "Sal y Especias",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyein007os05lv94xlbjm.jpg"
+  },
+  {
+    "codigo": "7591221610558",
+    "nombre": "IBERIA CURRY EN POLVO 20GRS.",
+    "precioUsd": 1.79,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyfca007ps05liglrnfiw.jpg"
+  },
+  {
+    "codigo": "7591221301319",
+    "nombre": "IBERIA MEZCLA A BASE DE COLOR ONOTO 6GRS.",
+    "precioUsd": 0.69,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyb76007ks05l7c0ohkfa.jpg"
+  },
+  {
+    "codigo": "7591221610893",
+    "nombre": "IBERIA ONOTO ENTERO 20GRS.",
+    "precioUsd": 1.16,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyg69007qs05lb293ok51.jpg"
+  },
+  {
+    "codigo": "7591221611159",
+    "nombre": "IBERIA PIMIENTA NEGRA MOLIDA 20GRS.",
+    "precioUsd": 2.71,
+    "categoria": "Sal y Especias",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyh02007rs05lt48tujmv.jpg"
+  },
+  {
+    "codigo": "7591221271124",
+    "nombre": "IBERIA SALSA DE AJO 150CM3",
+    "precioUsd": 2.29,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy6cq007fs05llkh1azuo.jpg"
+  },
+  {
+    "codigo": "7591221281123",
+    "nombre": "IBERIA SALSA DE AJO 300CM3",
+    "precioUsd": 3.84,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyade007js05l75z5br4v.jpg"
+  },
+  {
+    "codigo": "7591221271117",
+    "nombre": "IBERIA SALSA DE SOYA 150CM3",
+    "precioUsd": 2.21,
+    "categoria": "Salsas y Aderezos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy5ie007es05lnitca5bo.jpg"
+  },
+  {
+    "codigo": "7591221271100",
+    "nombre": "IBERIA SALSA INGLESA 150CM3",
+    "precioUsd": 2.21,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy4o8007ds05ldcye185q.jpg"
+  },
+  {
+    "codigo": "7591221281109",
+    "nombre": "IBERIA SALSA INGLESA 300CM3",
+    "precioUsd": 4.3,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy8vc007is05lo67s63v8.jpg"
+  },
+  {
+    "codigo": "1000000000036",
+    "nombre": "INCIENSO COCONUT",
+    "precioUsd": 1.51,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qhbz0007gg3kj0a4u3f7.jpg"
+  },
+  {
+    "codigo": "1000000000037",
+    "nombre": "INCIENSO EUCALYPTUS",
+    "precioUsd": 1.51,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qi460008gg3kdk1qkuwn.jpg"
+  },
+  {
+    "codigo": "1000000000038",
+    "nombre": "INCIENSO MANDARINA",
+    "precioUsd": 1.51,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qiz70009gg3ke7onyubc.jpg"
+  },
+  {
+    "codigo": "1000000000039",
+    "nombre": "INCIENSO RED APPLE",
+    "precioUsd": 1.51,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qjri000agg3krnciun7p.jpg"
+  },
+  {
+    "codigo": "1000000000040",
+    "nombre": "INCIENSO ROSA",
+    "precioUsd": 1.51,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qkjx000bgg3kju2rdhd9.jpg"
+  },
+  {
+    "codigo": "1000000000041",
+    "nombre": "INCIENSO SANDAL NCINNAMON",
+    "precioUsd": 1.51,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qlce000cgg3k5i5iofuy.jpg"
+  },
+  {
+    "codigo": "1000000000042",
+    "nombre": "INCIENSO VAINILLA NARANJA",
+    "precioUsd": 1.51,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qm4w000dgg3k6j8gwayn.jpg"
+  },
+  {
+    "codigo": "75900441",
+    "nombre": "JABON EN PANELA LAS LLAVES 250GRS.",
+    "precioUsd": 1.53,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmrvaj0000s05lw73soxu0.jpg"
+  },
+  {
+    "codigo": "75923815",
+    "nombre": "JABON EN PANELA LAS LLAVES BEBE 160GRS.",
+    "precioUsd": 1.57,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms69n000ds05les6k2ak7.jpg"
+  },
+  {
+    "codigo": "1000000000007",
+    "nombre": "JAMON SUPERIOR DE PIERNA LPRADO X KILO",
+    "precioUsd": 11.31,
+    "categoria": "Carnes y Embutidos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsq050010s05l73kj278o.jpg"
+  },
+  {
+    "codigo": "7896041109016",
+    "nombre": "JAMONILLA CARNE DE ALMUERZO DE CERDO ODERICH 320GRS.",
+    "precioUsd": 3.07,
+    "categoria": "Carnes y Embutidos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3eoh00dns05lbyo90sn2.jpg"
+  },
+  {
+    "codigo": "7896041104011",
+    "nombre": "JAMONILLA CARNE DE ALMUERZO DE RES ODERICH 320GRS.",
+    "precioUsd": 2.91,
+    "categoria": "Carnes y Embutidos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3duo00dms05lgqc5cefb.jpg"
+  },
+  {
+    "codigo": "7592661002071",
+    "nombre": "JUSTY DURAZNO 1.5L",
+    "precioUsd": 1.37,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzr8l009as05loxldbbv4.jpg"
+  },
+  {
+    "codigo": "7592661000725",
+    "nombre": "JUSTY NARANJA 1.5L",
+    "precioUsd": 1.37,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzqex0099s05lqsbj9mv9.jpg"
+  },
+  {
+    "codigo": "7591357020627",
+    "nombre": "KONFIT AZUCAR 1 KILO",
+    "precioUsd": 2.23,
+    "categoria": "Azúcar y Endulzantes",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmynyq007zs05ln3rbkjos.jpg"
+  },
+  {
+    "codigo": "7702425801288",
+    "nombre": "KOTEX TOALLAS SANITARIAS DIURNA TELA 10UND.",
+    "precioUsd": 2.9,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2wdm00d1s05lht4ajiwj.jpg"
+  },
+  {
+    "codigo": "7702425152540",
+    "nombre": "KOTEX TOALLAS SANITARIAS DIURNA TELA 8UND.",
+    "precioUsd": 2.9,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2vjs00d0s05l985arfkd.jpg"
+  },
+  {
+    "codigo": "7622201512279",
+    "nombre": "KRAFT MAYONESA 175GRS.",
+    "precioUsd": 2.67,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn290b00c9s05ljg2aayxj.jpg"
+  },
+  {
+    "codigo": "7591114040042",
+    "nombre": "KRAFT MAYONESA 445GRS.",
+    "precioUsd": 5.39,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwevb005cs05lmiokhswo.jpg"
+  },
+  {
+    "codigo": "7591389007740",
+    "nombre": "KRON FRUTOS MIXTOS 40GRS. CUBIERTA CHOCOLATE",
+    "precioUsd": 0.91,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyrae0083s05lb7vb7efd.jpg"
+  },
+  {
+    "codigo": "7591389007726",
+    "nombre": "KRON MANI 40GRS. CUBIERTA CHOCOLATE",
+    "precioUsd": 0.91,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyqgi0082s05l2il0wkux.jpg"
+  },
+  {
+    "codigo": "7591389001625",
+    "nombre": "KRON TRONKOLATE 30GRS.",
+    "precioUsd": 1.01,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmypmm0081s05llt7hjkkl.jpg"
+  },
+  {
+    "codigo": "7599812000306",
+    "nombre": "LA PAMPA CHOCO CRUNCH 250GRS.",
+    "precioUsd": 1.44,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1zt300bys05li6keu2nh.jpg"
+  },
+  {
+    "codigo": "7973593350896",
+    "nombre": "LA PAMPA GALLETA COCO CRUNCH 250GRS.",
+    "precioUsd": 1.93,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3iwx00dss05lq0a3ue1f.jpg"
+  },
+  {
+    "codigo": "7973593691210",
+    "nombre": "LA PAMPA GALLETA COOKIES 250GRS.",
+    "precioUsd": 1.44,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3jqj00dts05l8xf4qib9.jpg"
+  },
+  {
+    "codigo": "7599975000014",
+    "nombre": "LA PAMPA HARINA DE TRIGO LEUDANTE 500GRS.",
+    "precioUsd": 0.91,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn20mv00bzs05lty2jf7h7.jpg"
+  },
+  {
+    "codigo": "7591201353201",
+    "nombre": "LA PAMPA HARINA DE TRIGO TODO USO 1KILO.",
+    "precioUsd": 1.39,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxm1b006rs05lcmjw4jlx.jpg"
+  },
+  {
+    "codigo": "7599975000021",
+    "nombre": "LA PAMPA HARINA DE TRIGO TODO USO 500GRS.",
+    "precioUsd": 0.81,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn21gs00c0s05l1sfwdloc.jpg"
+  },
+  {
+    "codigo": "7702010972287",
+    "nombre": "LADY SPEED STICK DESODORANTE CREMA 30GRS.",
+    "precioUsd": 2.03,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2j0y00cls05l0ecdkmc1.jpg"
+  },
+  {
+    "codigo": "7590006301582",
+    "nombre": "LAS LLAVES DETERGENTE CITRICO 400GRS.",
+    "precioUsd": 1.47,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuhxc0033s05l9zkc5fql.jpg"
+  },
+  {
+    "codigo": "7590006301575",
+    "nombre": "LAS LLAVES DETERGENTE CITRICO 900GRS.",
+    "precioUsd": 3.16,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuh310032s05l752vewl8.jpg"
+  },
+  {
+    "codigo": "7590006301605",
+    "nombre": "LAS LLAVES DETERGENTE FLORAL 400GRS.",
+    "precioUsd": 1.47,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmujlv0035s05lkz7efm95.jpg"
+  },
+  {
+    "codigo": "7590006301599",
+    "nombre": "LAS LLAVES DETERGENTE FLORAL 900GRS.",
+    "precioUsd": 3.16,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuirk0034s05lgb8782fy.jpg"
+  },
+  {
+    "codigo": "6930302103786",
+    "nombre": "LAS NIEVES DETERGENTE FLORAL 1KGS.",
+    "precioUsd": 3.37,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtja7001ys05llv0vyj0l.jpg"
+  },
+  {
+    "codigo": "6940302103860",
+    "nombre": "LAS NIEVES DETERGENTE FLORAL 500GRS.",
+    "precioUsd": 1.71,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtp680025s05l5xmj8omf.jpg"
+  },
+  {
+    "codigo": "6930302103762",
+    "nombre": "LAS NIEVES DETERGENTE LAVANDA 1KGS.",
+    "precioUsd": 3.37,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmthlr001ws05lfcxd5k48.jpg"
+  },
+  {
+    "codigo": "6940302103846",
+    "nombre": "LAS NIEVES DETERGENTE LAVANDA 500GRS.",
+    "precioUsd": 1.71,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtnhn0023s05lsnlkfja5.jpg"
+  },
+  {
+    "codigo": "6930302103779",
+    "nombre": "LAS NIEVES DETERGENTE LIMON 1KGS.",
+    "precioUsd": 3.37,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtifx001xs05ldh4n4l6b.jpg"
+  },
+  {
+    "codigo": "6940302103853",
+    "nombre": "LAS NIEVES DETERGENTE LIMON 500GRS.",
+    "precioUsd": 1.71,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtoc10024s05l28eppch0.jpg"
+  },
+  {
+    "codigo": "7593357000883",
+    "nombre": "LAVAPLATOS LIQUIDO KRIS 375CC.",
+    "precioUsd": 2.39,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn068s009ss05l66ia2mfd.jpg"
+  },
+  {
+    "codigo": "7593403002670",
+    "nombre": "LOS ANDES LECHE EN POLVO COMPLETA 200GRS.",
+    "precioUsd": 4.37,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn07wi009us05lux04hlqw.jpg"
+  },
+  {
+    "codigo": "7593403004148",
+    "nombre": "LOS ANDES LECHE EN POLVO COMPLETA 400GRS.",
+    "precioUsd": 8.25,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn08t9009vs05ldax45cdd.jpg"
+  },
+  {
+    "codigo": "7591084901633",
+    "nombre": "LUCKY STRIKE CIGARRO COSMIC CAJA 20UND.",
+    "precioUsd": 4.17,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvv4x004ps05ltbgcxlau.jpg"
+  },
+  {
+    "codigo": "7591084901626",
+    "nombre": "LUCKY STRIKE CIGARRO NOVA CAJA 20UND.",
+    "precioUsd": 4.17,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvuay004os05l404holkr.jpg"
+  },
+  {
+    "codigo": "17591084901633",
+    "nombre": "LUCKY STRIKE COSMIC CIGARRO DETALLADO X UND.",
+    "precioUsd": 0.23,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3s5l00e3s05lazhji7vn.jpg"
+  },
+  {
+    "codigo": "17591084901626",
+    "nombre": "LUCKY STRIKE NOVA CIGARRO DETALLADO X UND.",
+    "precioUsd": 0.23,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3rbt00e2s05l95uvl8k3.jpg"
+  },
+  {
+    "codigo": "7702006208246",
+    "nombre": "LUX BOTANICALS JABON JAZMIN 110GRS.",
+    "precioUsd": 1.76,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2dyv00cfs05l93t2nj3h.jpg"
+  },
+  {
+    "codigo": "7702006208222",
+    "nombre": "LUX BOTANICALS JABON ROSAS FRANCESAS 110GRS.",
+    "precioUsd": 1.76,
+    "categoria": "Aseo Personal",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2d5900ces05ljg7xj3qa.jpg"
+  },
+  {
+    "codigo": "7591016204894",
+    "nombre": "MAGGI SOPA DE POLLO CON FIDEOS 62GRS.",
+    "precioUsd": 1.78,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuxda003ls05liq10345r.jpg"
+  },
+  {
+    "codigo": "7591039657110",
+    "nombre": "MAIZINA AMERICANA 200GRS.",
+    "precioUsd": 1.91,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvcjy0043s05lcze7kso3.jpg"
+  },
+  {
+    "codigo": "7591039601526",
+    "nombre": "MAIZINA AMERICANA 90GRS",
+    "precioUsd": 1.37,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvbpv0042s05l5vsi58pe.jpg"
+  },
+  {
+    "codigo": "7591039100050",
+    "nombre": "MAIZORITO CRONCH FLAKES 300GRS.",
+    "precioUsd": 4.57,
+    "categoria": "Cereales y Granos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv5vk003vs05l067da9u7.jpg"
+  },
+  {
+    "codigo": "7591039105208",
+    "nombre": "MAIZORITO CRONCH FLAKES 500GRS.",
+    "precioUsd": 6.73,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv6pg003ws05lbaildwzm.jpg"
+  },
+  {
+    "codigo": "7591039535012",
+    "nombre": "MAIZORITO FRUTY AROS 240GRS.",
+    "precioUsd": 5,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvavl0041s05lbeetmkyn.jpg"
+  },
+  {
+    "codigo": "7591039725802",
+    "nombre": "MAIZORITO POP CRONCH 240GRS.",
+    "precioUsd": 5,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmve8a0045s05larufzk57.jpg"
+  },
+  {
+    "codigo": "7591039725789",
+    "nombre": "MAIZORITOS CHOCO SAFARI 240GRS.",
+    "precioUsd": 3.83,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvde50044s05lqcl2nvrb.jpg"
+  },
+  {
+    "codigo": "7591039997810",
+    "nombre": "MAIZORITOS POP CRONCH CHOCOLATE 240GRS.",
+    "precioUsd": 3.83,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvgty0048s05lbuy9lqpy.jpg"
+  },
+  {
+    "codigo": "7591446000660",
+    "nombre": "MALTIN POLAR 222ML. BOTELLA",
+    "precioUsd": 0.74,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmys480084s05lg8bvrg7v.jpg"
+  },
+  {
+    "codigo": "7591446002947",
+    "nombre": "MALTIN POLAR PEP 1.5LTS.",
+    "precioUsd": 2.34,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmytry0086s05l65kj9cv1.jpg"
+  },
+  {
+    "codigo": "1000000000008",
+    "nombre": "MANI SALADO BOLSITA",
+    "precioUsd": 1.45,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsqum0011s05lmntvecbh.jpg"
+  },
+  {
+    "codigo": "1000000000009",
+    "nombre": "MANI SURTIDO BOLSITA",
+    "precioUsd": 1.26,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsrou0012s05l0mi1s0lc.jpg"
+  },
+  {
+    "codigo": "7591002700201",
+    "nombre": "MARGARITA SARDINA EN SALSA DE TOMATE 170GRS.",
+    "precioUsd": 1.64,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuuuk003is05lqjqdoqq2.jpg"
+  },
+  {
+    "codigo": "760203000060",
+    "nombre": "MARSHWALLOWS MULTICOLOR 100GRS.",
+    "precioUsd": 1.94,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsix5000ss05lqxlgi9vw.jpg"
+  },
+  {
+    "codigo": "7591473005492",
+    "nombre": "MARY ARROZ DORADO 800GRS.",
+    "precioUsd": 1.6,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz0ic008es05lgwa8zsd4.jpg"
+  },
+  {
+    "codigo": "7591473005249",
+    "nombre": "MARY ARROZ PREMIUM 900GRS.",
+    "precioUsd": 1.47,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyy0n008bs05l76zscmlh.jpg"
+  },
+  {
+    "codigo": "7591473005355",
+    "nombre": "MARY ARROZ SUPERIOR 900GRS.",
+    "precioUsd": 1.2,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyyui008cs05lg4vyqexg.jpg"
+  },
+  {
+    "codigo": "7591473005362",
+    "nombre": "MARY ARROZ TRADICIONAL 900GRS.",
+    "precioUsd": 1.14,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0qqq001bvx182dbk6xet.jpg"
+  },
+  {
+    "codigo": "7591473005041",
+    "nombre": "MARY ARVEJAS VERDE PARTIDAS 400GRS.",
+    "precioUsd": 1.86,
+    "categoria": "Cereales y Granos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyx3t008as05lfrri52o6.jpg"
+  },
+  {
+    "codigo": "7591473005003",
+    "nombre": "MARY CARAOTAS NEGRAS 400GRS.",
+    "precioUsd": 1.36,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyvg10088s05l1rleusry.jpg"
+  },
+  {
+    "codigo": "7591473005393",
+    "nombre": "MARY HARINA DE MAIZ BLANCO 900GRS.",
+    "precioUsd": 1.31,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyzoc008ds05lyv6jhsq1.jpg"
+  },
+  {
+    "codigo": "7597417000707",
+    "nombre": "MARY HARINA DE TRIGO LEUDANTE 900GRS.",
+    "precioUsd": 1.79,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn140f00aws05lrrv5fu2s.jpg"
+  },
+  {
+    "codigo": "7597417000691",
+    "nombre": "MARY HARINA DE TRIGO TODO USO 900GRS.",
+    "precioUsd": 1.19,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn12rn00avs05lzyjyftxo.jpg"
+  },
+  {
+    "codigo": "7591473005034",
+    "nombre": "MARY LENTEJAS 400GRS",
+    "precioUsd": 2.14,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyw9w0089s05lg8n6wtri.jpg"
+  },
+  {
+    "codigo": "7591473004976",
+    "nombre": "MARY MAIZ PARA COTUFAS 400GRS.",
+    "precioUsd": 1.66,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0rg2001cvx18mz41i6d5.jpg"
+  },
+  {
+    "codigo": "7597417000394",
+    "nombre": "MARY PASTA CORTA DEDAL PREMIUM 500GRS.",
+    "precioUsd": 1.63,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn11wz00aus05ly5ru3psx.jpg"
+  },
+  {
+    "codigo": "7597417000387",
+    "nombre": "MARY PASTA CORTA MACARRON PREMIUM 500GRS.",
+    "precioUsd": 1.63,
+    "categoria": "Pastas",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn112w00ats05lj2dj5qs0.jpg"
+  },
+  {
+    "codigo": "7597417000110",
+    "nombre": "MARY PASTA CORTA PLUMA PREMIUM 500GRS.",
+    "precioUsd": 1.63,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0zfr00ars05l1y10xesj.jpg"
+  },
+  {
+    "codigo": "7597417000127",
+    "nombre": "MARY PASTA CORTA TORNILLO PREMIUM 500GRS.",
+    "precioUsd": 1.63,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn109f00ass05ls54sksa9.jpg"
+  },
+  {
+    "codigo": "7597417000653",
+    "nombre": "MARY PASTA LARGA VERMICELLI TRADICIONAL 1KILO",
+    "precioUsd": 2.16,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q05iq000hvx18uzpti8sl.jpg"
+  },
+  {
+    "codigo": "7597417000769",
+    "nombre": "MARY PASTA LARGA VERMICELLI TRADICIONAL 500GRS.",
+    "precioUsd": 1.11,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0680000ivx18jsc9o813.jpg"
+  },
+  {
+    "codigo": "7591473003290",
+    "nombre": "MARY TOMATE PELADO AL NATURAL 400GRS.",
+    "precioUsd": 4.37,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q06xb000jvx18f06k7xq4.jpg"
+  },
+  {
+    "codigo": "7591153000243",
+    "nombre": "MAS CERA NATURAL 1000CM3",
+    "precioUsd": 9.21,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx7o3006as05laffdaet2.jpg"
+  },
+  {
+    "codigo": "75930868",
+    "nombre": "MAVESA MARGARINA 250GRS.",
+    "precioUsd": 2.14,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms7y6000fs05ly41v9edl.jpg"
+  },
+  {
+    "codigo": "7590006200137",
+    "nombre": "MAVESA MARGARINA 500GRS.",
+    "precioUsd": 3.84,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuehx002zs05ld6klqy8t.jpg"
+  },
+  {
+    "codigo": "75971403",
+    "nombre": "MAVESA MAYONESA 175GRS.",
+    "precioUsd": 2.5,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms8sb000gs05lia7ix726.jpg"
+  },
+  {
+    "codigo": "719503030123",
+    "nombre": "MAVESA MAYONESA 445GRS.",
+    "precioUsd": 4.97,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsgbf000ps05l5f5atxvc.jpg"
+  },
+  {
+    "codigo": "7597414100271",
+    "nombre": "MAX HOGAR ESPONJA SALVA UÑAS UND.",
+    "precioUsd": 1.54,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0ymc00aqs05lsgk2rmod.jpg"
+  },
+  {
+    "codigo": "7591141420206",
+    "nombre": "MCCONMICK TE FLORES DE MANZANILLA 10 SOBRES",
+    "precioUsd": 3.71,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx0vb0062s05lcpw5x447.jpg"
+  },
+  {
+    "codigo": "7591141990532",
+    "nombre": "MCCORMICK BBQ HICKORY 230ML.",
+    "precioUsd": 4.23,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx3gt0065s05l7fio07x0.jpg"
+  },
+  {
+    "codigo": "7591141102010",
+    "nombre": "MCCORMICK BBQ HONEY MUSTARD 230ML.",
+    "precioUsd": 4.17,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx0100061s05lys3on4yd.jpg"
+  },
+  {
+    "codigo": "7591141707314",
+    "nombre": "MCCORMICK SALSA INGLESA CON VINO BLANCO 150ML.",
+    "precioUsd": 2.43,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx2jq0064s05lj53vw233.jpg"
+  },
+  {
+    "codigo": "7591141420701",
+    "nombre": "MCCORMICK TE DE TILO 10 SOBRES.",
+    "precioUsd": 2.86,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx1pj0063s05lcrhx1t8y.jpg"
+  },
+  {
+    "codigo": "7591141997821",
+    "nombre": "MCCORMICK TE DULCES SUEÑOS 10 SOBRES.",
+    "precioUsd": 3.46,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx4ay0066s05l4unbgjb8.jpg"
+  },
+  {
+    "codigo": "7591141997876",
+    "nombre": "MCCORMICK TE FRUTOS DEL BOSQUE 10 SOBRES.",
+    "precioUsd": 2.86,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx6tw0069s05lqajfwado.jpg"
+  },
+  {
+    "codigo": "7591141997838",
+    "nombre": "MCCORMICK TE FRUTOS ROJOS 10 SOBRES",
+    "precioUsd": 2.86,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx55b0067s05l7a7ncm7h.jpg"
+  },
+  {
+    "codigo": "7591141997852",
+    "nombre": "MCCORMICK TE RELAX 10 SOBRES.",
+    "precioUsd": 3.34,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmx5zu0068s05lh1tnpt4d.jpg"
+  },
+  {
+    "codigo": "1000000000010",
+    "nombre": "MIEL DE AVEJA",
+    "precioUsd": 2.33,
+    "categoria": "Azúcar y Endulzantes",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmssj20013s05lapjrz3sf.jpg"
+  },
+  {
+    "codigo": "NEW-1000000000010",
+    "nombre": "MIEL DE AVEJA 150GRS.",
+    "precioUsd": 2.33,
+    "categoria": "Azúcar y Endulzantes",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q07mm000kvx18o78z6p5y.jpg"
+  },
+  {
+    "codigo": "7599998803460",
+    "nombre": "MINI PAVITO RELLENO CHOCOLATE 8 UND.",
+    "precioUsd": 0.43,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn286l00c8s05lu8bmm10t.jpg"
+  },
+  {
+    "codigo": "7592707750423",
+    "nombre": "MISTOLIN AROMATERAPIA  NARANJA 828ML.",
+    "precioUsd": 3.9,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmztqb009ds05lvwhqvu79.jpg"
+  },
+  {
+    "codigo": "7592707315103",
+    "nombre": "MISTOLIN FRESCURA FRUTAL 828ML.",
+    "precioUsd": 3.9,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzswg009cs05lum4vic4j.jpg"
+  },
+  {
+    "codigo": "7592707304107",
+    "nombre": "MISTOLIN LAVANDA 828ML.",
+    "precioUsd": 3.9,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzs2d009bs05lvpcacjvl.jpg"
+  },
+  {
+    "codigo": "7591357510371",
+    "nombre": "MONTALBAN AZUCAR 0 CALORIAS 10 SOBRES.",
+    "precioUsd": 8,
+    "categoria": "Azúcar y Endulzantes",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyosn0080s05leyvdfuuk.jpg"
+  },
+  {
+    "codigo": "7709669109477",
+    "nombre": "MUNCHY BOKAS MIX BOLSA 180GRS.",
+    "precioUsd": 5.74,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn31c800d7s05l16xhnx7j.jpg"
+  },
+  {
+    "codigo": "7592708000336",
+    "nombre": "MUNCHY BOLI KRUNCH 25GRS.",
+    "precioUsd": 0.66,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzx4m009hs05lmehpn9dp.jpg"
+  },
+  {
+    "codigo": "7592708000114",
+    "nombre": "MUNCHY CHICHARRON SON PICANTE 62GRS.",
+    "precioUsd": 2.91,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzuk8009es05ltzoq0pym.jpg"
+  },
+  {
+    "codigo": "7592708000367",
+    "nombre": "MUNCHY CHISKESITOS 145GRS.",
+    "precioUsd": 2.24,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzysb009js05lo09r038u.jpg"
+  },
+  {
+    "codigo": "7592708000350",
+    "nombre": "MUNCHY CHISKESITOS 45GRS.",
+    "precioUsd": 0.96,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzxyd009is05lyudqq12e.jpg"
+  },
+  {
+    "codigo": "7592708000428",
+    "nombre": "MUNCHY KESITOS 25GRS.",
+    "precioUsd": 0.67,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn00fo009ls05lkua996w2.jpg"
+  },
+  {
+    "codigo": "7592708000121",
+    "nombre": "MUNCHY KESITOS 85GRS.",
+    "precioUsd": 1.57,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzve3009fs05lizflzqhr.jpg"
+  },
+  {
+    "codigo": "7592708001173",
+    "nombre": "MUNCHY MUN CHYPS TOSTON ORIGINAL 40GRS.",
+    "precioUsd": 1.41,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn019h009ms05l3bq8jlir.jpg"
+  },
+  {
+    "codigo": "7709203743174",
+    "nombre": "MUNCHY PAPAS PUNCH CEBOLLA Y PEREJIL 25GRS.",
+    "precioUsd": 1.09,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn30ii00d6s05lnsiiqraw.jpg"
+  },
+  {
+    "codigo": "7709203743112",
+    "nombre": "MUNCHY PAPAS PUNCH CEBOLLA Y PEREJIL 80GRS.",
+    "precioUsd": 2.83,
+    "categoria": "Snacks Salados",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2zon00d5s05lqvuo59z2.jpg"
+  },
+  {
+    "codigo": "7708902965931",
+    "nombre": "MUNCHY PAPAS PUNCH CON SAL 25GRS.",
+    "precioUsd": 1.09,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2x7900d2s05lx231m4ci.jpg"
+  },
+  {
+    "codigo": "7708902965955",
+    "nombre": "MUNCHY PAPAS PUNCH CON SAL 80GRS.",
+    "precioUsd": 2.83,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2y1a00d3s05lbnkoutd8.jpg"
+  },
+  {
+    "codigo": "7709192950584",
+    "nombre": "MUNCHY PAPAS PUNCH ON CON SAL 150GRS.",
+    "precioUsd": 4.46,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2yuy00d4s05lojrsldpr.jpg"
+  },
+  {
+    "codigo": "PROD-1785680093766",
+    "nombre": "MUNCHY SNACHOS 145g",
+    "precioUsd": 3.29,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": null
+  },
+  {
+    "codigo": "7592708002262",
+    "nombre": "MUNCHY SNACHOS 42GRS.",
+    "precioUsd": 1.09,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn023a009ns05l6000i1o2.jpg"
+  },
+  {
+    "codigo": "7592708000138",
+    "nombre": "MUNCHY TOCINETIKAS ORIGINAL 40GRS.",
+    "precioUsd": 1.4,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzw7v009gs05l6780t2ij.jpg"
+  },
+  {
+    "codigo": "7592708000411",
+    "nombre": "MUNCHY TOCINETIKAS PICANTES 40GRS.",
+    "precioUsd": 1.4,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzzm0009ks05lo1nx4owz.jpg"
+  },
+  {
+    "codigo": "1000000000043",
+    "nombre": "MUSLO DE POLLO X KILO",
+    "precioUsd": 5.5,
+    "categoria": "Carnes y Embutidos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qmx7000egg3k2sa1dge2.jpg"
+  },
+  {
+    "codigo": "7592396006252",
+    "nombre": "NATULAC LECHE CONDENSADA 45GRS.",
+    "precioUsd": 1.14,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzn330095s05lalznzwtm.jpg"
+  },
+  {
+    "codigo": "7592152300624",
+    "nombre": "NELLA AJINOMOTO 25GRS.",
+    "precioUsd": 0.83,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzi04008zs05l85xfk52h.jpg"
+  },
+  {
+    "codigo": "7592152300891",
+    "nombre": "NELLA ALBAHACA ENTERO 5GRS.",
+    "precioUsd": 0.57,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmziu70090s05lctki7ne5.jpg"
+  },
+  {
+    "codigo": "7592152300235",
+    "nombre": "NELLA ANIS DULCE ENTERO 5GRS.",
+    "precioUsd": 0.6,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzajf008qs05l2p1tiehz.jpg"
+  },
+  {
+    "codigo": "7592152300280",
+    "nombre": "NELLA CACAO MOLIDO 50GRS.",
+    "precioUsd": 2.11,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzd18008ts05lp4sdbbo0.jpg"
+  },
+  {
+    "codigo": "7592152300266",
+    "nombre": "NELLA CANELA ENTERA 30GRS.",
+    "precioUsd": 1.66,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzbdi008rs05lb3avcfh5.jpg"
+  },
+  {
+    "codigo": "7592152300273",
+    "nombre": "NELLA CANELA MOLIDA 15GRS.",
+    "precioUsd": 1.11,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzc7a008ss05ly9m8pxeq.jpg"
+  },
+  {
+    "codigo": "7592152300990",
+    "nombre": "NELLA CEBOLLA MOLIDA 25GGRS.",
+    "precioUsd": 1.13,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzleu0093s05ld06jwk1p.jpg"
+  },
+  {
+    "codigo": "7592152300211",
+    "nombre": "NELLA CLAVOS ENTEROS 10GRS.",
+    "precioUsd": 1.19,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz9pp008ps05l70ey68gf.jpg"
+  },
+  {
+    "codigo": "7592152300426",
+    "nombre": "NELLA CURCUMA MOLIDA 15GRS.",
+    "precioUsd": 0.71,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzeov008vs05lyhu54qgv.jpg"
+  },
+  {
+    "codigo": "7592152300167",
+    "nombre": "NELLA FLOR DE JAMAICA 20GRS.",
+    "precioUsd": 1.34,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz7z4008ns05l626hmbwh.jpg"
+  },
+  {
+    "codigo": "7592152300600",
+    "nombre": "NELLA GUAYABITA 15GRS.",
+    "precioUsd": 1.34,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzh69008ys05l68aixt0g.jpg"
+  },
+  {
+    "codigo": "7592152300464",
+    "nombre": "NELLA LAUREL ENTERO 5GRS.",
+    "precioUsd": 0.6,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzfin008ws05l6j4f1sjp.jpg"
+  },
+  {
+    "codigo": "7592152300198",
+    "nombre": "NELLA LEVADURA 25GRS.",
+    "precioUsd": 1,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz8sv008os05lmzbtkp43.jpg"
+  },
+  {
+    "codigo": "7592152300952",
+    "nombre": "NELLA LINAZA ENTERA 44GRS.",
+    "precioUsd": 0.84,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzki10092s05lnzz742sc.jpg"
+  },
+  {
+    "codigo": "7592152300938",
+    "nombre": "NELLA NUEZ MOSCADA ENTERA 11GRS.",
+    "precioUsd": 1.39,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzjo10091s05ljws8i6tm.jpg"
+  },
+  {
+    "codigo": "7592152309993",
+    "nombre": "NELLA NUEZ MOSCADA MOLIDA 11GRS.",
+    "precioUsd": 1.73,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzm950094s05le61m5ab9.jpg"
+  },
+  {
+    "codigo": "7592152300136",
+    "nombre": "NELLA OREGANO ENTERO 5GRS.",
+    "precioUsd": 0.5,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz755008ms05l4mskf3x8.jpg"
+  },
+  {
+    "codigo": "7592152300419",
+    "nombre": "NELLA PAPRIKA 20GRS.",
+    "precioUsd": 1.17,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzdv2008us05li3zsh0xg.jpg"
+  },
+  {
+    "codigo": "7592152300532",
+    "nombre": "NELLA POLVO DE HORNEAR 25GRS.",
+    "precioUsd": 0.86,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzgcg008xs05ll42h18fm.jpg"
+  },
+  {
+    "codigo": "7590006200540",
+    "nombre": "NELLY MARGARINA 500GRS.",
+    "precioUsd": 3.23,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmufbp0030s05luvi2pkfh.jpg"
+  },
+  {
+    "codigo": "7591016003671",
+    "nombre": "NESTEA DURAZNO 90GRS.",
+    "precioUsd": 2.15,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q08bx000lvx18wan56ugn.jpg"
+  },
+  {
+    "codigo": "7591016005965",
+    "nombre": "NESTEA LIMON 90GRS.",
+    "precioUsd": 2.15,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q091b000mvx18r9okrxkd.jpg"
+  },
+  {
+    "codigo": "7591016014554",
+    "nombre": "NESTEA PARCHITA 90GRS.",
+    "precioUsd": 2.15,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q09qp000nvx18zhys1la0.jpg"
+  },
+  {
+    "codigo": "7597963000268",
+    "nombre": "NEWPESCA SARDINA EN ACEITE 170GRS.",
+    "precioUsd": 1.21,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0afw000ovx18x0fcvesw.jpg"
+  },
+  {
+    "codigo": "7597963000275",
+    "nombre": "NEWPESCA SARDINA EN SALSA DE TOMATE 170GRS.",
+    "precioUsd": 1.21,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0s84001dvx18vrw711ws.jpg"
+  },
+  {
+    "codigo": "6940013909706",
+    "nombre": "NIEVES LAVAPLATOS EN CREMA MANZANA 250GRS.",
+    "precioUsd": 2.06,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtmnc0022s05l9sdakgpy.jpg"
+  },
+  {
+    "codigo": "6940013909690",
+    "nombre": "NIEVES LAVAPLATOS EN CREMA NARANJA 250GRS.",
+    "precioUsd": 2.06,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtlt10021s05l13x2frni.jpg"
+  },
+  {
+    "codigo": "7591248340315",
+    "nombre": "NUBES TOALLAS SANITARIAS DIURNA TELA 10UND.",
+    "precioUsd": 1.8,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyled007ws05ltxnigwnr.jpg"
+  },
+  {
+    "codigo": "7702354956363",
+    "nombre": "NUTRIBELA ACONDICIONADOR PRO HIALURONICO 18ML",
+    "precioUsd": 0.59,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2syt00cxs05lb0owfdsu.jpg"
+  },
+  {
+    "codigo": "7702354956332",
+    "nombre": "NUTRIBELA ACONDICIONADOR REPARACION INTENSIVA 18ML",
+    "precioUsd": 0.59,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2s4v00cws05lfdmgektp.jpg"
+  },
+  {
+    "codigo": "7702354956325",
+    "nombre": "NUTRIBELA SHAMPOO PRO HIALURONICO 18ML",
+    "precioUsd": 0.59,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2rb100cvs05la68l32ns.jpg"
+  },
+  {
+    "codigo": "7702354956295",
+    "nombre": "NUTRIBELA SHAMPOO REPARACION INTENSIVA 18ML",
+    "precioUsd": 0.59,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2qh800cus05ldefw0x2t.jpg"
+  },
+  {
+    "codigo": "7702354957247",
+    "nombre": "NUTRIBELA TRATAMIENTO CELULAS MADRE 27ML",
+    "precioUsd": 0.91,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2tst00cys05lvcu8a8pi.jpg"
+  },
+  {
+    "codigo": "7702354951740",
+    "nombre": "NUTRIBELA TRATAMIENTO CELULAS MADRES 180ML POTE",
+    "precioUsd": 5.29,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2pnn00cts05ll1uvgrae.jpg"
+  },
+  {
+    "codigo": "7702354949624",
+    "nombre": "NUTRIBELA TRATAMIENTO ENZIMOTERAPIA 27ML",
+    "precioUsd": 0.91,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2nzz00crs05l8ooc17g0.jpg"
+  },
+  {
+    "codigo": "7702354942212",
+    "nombre": "NUTRIBELA TRATAMIENTO NUTRICION 27ML",
+    "precioUsd": 0.91,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2jup00cms05lgm91e7kh.jpg"
+  },
+  {
+    "codigo": "7702354957254",
+    "nombre": "NUTRIBELA TRATAMIENTO PRO HIALURONICO 27ML",
+    "precioUsd": 0.91,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2upp00czs05lzsb94aeh.jpg"
+  },
+  {
+    "codigo": "7702354948436",
+    "nombre": "NUTRIBELA TRATAMIENTO REPARACION INTENSA 27ML",
+    "precioUsd": 0.91,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2mc300cps05l6ithd86a.jpg"
+  },
+  {
+    "codigo": "7702354948443",
+    "nombre": "NUTRIBELA TRATAMIENTO REPARACION INTENSIVA 180ML POTE",
+    "precioUsd": 5.29,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2n6600cqs05ltwkvs1pl.jpg"
+  },
+  {
+    "codigo": "7702354946081",
+    "nombre": "NUTRIBELA TRATAMIENTO TERMOPROTECCION 180ML POTE",
+    "precioUsd": 5.29,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2lie00cos05l0bvv8txe.jpg"
+  },
+  {
+    "codigo": "7702354945404",
+    "nombre": "NUTRIBELA TRATAMIENTO TERMOPROTECCION 27ML",
+    "precioUsd": 0.91,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2kol00cns05lfchh6hrt.jpg"
+  },
+  {
+    "codigo": "7591221275153",
+    "nombre": "OLYMPIA CHIRELITO SALSA DE AJI PICANTE 150CM3.",
+    "precioUsd": 2.21,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy76u007gs05lpa0absfe.jpg"
+  },
+  {
+    "codigo": "7591221391846",
+    "nombre": "OLYMPIA HOJAS DE TORONJIL 12GRS.",
+    "precioUsd": 3.64,
+    "categoria": "Café y Té",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyc0y007ls05lpfufum8h.jpg"
+  },
+  {
+    "codigo": "7591221205464",
+    "nombre": "OLYMPIA SALSA AJO DE 300CM3.",
+    "precioUsd": 4.09,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy3u1007cs05lg9i1idwc.jpg"
+  },
+  {
+    "codigo": "7591221275207",
+    "nombre": "OLYMPIA SALSA DE AJO 150CM3.",
+    "precioUsd": 2.21,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy816007hs05lye83l1dh.jpg"
+  },
+  {
+    "codigo": "7591221120514",
+    "nombre": "OLYMPIA SALSA INGLESA 300CM3.",
+    "precioUsd": 4.09,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy2zv007bs05lnxfxgkfw.jpg"
+  },
+  {
+    "codigo": "7622202213656",
+    "nombre": "OREO GALLETA AMERICANO TUBO 96GRS. NABISCO",
+    "precioUsd": 1.77,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0sxk001evx182074sptc.jpg"
+  },
+  {
+    "codigo": "7622202213670",
+    "nombre": "OREO GALLETA CHOCOLATE 6S 192GRS.NABISCO",
+    "precioUsd": 3.36,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2ao300cbs05lhrl2bztw.jpg"
+  },
+  {
+    "codigo": "7622202213595",
+    "nombre": "OREO GALLETA CHOCOLATE TUBO 96GRS. NABISCO",
+    "precioUsd": 1.77,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn29ua00cas05louagj9ms.jpg"
+  },
+  {
+    "codigo": "7622202213700",
+    "nombre": "OREO GALLETA VAINILLA 6S 192GRS. NABISCO",
+    "precioUsd": 3.36,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0tn3001fvx18m7ixzak8.jpg"
+  },
+  {
+    "codigo": "7622202213618",
+    "nombre": "OREO GALLETA VAINILLA TUBO 96GRS. NABISCO",
+    "precioUsd": 1.77,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0ucj001gvx18ajiilluz.jpg"
+  },
+  {
+    "codigo": "7599158000442",
+    "nombre": "OSO BLANCO CLORO BIO MAX 600ML.",
+    "precioUsd": 1.31,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1ktq00bgs05lgnfvgayh.jpg"
+  },
+  {
+    "codigo": "6924060310135",
+    "nombre": "OSO BLANCO JABON EN PANELA FRAGANCIA BEBE 200GRS.",
+    "precioUsd": 1.43,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtf02001ts05ledwlie6e.jpg"
+  },
+  {
+    "codigo": "7599158000022",
+    "nombre": "OSO BLANCO LAVAPLATO LIQUIDO LIMON 450ML.",
+    "precioUsd": 1.61,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1hf200bcs05lz1zo22w4.jpg"
+  },
+  {
+    "codigo": "7599158000336",
+    "nombre": "OSO BLANCO LAVAPLATO LIQUIDO NARANJA 450ML.",
+    "precioUsd": 1.61,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1k0100bfs05ltjx718yi.jpg"
+  },
+  {
+    "codigo": "7599158000183",
+    "nombre": "OSO BLANCO LAVAPLATOS LIQUIDO LIMON 200ML.",
+    "precioUsd": 0.96,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1i8c00bds05lr8v8ko7k.jpg"
+  },
+  {
+    "codigo": "7599158000190",
+    "nombre": "OSO BLANCO LAVAPLATOS LIQUIDO LIMON 400ML.",
+    "precioUsd": 1.87,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1j3300bes05l177qu8d3.jpg"
+  },
+  {
+    "codigo": "7595826004453",
+    "nombre": "OSOLE CEREZAS EN ALMIBAR 190GRS.",
+    "precioUsd": 5.17,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0m4300abs05l1y6c4eks.jpg"
+  },
+  {
+    "codigo": "7595826007690",
+    "nombre": "OSOLE MAIZ Y GUISANTES 280GRS.",
+    "precioUsd": 1.9,
+    "categoria": "Enlatados y Conservas",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0q9j00ags05lzwqtg01b.jpg"
+  },
+  {
+    "codigo": "7595826004132",
+    "nombre": "OSOLE PRACTICO Y RENDIDOR EXTRACTO DE TOMATE 300GRS.",
+    "precioUsd": 1.64,
+    "categoria": "Salsas y Aderezos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0la800aas05lsyba5gig.jpg"
+  },
+  {
+    "codigo": "7595826008253",
+    "nombre": "OSOLE SALSA PARA PASTAS ACEITUNAS 200GRS.",
+    "precioUsd": 1.31,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0r3500ahs05lz0ytqzdm.jpg"
+  },
+  {
+    "codigo": "7595826006754",
+    "nombre": "OSOLE SALSA PARA PASTAS ACEITUNAS 340GRS.",
+    "precioUsd": 2.14,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0mxx00acs05l2sk7c4bx.jpg"
+  },
+  {
+    "codigo": "7595826003944",
+    "nombre": "OSOLE SALSA PARA PASTAS AL VODKA 340GRS.",
+    "precioUsd": 2.44,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0kdh00a9s05lgdddfw91.jpg"
+  },
+  {
+    "codigo": "7595826008260",
+    "nombre": "OSOLE SALSA PARA PASTAS ALBAHACA 200GRS.",
+    "precioUsd": 1.31,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0rwt00ais05l0jcde8s7.jpg"
+  },
+  {
+    "codigo": "7595826007348",
+    "nombre": "OSOLE SALSA PARA PASTAS BOLOÑESA 200GRS.",
+    "precioUsd": 1.47,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0nrv00ads05l930yc6vk.jpg"
+  },
+  {
+    "codigo": "7595826008307",
+    "nombre": "OSOLE SALSA PARA PASTAS FINAS HIERBAS 200GRS.",
+    "precioUsd": 1.31,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0sqj00ajs05lky1szxh8.jpg"
+  },
+  {
+    "codigo": "7595826007362",
+    "nombre": "OSOLE SALSA PARA PASTAS NAPOLITANA 200GRS.",
+    "precioUsd": 1.47,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0pfl00afs05lsdck1poy.jpg"
+  },
+  {
+    "codigo": "7595826007355",
+    "nombre": "OSOLE SALSA PARA PIZZA 200GRS.",
+    "precioUsd": 1.47,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0oll00aes05lgq4jvxcn.jpg"
+  },
+  {
+    "codigo": "75930455",
+    "nombre": "OVOMALTINA 35GRS.",
+    "precioUsd": 2.16,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms73z000es05l4ydhzhg6.jpg"
+  },
+  {
+    "codigo": "7591039995519",
+    "nombre": "OVOMALTINA MAXI 100GRS.",
+    "precioUsd": 6.05,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvf2l0046s05l1jul8w8t.jpg"
+  },
+  {
+    "codigo": "7591620532031",
+    "nombre": "PALITOS CHOCOLATE 150GRS.",
+    "precioUsd": 3.37,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz264008gs05lz33azohc.jpg"
+  },
+  {
+    "codigo": "805579523116",
+    "nombre": "PALITOS CHOCOLATE 30GRS.",
+    "precioUsd": 0.66,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsjrb000ts05lng3ahfjo.jpg"
+  },
+  {
+    "codigo": "7591620062323",
+    "nombre": "PALITOS CHOCOLATE XTREME 150GRS.",
+    "precioUsd": 3.69,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz1c8008fs05ltuc9vb36.jpg"
+  },
+  {
+    "codigo": "7509546677019",
+    "nombre": "PALMOLIVE NATURALS JABON EXFOLIACION DIARIA 110GRS.",
+    "precioUsd": 2.67,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu2od002ls05lxnasavwb.jpg"
+  },
+  {
+    "codigo": "7509546690261",
+    "nombre": "PALMOLIVE NATURALS JABON FRESCURA NUTRITIVA 110GRS.",
+    "precioUsd": 2.67,
+    "categoria": "Aseo Personal",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu3ip002ms05lntisnph9.jpg"
+  },
+  {
+    "codigo": "7509546676982",
+    "nombre": "PALMOLIVE NATURALS JABON NUTRICION HUMECTANTE 110GRS.",
+    "precioUsd": 2.67,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu1u5002ks05lzjdz82eh.jpg"
+  },
+  {
+    "codigo": "7891024034767",
+    "nombre": "PALMOLIVE NATURALS JABON NUTRICION HUMECTANTE 85GRS.",
+    "precioUsd": 2.67,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn32zu00d9s05lmaqxzbsy.jpg"
+  },
+  {
+    "codigo": "75919184",
+    "nombre": "PAMPERO SALSA DE TOMATE 198GRS.",
+    "precioUsd": 1.93,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms4ig000bs05lrtxmpptj.jpg"
+  },
+  {
+    "codigo": "75919191",
+    "nombre": "PAMPERO SALSA DE TOMATE 397GRS.",
+    "precioUsd": 2.9,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms5ck000cs05l5ob822by.jpg"
+  },
+  {
+    "codigo": "7599998802077",
+    "nombre": "PAN SANDWICH GRANDE",
+    "precioUsd": 4.29,
+    "categoria": "Panadería",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0b55000pvx18xxx6czmc.jpg"
+  },
+  {
+    "codigo": "7591133000720",
+    "nombre": "PAN SANDWICH HOLSUM BLANCO 420GRS.",
+    "precioUsd": 1.73,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwtas005ts05lkutj6kcw.jpg"
+  },
+  {
+    "codigo": "7591133000751",
+    "nombre": "PAN SANDWICH HOLSUM INTEGRAL 420GRS.",
+    "precioUsd": 3.89,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwu53005us05lbje8r4d6.jpg"
+  },
+  {
+    "codigo": "7702354950347",
+    "nombre": "PANELADA SABOR A LIMON",
+    "precioUsd": 0.81,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2ott00css05l2fkh1vva.jpg"
+  },
+  {
+    "codigo": "7595751000551",
+    "nombre": "PAÑO TODO USO SUPER ABSORBENTE 2UND.",
+    "precioUsd": 3.56,
+    "categoria": "Papel y Desechables",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0jjv00a8s05lb6bu48xo.jpg"
+  },
+  {
+    "codigo": "1000000000025",
+    "nombre": "PAPAS",
+    "precioUsd": 2.57,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt5ai001is05lnk02dovo.jpg"
+  },
+  {
+    "codigo": "7593228000059",
+    "nombre": "PAPAS FRITAS PARA PERROS 200GRS.",
+    "precioUsd": 1.54,
+    "categoria": "Snacks Salados",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn02x4009os05lagtkau3p.jpg"
+  },
+  {
+    "codigo": "810199838",
+    "nombre": "PAPEL ALUMINIO NALY 7MTS.",
+    "precioUsd": 1.43,
+    "categoria": "Papel y Desechables",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsc4q000ks05lnknurjpd.jpg"
+  },
+  {
+    "codigo": "1000000000028",
+    "nombre": "PECHUGA DE POLLO SIN HUESO",
+    "precioUsd": 10,
+    "categoria": "Carnes y Embutidos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3sze00e4s05l162t3rak.jpg"
+  },
+  {
+    "codigo": "7591664000046",
+    "nombre": "PEGA LOKA LA ORIGINAL 3GRS.",
+    "precioUsd": 0.6,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz2zy008hs05lrs261887.jpg"
+  },
+  {
+    "codigo": "7591031003250",
+    "nombre": "PEPSI 1.5LTS.",
+    "precioUsd": 1.43,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv0qh003ps05lqsy0d1ev.jpg"
+  },
+  {
+    "codigo": "220926801156",
+    "nombre": "PEPSI 350ML. BOTELLA",
+    "precioUsd": 0.71,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsen6000ns05lp7ufrltf.jpg"
+  },
+  {
+    "codigo": "7591031102052",
+    "nombre": "PEPSI RETORNABLE 1.25LTS.",
+    "precioUsd": 1.07,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmv51a003us05lkrrpq8ua.jpg"
+  },
+  {
+    "codigo": "39800014009",
+    "nombre": "PILA ENERGIZER AAAX2",
+    "precioUsd": 2.89,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0bui000qvx18oi5dzem2.jpg"
+  },
+  {
+    "codigo": "4891199042119",
+    "nombre": "PILA GP 23A",
+    "precioUsd": 1.9,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtbem001ps05lb6tk9boe.jpg"
+  },
+  {
+    "codigo": "4891199003783",
+    "nombre": "PILA GP 27A",
+    "precioUsd": 2.47,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt8vy001ms05la24rvhs2.jpg"
+  },
+  {
+    "codigo": "4891199002212",
+    "nombre": "PILA GP 9V",
+    "precioUsd": 1.44,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt7t5001ls05l4xwtfoz9.jpg"
+  },
+  {
+    "codigo": "4891199027642",
+    "nombre": "PILA GP AAAX2",
+    "precioUsd": 2.14,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtakh001os05l3f23mih0.jpg"
+  },
+  {
+    "codigo": "4891199027581",
+    "nombre": "PILA GP AAX2",
+    "precioUsd": 2.29,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt9q1001ns05lk28rpqkx.jpg"
+  },
+  {
+    "codigo": "4891199139192",
+    "nombre": "PILA GP CR2032",
+    "precioUsd": 2.49,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtc8v001qs05ljh81afe1.jpg"
+  },
+  {
+    "codigo": "1000000000027",
+    "nombre": "PIMENTON ROJO",
+    "precioUsd": 3.42,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt6z0001ks05l87i6gczf.jpg"
+  },
+  {
+    "codigo": "1000000000021",
+    "nombre": "PIMENTON VERDE",
+    "precioUsd": 2.57,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt1uo001es05lnsh2r6zz.jpg"
+  },
+  {
+    "codigo": "1000000000020",
+    "nombre": "PLATANOS",
+    "precioUsd": 1.86,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt10j001ds05l233qevro.jpg"
+  },
+  {
+    "codigo": "7591081110618",
+    "nombre": "PLUMROSE JAMON ENDIABLADO 110GRS.",
+    "precioUsd": 3.84,
+    "categoria": "Carnes y Embutidos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvmoy004fs05lh3255lcq.jpg"
+  },
+  {
+    "codigo": "7591081110601",
+    "nombre": "PLUMROSE JAMON ENDIABLADO 60GRS.",
+    "precioUsd": 2.39,
+    "categoria": "Carnes y Embutidos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvlv3004es05lud9i7r8l.jpg"
+  },
+  {
+    "codigo": "75903626",
+    "nombre": "POLAR CERVEZA LIGHT 222ML X UND.",
+    "precioUsd": 1,
+    "categoria": "Cervezas y Licores",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmrzhr0005s05lj147op1w.jpg"
+  },
+  {
+    "codigo": "75902940",
+    "nombre": "POLAR CERVEZA TIPO PILSEN 222ML. X UND.",
+    "precioUsd": 1,
+    "categoria": "Cervezas y Licores",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmrw4y0001s05l4qro3udg.jpg"
+  },
+  {
+    "codigo": "1000000000012",
+    "nombre": "POLLO ENTERO",
+    "precioUsd": 4.14,
+    "categoria": "Carnes y Embutidos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsuae0015s05lshjtol9z.jpg"
+  },
+  {
+    "codigo": "1000000000044",
+    "nombre": "POLLO PICADO X KILO",
+    "precioUsd": 5.5,
+    "categoria": "Carnes y Embutidos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qnpm000fgg3keaip7js0.jpg"
+  },
+  {
+    "codigo": "7591167022514",
+    "nombre": "POLVORONES MARINELA 75GRS.",
+    "precioUsd": 0.83,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxiof006ns05lsvpjqju1.jpg"
+  },
+  {
+    "codigo": "7591002800093",
+    "nombre": "PRIMOR ARROZ CLASICO SUPERIOR 900GRS..",
+    "precioUsd": 2.11,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuvou003js05laiq62hwb.jpg"
+  },
+  {
+    "codigo": "7591002800109",
+    "nombre": "PRIMOR ARROZ TRADICIONAL 900GRS.",
+    "precioUsd": 2.03,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuwj3003ks05lymc1814s.jpg"
+  },
+  {
+    "codigo": "759100200288",
+    "nombre": "PRIMOR PASTA CORTA PLUMITAS 500GRS.",
+    "precioUsd": 1.6,
+    "categoria": "Pastas",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsh5s000qs05loagiywj1.jpg"
+  },
+  {
+    "codigo": "7591002400743",
+    "nombre": "PRIMOR PASTA CORTA TORNILLOS EXTRA ESPECIAL  1KILOS.",
+    "precioUsd": 2.91,
+    "categoria": "Pastas",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmusx7003gs05l447il4fl.jpg"
+  },
+  {
+    "codigo": "7591002400767",
+    "nombre": "PRIMOR PASTA LARGA EXTRA ESPECIAL VERMICELLI 1KILO.",
+    "precioUsd": 2.61,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmutr9003hs05lkns7l1sk.jpg"
+  },
+  {
+    "codigo": "7591002002237",
+    "nombre": "PRIMOR PASTA LARGA LINGUINI 1KGS.",
+    "precioUsd": 2.61,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuph8003cs05lbuucmtis.jpg"
+  },
+  {
+    "codigo": "7591002000264",
+    "nombre": "PRIMOR PASTA LARGA VERMICELLI 500GRS.",
+    "precioUsd": 1.6,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmuon1003bs05l3pka5vug.jpg"
+  },
+  {
+    "codigo": "7702010420337",
+    "nombre": "PROTEX AVENA+PROBIOTICO JABON 110GRS.",
+    "precioUsd": 2.99,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2gga00cis05lhzb80j9d.jpg"
+  },
+  {
+    "codigo": "7702010420344",
+    "nombre": "PROTEX FRESH JABON 110GRS.",
+    "precioUsd": 2.99,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2hae00cjs05lu09l804q.jpg"
+  },
+  {
+    "codigo": "7501035912410",
+    "nombre": "PROTEX FRESH JABON 75GRS.",
+    "precioUsd": 1.43,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtzbo002hs05l8ywcy5ry.jpg"
+  },
+  {
+    "codigo": "7702010420467",
+    "nombre": "PROTEX LIMPIEZA PROFUNDA JABON 110GRS.",
+    "precioUsd": 2.99,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2i4900cks05lp659c3nm.jpg"
+  },
+  {
+    "codigo": "7591082001977",
+    "nombre": "PUIG CHOCOLATE COOKY CHIPS 200GRS.",
+    "precioUsd": 5.19,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvq21004js05l6b3ow1ti.jpg"
+  },
+  {
+    "codigo": "7591082000307",
+    "nombre": "PUIG GALLETA MARIA SELECTA 9 PAQUETES",
+    "precioUsd": 2.77,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvod7004hs05lolw502yy.jpg"
+  },
+  {
+    "codigo": "17591082000307",
+    "nombre": "PUIG GALLETA MARIA X UNIDAD",
+    "precioUsd": 0.46,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0cju000rvx18rgf1a43g.jpg"
+  },
+  {
+    "codigo": "7591082000048",
+    "nombre": "PUIG GALLETAS SODA 10 PAQUETES",
+    "precioUsd": 2.76,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvnj0004gs05l29hyfgzw.jpg"
+  },
+  {
+    "codigo": "7591082007153",
+    "nombre": "PUIG GALLETAS SODA EL SOL 10 PAQUETES",
+    "precioUsd": 2.76,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvrsy004ls05lzki7elc2.jpg"
+  },
+  {
+    "codigo": "17591082007153",
+    "nombre": "PUIG GALLETAS SODA X UNIDAD",
+    "precioUsd": 0.4,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0d91000svx18teaiz9mc.jpg"
+  },
+  {
+    "codigo": "7591082004084",
+    "nombre": "PUIG MINI BROWNIES 175GRS.",
+    "precioUsd": 2.87,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvqvx004ks05la3qu6fvn.jpg"
+  },
+  {
+    "codigo": "7591082000383",
+    "nombre": "PUIG MINI MARIA 200GRS.",
+    "precioUsd": 2.7,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvp7f004is05lx8ihfdmz.jpg"
+  },
+  {
+    "codigo": "7599998801049",
+    "nombre": "PUNTO VERDE MASA PARA PASTELITOS",
+    "precioUsd": 2.64,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn22ah00c1s05lrrn88nnk.jpg"
+  },
+  {
+    "codigo": "PROD-1785679785074",
+    "nombre": "PUNTO VERDE PAN ACEMITA PAQUETE 12UND.",
+    "precioUsd": 2.64,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": null
+  },
+  {
+    "codigo": "7599998803446",
+    "nombre": "PUNTO VERDE PAN CANILLA PAQUETE 3UND.",
+    "precioUsd": 1.43,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn27ct00c7s05l79ffyfpi.jpg"
+  },
+  {
+    "codigo": "7599998802107",
+    "nombre": "PUNTO VERDE PAN DE LECHE GRANDE",
+    "precioUsd": 2.71,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn24s900c4s05lhch1tmqm.jpg"
+  },
+  {
+    "codigo": "7599998802022",
+    "nombre": "PUNTO VERDE PAN FRANCES PAQUETE 14UND.",
+    "precioUsd": 2.44,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn234j00c2s05lsth4f582.jpg"
+  },
+  {
+    "codigo": "7599998802084",
+    "nombre": "PUNTO VERDE PAN SANDWICH MEDIANO",
+    "precioUsd": 2.51,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn23yc00c3s05lhbi0yrqn.jpg"
+  },
+  {
+    "codigo": "7599998801018",
+    "nombre": "PUNTO VERDE TEQUEÑO ESCOLARES 5 UND.",
+    "precioUsd": 1.96,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://19iog0ckjlvwvfui.public.blob.vercel-storage.com/productos/producto-cms9q0dy8000tvx18l9dukv65-63lGGf3OtpSFEyGb2G8XLBvypcM2Vj.jpg"
+  },
+  {
+    "codigo": "7599998801315",
+    "nombre": "PUNTO VERDE TEQUEÑO PASAPALOS PAQUETE",
+    "precioUsd": 3.64,
+    "categoria": "Panadería",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0eni000uvx18xx29kvjb.jpg"
+  },
+  {
+    "codigo": "7591210000193",
+    "nombre": "PURISIMA LECHE COMPLETA LARGA DURACION 1LTS.",
+    "precioUsd": 3.41,
+    "categoria": "Bebidas y Refrescos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxx110074s05l7hlzssys.jpg"
+  },
+  {
+    "codigo": "7591210000209",
+    "nombre": "PURISIMA LECHE DESCREMADA LARGA DURACION 1LTS.",
+    "precioUsd": 3.34,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmxxv50075s05l02tlgf82.jpg"
+  },
+  {
+    "codigo": "7591210000575",
+    "nombre": "PURISIMA LECHE DESLACTOSADA LARGA DURACION 1LTS.",
+    "precioUsd": 3.56,
+    "categoria": "Bebidas y Refrescos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmy22f007as05l89anh2dp.jpg"
+  },
+  {
+    "codigo": "1000000000013",
+    "nombre": "QUESO AMARILLO GOUDA X KILO",
+    "precioUsd": 26.54,
+    "categoria": "Lácteos y Quesos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsv4q0016s05lf76x2j77.jpg"
+  },
+  {
+    "codigo": "1000000000019",
+    "nombre": "QUESO BLANCO DURO",
+    "precioUsd": 4.87,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt069001cs05longfb4rg.jpg"
+  },
+  {
+    "codigo": "1000000000011",
+    "nombre": "QUESO MOZZARELLA X KILO",
+    "precioUsd": 14.57,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmstg70014s05lm38qklen.jpg"
+  },
+  {
+    "codigo": "1000000000045",
+    "nombre": "QUESO PECORINO / PARMESANO X KILO",
+    "precioUsd": 42.75,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qohq000ggg3kfb16nbow.jpg"
+  },
+  {
+    "codigo": "7594003324421",
+    "nombre": "QUIDY VINAGRE DE MANZANA 500ML",
+    "precioUsd": 4.74,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0ah0009xs05l826om9aj.jpg"
+  },
+  {
+    "codigo": "1000000000022",
+    "nombre": "REMOLACHA",
+    "precioUsd": 1.15,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt2ot001fs05lumi456ty.jpg"
+  },
+  {
+    "codigo": "7896022207069",
+    "nombre": "RENATA GALLETA BISCOITO FRESA 112GRS.",
+    "precioUsd": 1.14,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3bdc00djs05lk9ejh5t4.jpg"
+  },
+  {
+    "codigo": "7896022207052",
+    "nombre": "RENATA GALLETA BISCOTIO CHOCOLATE 112GRS.",
+    "precioUsd": 1.14,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3ajk00dis05ln7rja8rp.jpg"
+  },
+  {
+    "codigo": "7896022207489",
+    "nombre": "RENATA GALLETA BISCOTIO VAINILLA 112GRS.",
+    "precioUsd": 1.14,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3d1000dls05lu1g4qbhj.jpg"
+  },
+  {
+    "codigo": "7896022204952",
+    "nombre": "RENATA GALLETA WAFER FRESA 115GRS.",
+    "precioUsd": 1.31,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn38vw00dgs05l9x7mk8bn.jpg"
+  },
+  {
+    "codigo": "7896022206154",
+    "nombre": "RENATA GALLETA WAFER LIMON 115GRS.",
+    "precioUsd": 1.31,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn39pm00dhs05lpv70uzgo.jpg"
+  },
+  {
+    "codigo": "7896022207267",
+    "nombre": "RENATA GALLETA WAFER VAINILLA 115GRS.",
+    "precioUsd": 1.31,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3c7700dks05lp7nlchmg.jpg"
+  },
+  {
+    "codigo": "1000000000026",
+    "nombre": "REPOLLO BLANCO",
+    "precioUsd": 0.57,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt64r001js05lkdzxzc0p.jpg"
+  },
+  {
+    "codigo": "7702006405713",
+    "nombre": "REXONA ANTIBACTERIAL JABON FRESH 110GRS.",
+    "precioUsd": 2.44,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2fmi00chs05luzvpd7a8.jpg"
+  },
+  {
+    "codigo": "7702006405690",
+    "nombre": "REXONA ANTIBACTERIAL JABON LIMPIEZA PROFUNDA 110GRS.",
+    "precioUsd": 2.44,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn2esk00cgs05lv9pjxov8.jpg"
+  },
+  {
+    "codigo": "75971939",
+    "nombre": "RIKESA CHEDDAR 200GRS.",
+    "precioUsd": 4.96,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzms9mg000hs05l0o4zurb6.jpg"
+  },
+  {
+    "codigo": "7590006200595",
+    "nombre": "RIKESA CHEDDAR 300GRS.",
+    "precioUsd": 7.17,
+    "categoria": "Salsas y Aderezos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmug5w0031s05ljf61lg11.jpg"
+  },
+  {
+    "codigo": "7898943163035",
+    "nombre": "ROBINSON CRUSOE ATUN EN ACEITE 170GRS.",
+    "precioUsd": 3.33,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3h5t00dqs05lmehswkz0.jpg"
+  },
+  {
+    "codigo": "7898943163042",
+    "nombre": "ROBINSON CRUSOE ATUN NATURAL 170GRS.",
+    "precioUsd": 3.19,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn3i2s00drs05l3lsn40jl.jpg"
+  },
+  {
+    "codigo": "7591123000556",
+    "nombre": "RONCO PASTA LARGA VERMICELLI 500GRS.",
+    "precioUsd": 1.46,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwfsk005ds05l8mmeqfs4.jpg"
+  },
+  {
+    "codigo": "7591049003266",
+    "nombre": "RONCO PASTA PARA PASTICHO DIRECTO AL HORNO 250GRS.",
+    "precioUsd": 2.37,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvii8004as05lsfjf1i4w.jpg"
+  },
+  {
+    "codigo": "7591098000810",
+    "nombre": "ROSAL PAPEL PLUS 2 ROLLOS VERDE",
+    "precioUsd": 0.69,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvxzr004ss05ll8p50afq.jpg"
+  },
+  {
+    "codigo": "7591098802384",
+    "nombre": "ROSAL PAPEL PLUS 4 ROLLOS 215 HOJAS VERDE",
+    "precioUsd": 1.13,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw26y004xs05l2g4kyzxs.jpg"
+  },
+  {
+    "codigo": "7591098170278",
+    "nombre": "ROSAL PAPEL PLUS 4 ROLLOS 300 HOJAS MORADO",
+    "precioUsd": 2.29,
+    "categoria": "Papel y Desechables",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvzo2004us05llpn1ev9n.jpg"
+  },
+  {
+    "codigo": "7591098170230",
+    "nombre": "ROSAL PAPEL PLUS 4 ROLLOS 400 HOJAS NARANJA",
+    "precioUsd": 3.27,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvytt004ts05limn0sgmz.jpg"
+  },
+  {
+    "codigo": "7591098800281",
+    "nombre": "ROSAL PAPEL PLUS 4 ROLLOS 600 HOJAS AMARILLO",
+    "precioUsd": 4.66,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw0is004vs05ltbns9wzw.jpg"
+  },
+  {
+    "codigo": "7591098000759",
+    "nombre": "ROSAL TOALLIN MULTIUSOS 80HOJAS",
+    "precioUsd": 1.81,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvwt0004rs05lh4gnsm8r.jpg"
+  },
+  {
+    "codigo": "7594004460043",
+    "nombre": "SAL ARAYAMAR 1KILO.",
+    "precioUsd": 0.83,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0c4g009zs05lluiccojb.jpg"
+  },
+  {
+    "codigo": "7594004460029",
+    "nombre": "SAL ARAYAMAR 400GRS.",
+    "precioUsd": 0.57,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0bao009ys05lcouew5tc.jpg"
+  },
+  {
+    "codigo": "7595159000351",
+    "nombre": "SAL BAHIA 1KILO.",
+    "precioUsd": 1.43,
+    "categoria": "Sal y Especias",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0drr00a1s05lvy6cc1s3.jpg"
+  },
+  {
+    "codigo": "7596914000364",
+    "nombre": "SAN SIMON LECHE EN POLVO COMPLETA 125GRS.",
+    "precioUsd": 3.11,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn0tk700aks05lty0kar0z.jpg"
+  },
+  {
+    "codigo": "7591446001599",
+    "nombre": "SANGRIA CAROREÑA 1.75LTS.",
+    "precioUsd": 9.19,
+    "categoria": "Cervezas y Licores",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmysy60085s05lg3w1d43j.jpg"
+  },
+  {
+    "codigo": "7591446009182",
+    "nombre": "SANGRIA LA QUE MANDA 1.75LTS.",
+    "precioUsd": 6.82,
+    "categoria": "Cervezas y Licores",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmyulz0087s05lrzah1qc2.jpg"
+  },
+  {
+    "codigo": "7591016854976",
+    "nombre": "SAVOY CHOCOLATE BLANCO GALAK 30GRS.",
+    "precioUsd": 1.66,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0fd0000vvx18bi25uzqh.jpg"
+  },
+  {
+    "codigo": "7591016851135",
+    "nombre": "SAVOY CHOCOLATE CON LECHE 30GRS.",
+    "precioUsd": 1.66,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0g2b000wvx18kg725229.jpg"
+  },
+  {
+    "codigo": "7591016851555",
+    "nombre": "SAVOY CHOCOLATE CRICRI 30GRS.",
+    "precioUsd": 1.66,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0gu7000xvx18zxiardug.jpg"
+  },
+  {
+    "codigo": "7591016854686",
+    "nombre": "SAVOY CHOCOLATE RIKITI 30GRS.",
+    "precioUsd": 1.66,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0hjk000yvx18020y69n5.jpg"
+  },
+  {
+    "codigo": "7591016873434",
+    "nombre": "SAVOY SAMBA FRESA 32GRS.",
+    "precioUsd": 1.22,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0i8t000zvx18p9fxpe9p.jpg"
+  },
+  {
+    "codigo": "7591016161111",
+    "nombre": "SAVOY TORONTO CHOCOLATE AVELLANA",
+    "precioUsd": 0.78,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0iy30010vx18l527ck9k.jpg"
+  },
+  {
+    "codigo": "7591098800687",
+    "nombre": "SERVILLETAS Z PEQUEÑAS TIPO DISPENSADOR 160UND.",
+    "precioUsd": 1.24,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw1d1004ws05lat8jrayf.jpg"
+  },
+  {
+    "codigo": "7599342000210",
+    "nombre": "SILSA LECHE EN POLVO COMPLETA 250GRS.",
+    "precioUsd": 5.08,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1nau00bjs05luopdpavq.jpg"
+  },
+  {
+    "codigo": "7599342000203",
+    "nombre": "SILSA LECHE EN POLVO COMPLETA 400GRS.",
+    "precioUsd": 7.84,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1mgq00bis05lwd7i80b4.jpg"
+  },
+  {
+    "codigo": "7591674000081",
+    "nombre": "SINDONI PASTA CORTA CARACOL 500GRS.",
+    "precioUsd": 1.41,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz3tv008is05lkjvzu5aq.jpg"
+  },
+  {
+    "codigo": "7591674000128",
+    "nombre": "SINDONI PASTA CORTA RIGATONI 500GRS.",
+    "precioUsd": 1.41,
+    "categoria": "Pastas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmz4nr008js05lbn8vc2vu.jpg"
+  },
+  {
+    "codigo": "7591112061896",
+    "nombre": "SONRISA GELATINA CEREZA 66GRS.",
+    "precioUsd": 2.27,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw9tp0056s05lma6goh5r.jpg"
+  },
+  {
+    "codigo": "7591112061902",
+    "nombre": "SONRISA GELATINA FRAMBUESA 66GRS.",
+    "precioUsd": 2.27,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwany0057s05lhd1vo9me.jpg"
+  },
+  {
+    "codigo": "7591112061421",
+    "nombre": "SONRISA GELATINA FRESA 66GRS.",
+    "precioUsd": 2.27,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw7ay0053s05l9qxu71k5.jpg"
+  },
+  {
+    "codigo": "7591112000161",
+    "nombre": "SONRISA GELATINA LIMON 66GRS.",
+    "precioUsd": 2.27,
+    "categoria": "Enlatados y Conservas",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw3y9004zs05l48ibjhrr.jpg"
+  },
+  {
+    "codigo": "7591112462167",
+    "nombre": "SONRISA GELATINA PIÑA 66GRS.",
+    "precioUsd": 2.27,
+    "categoria": "Enlatados y Conservas",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwe16005bs05lhrnc2v8u.jpg"
+  },
+  {
+    "codigo": "7591112061827",
+    "nombre": "SONRISA GELATINA SIN SABOR 33GRS.",
+    "precioUsd": 3.8,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw8za0055s05lgczvu74c.jpg"
+  },
+  {
+    "codigo": "7591112061667",
+    "nombre": "SONRISA GELATINA UVA 66GRS.",
+    "precioUsd": 2.27,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmw8550054s05l96jsdydo.jpg"
+  },
+  {
+    "codigo": "7501033204920",
+    "nombre": "SPEED STICK DESODORANTE CREMA  30GRS.",
+    "precioUsd": 2.03,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtxn5002fs05l1qstzujl.jpg"
+  },
+  {
+    "codigo": "7501033210778",
+    "nombre": "SPEED STICK DESODORANTE CREMA SOBRE 9GRS.",
+    "precioUsd": 0.75,
+    "categoria": "Aseo Personal",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtyhg002gs05l01be5v1m.jpg"
+  },
+  {
+    "codigo": "7509546676142",
+    "nombre": "SUAVITEL SUAVIZANTE 180ML.",
+    "precioUsd": 1.43,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmu0zw002js05lpn4719ey.jpg"
+  },
+  {
+    "codigo": "7591083018561",
+    "nombre": "SUAVITEL SUAVIZANTE 500ML.",
+    "precioUsd": 3.4,
+    "categoria": "Limpieza del Hogar",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvtgx004ns05lpdc4qv95.jpg"
+  },
+  {
+    "codigo": "7500435196291",
+    "nombre": "SUAVIZANTE DOWNY INTENSE AMANECER 700ML.",
+    "precioUsd": 5.87,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmttg6002as05l1q5icgk7.jpg"
+  },
+  {
+    "codigo": "7500435196253",
+    "nombre": "SUAVIZANTE DOWNY INTENSE FLORAL 700ML.",
+    "precioUsd": 5.87,
+    "categoria": "Limpieza del Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmtsiy0029s05lg3dii431.jpg"
+  },
+  {
+    "codigo": "1000000000014",
+    "nombre": "TABACO LA REINA",
+    "precioUsd": 0.44,
+    "categoria": "Cigarros y Tabaco",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsvz10017s05l85rprimm.jpg"
+  },
+  {
+    "codigo": "1000000000046",
+    "nombre": "TAMARINDO BOLSITA",
+    "precioUsd": 0.69,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qp9y000hgg3kif4e4r1y.jpg"
+  },
+  {
+    "codigo": "1000000000047",
+    "nombre": "TERETERE DE POLLO X KILO",
+    "precioUsd": 3,
+    "categoria": "Carnes y Embutidos",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms28qq21000igg3krabamhc2.jpg"
+  },
+  {
+    "codigo": "7598986002383",
+    "nombre": "TIGO CHAMPIÑONES REBANADOS 425GRS.",
+    "precioUsd": 2.74,
+    "categoria": "Enlatados y Conservas",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1glj00bbs05l7xewqbbs.jpg"
+  },
+  {
+    "codigo": "7598986000860",
+    "nombre": "TIGO LECHE CONDENSADA 395GRS.",
+    "precioUsd": 2.79,
+    "categoria": "Lácteos y Quesos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn1fru00bas05lfa4kbtge.jpg"
+  },
+  {
+    "codigo": "7590006700019",
+    "nombre": "TODDY BEBIDA CHOCOLATADA 200GRS.",
+    "precioUsd": 3.76,
+    "categoria": "Café y Té",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmukg10036s05lwkxxx6jw.jpg"
+  },
+  {
+    "codigo": "NEW-1000000000040",
+    "nombre": "TOMATE",
+    "precioUsd": 2.57,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0lru0014vx187gm1iedo.jpg"
+  },
+  {
+    "codigo": "7594000800690",
+    "nombre": "TOP DOG PET X100GRS. PERRARINA",
+    "precioUsd": 5.1,
+    "categoria": "Mascotas",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzn09n2009ws05l6agqt8d8.jpg"
+  },
+  {
+    "codigo": "7591133001741",
+    "nombre": "TWINKIES AREQUIPE 33GRS",
+    "precioUsd": 0.73,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwwnv005xs05ld1gf3f8r.jpg"
+  },
+  {
+    "codigo": "7591133001727",
+    "nombre": "TWINKIES FRESA 35GRS",
+    "precioUsd": 0.73,
+    "categoria": "Golosinas y Snacks",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmwvtf005ws05lcq418hob.jpg"
+  },
+  {
+    "codigo": "721688883128",
+    "nombre": "VASOS PLASTICOS DESECHABLES 236.5ML",
+    "precioUsd": 0.06,
+    "categoria": "Papel y Desechables",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cms9q0jnb0011vx18fkmfoqnc.jpg"
+  },
+  {
+    "codigo": "7591049001903",
+    "nombre": "VATEL ACEITE DE SOYA 1LTS.",
+    "precioUsd": 4.89,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvho50049s05l5wtlw7yw.jpg"
+  },
+  {
+    "codigo": "7591049004768",
+    "nombre": "VATEL ACEITE DE SOYA 250CM3",
+    "precioUsd": 1.53,
+    "categoria": "Aceites y Condimentos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmvjcj004bs05lwztc5h7t.jpg"
+  },
+  {
+    "codigo": "1000000000015",
+    "nombre": "VELA BLANCA 3N",
+    "precioUsd": 0.42,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmswta0018s05ltcx0cd63.jpg"
+  },
+  {
+    "codigo": "7592611000799",
+    "nombre": "VICONE CARAOTA ROJA 400GRS.",
+    "precioUsd": 4.43,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzpl10098s05lukdregfp.jpg"
+  },
+  {
+    "codigo": "7592611000126",
+    "nombre": "VICONE FRIJOL BAYO 500GRS.",
+    "precioUsd": 1.83,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmzoqw0097s05lstw5dusb.jpg"
+  },
+  {
+    "codigo": "7592611000119",
+    "nombre": "VICONE FRIJOL BLANCO 500GRS.",
+    "precioUsd": 1.83,
+    "categoria": "Cereales y Granos",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmznwz0096s05lzr8y54pw.jpg"
+  },
+  {
+    "codigo": "7590612198309",
+    "nombre": "WANITA TOALLAS SANITARIAS DIURNA TELA 10UND.",
+    "precioUsd": 1.79,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmumyq0039s05ly5nbihh9.jpg"
+  },
+  {
+    "codigo": "7590612198316",
+    "nombre": "WANITA TOALLAS SANITARIAS NOCTURNA TELA 10UND.",
+    "precioUsd": 2.33,
+    "categoria": "Cuidado Femenino e Infantil",
+    "activo": false,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmunsu003as05l8cj03eas.jpg"
+  },
+  {
+    "codigo": "7599761001195",
+    "nombre": "WYNCO MENTICAS 10GRS.",
+    "precioUsd": 0.46,
+    "categoria": "Golosinas y Snacks",
+    "activo": false,
+    "imagenUrl": "https://19iog0ckjlvwvfui.public.blob.vercel-storage.com/productos/producto-cmrzn1yzd00bxs05l5awxnwh1-2fJI78SN6JxJDeOnyCZctyVyQjRR1k.jpg"
+  },
+  {
+    "codigo": "1000000000016",
+    "nombre": "YESQUEROS",
+    "precioUsd": 0.5,
+    "categoria": "Ferretería y Hogar",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmsxnh0019s05l05khikhx.jpg"
+  },
+  {
+    "codigo": "1000000000023",
+    "nombre": "ZANAHORIA",
+    "precioUsd": 1.21,
+    "categoria": "Vegetales",
+    "activo": true,
+    "imagenUrl": "https://pub-327e90116bcd4c0c9409afe1e9464392.r2.dev/productos/producto-cmrzmt3j6001gs05ltz724rsg.jpg"
+  }
+]

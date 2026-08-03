@@ -31,7 +31,11 @@ export async function POST(req: NextRequest) {
       precioUsd,
       categoria: body.categoria,
       imagenUrl: body.imagenUrl ?? null,
-      porPeso: Boolean(body.porPeso)
+      porPeso: Boolean(body.porPeso),
+      permiteUnidad: Boolean(body.permiteUnidad),
+      precioUnidadUsd: body.precioUnidadUsd !== undefined && body.precioUnidadUsd !== null && body.precioUnidadUsd !== ""
+        ? Number(body.precioUnidadUsd)
+        : null
     }
   });
 

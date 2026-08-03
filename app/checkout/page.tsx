@@ -8,8 +8,15 @@ import Confetti from "@/app/components/Confetti";
 import { formatCantidad } from "@/lib/peso";
 import { precioBs as calcPrecioBs } from "@/lib/precio";
 
-type Product = { id: string; nombre: string; precioUsd: number; porPeso?: boolean };
-type CartLine = { productId: string; cantidad: number };
+type Product = {
+  id: string;
+  nombre: string;
+  precioUsd: number;
+  porPeso?: boolean;
+  permiteUnidad?: boolean;
+  precioUnidadUsd?: number | null;
+};
+type CartLine = { productId: string; cantidad: number; vendidoPorUnidad?: boolean };
 type Cliente = {
   id: string;
   nombre: string;
@@ -32,6 +39,8 @@ type OrderData = {
     cantidadOriginal?: number | null;
     precioUsd?: number;
     disponible?: boolean | null;
+    vendidoPorUnidad?: boolean;
+    pesoConfirmadoGramos?: number | null;
     product?: { nombre: string; porPeso?: boolean };
   }[];
 };
@@ -193,14 +202,31 @@ export default function CheckoutPage() {
       cargarOrden(orderId);
     }, 4000);
 
-    return () => clearInterval(interval);
+    // Si el cliente minimizó la pestaña (ej. para mandar el comprobante
+    // por WhatsApp) y vuelve sin que la página se recargue, refrescamos el
+    // pedido apenas la pestaña vuelve a estar visible, en vez de esperar
+    // hasta 4 segundos al próximo intervalo.
+    function alVolverVisible() {
+      if (document.visibilityState === "visible") {
+        cargarOrden(orderId as string);
+      }
+    }
+    document.addEventListener("visibilitychange", alVolverVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", alVolverVisible);
+    };
   }, [orderId, estado]);
 
   // La ganancia se suma por producto, así que el total en Bs se calcula
   // línea por línea (ver lib/precio.ts).
   const totalBsCarrito = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
-    return sum + (p ? calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * l.cantidad : 0);
+    if (!p) return sum;
+    const esPorUnidadHibrida = p.porPeso && p.permiteUnidad && l.vendidoPorUnidad;
+    const precioUsd = esPorUnidadHibrida ? (p.precioUnidadUsd ?? 0) : p.precioUsd;
+    return sum + calcPrecioBs(precioUsd, ganancia, tasaCambio) * l.cantidad;
   }, 0);
 
   // Una vez la tienda confirma disponibilidad, si algún artículo no estaba
@@ -310,7 +336,7 @@ export default function CheckoutPage() {
 
     const listaItems = itemsDisponibles
       .map((it) => {
-        const cant = it.product?.porPeso ? formatCantidad(it.cantidad, true) : `x${it.cantidad}`;
+        const cant = (it.product?.porPeso && !it.vendidoPorUnidad) ? formatCantidad(it.cantidad, true) : `x${it.cantidad}`;
         return `• ${it.product?.nombre ?? "Producto"} (${cant})`;
       })
       .join("\n");
@@ -414,7 +440,8 @@ export default function CheckoutPage() {
       if (order?.items?.length) {
         const cartRestaurado: CartLine[] = order.items.map((it) => ({
           productId: it.productId,
-          cantidad: it.cantidad
+          cantidad: it.cantidad,
+          vendidoPorUnidad: it.vendidoPorUnidad
         }));
         localStorage.setItem(CART_KEY, JSON.stringify(cartRestaurado));
       }
@@ -444,7 +471,8 @@ export default function CheckoutPage() {
       const disponibles = (order?.items ?? []).filter((it) => it.disponible !== false);
       const cartRestaurado: CartLine[] = disponibles.map((it) => ({
         productId: it.productId,
-        cantidad: it.cantidad
+        cantidad: it.cantidad,
+        vendidoPorUnidad: it.vendidoPorUnidad
       }));
       localStorage.setItem(CART_KEY, JSON.stringify(cartRestaurado));
       await fetch(`/api/orders/${orderId}`, {
@@ -542,7 +570,7 @@ export default function CheckoutPage() {
 
                 <ul className="text-xs sm:text-sm divide-y divide-dashed divide-ink/10">
                   {items.map((it, idx) => {
-                    const cantidadTexto = it.product?.porPeso
+                    const cantidadTexto = (it.product?.porPeso && !it.vendidoPorUnidad)
                       ? formatCantidad(it.cantidad, true)
                       : `${it.cantidad}×`;
                     const lineaBs = calcPrecioBs(it.precioUsd ?? 0, ganancia, order?.tasaCambio ?? tasaCambio) * it.cantidad;
@@ -592,7 +620,7 @@ export default function CheckoutPage() {
                 <ul className="text-sm text-ink/80 space-y-1">
                   {itemsSinCambios.map((it) => (
                     <li key={it.productId}>
-                      {it.product?.porPeso
+                      {(it.product?.porPeso && !it.vendidoPorUnidad)
                         ? formatCantidad(it.cantidad, true)
                         : `${it.cantidad}×`}{" "}
                       {it.product?.nombre ?? "Producto"}
@@ -614,12 +642,12 @@ export default function CheckoutPage() {
                       <br />
                       <span className="text-xs text-ink/60">
                         Pediste{" "}
-                        {it.product?.porPeso
+                        {(it.product?.porPeso && !it.vendidoPorUnidad)
                           ? formatCantidad(it.cantidadOriginal ?? 0, true)
                           : `${it.cantidadOriginal}×`}
                         {" → "}
                         <span className="text-amber-800 font-semibold">
-                          {it.product?.porPeso
+                          {(it.product?.porPeso && !it.vendidoPorUnidad)
                             ? formatCantidad(it.cantidad, true)
                             : `${it.cantidad}×`}
                         </span>
@@ -636,7 +664,7 @@ export default function CheckoutPage() {
                 <ul className="text-sm text-ink/80 space-y-1">
                   {itemsNoDisponibles.map((it) => (
                     <li key={it.productId}>
-                      {it.product?.porPeso
+                      {(it.product?.porPeso && !it.vendidoPorUnidad)
                         ? formatCantidad(it.cantidad, true)
                         : `${it.cantidad}×`}{" "}
                       {it.product?.nombre ?? "Producto"}
@@ -702,7 +730,7 @@ export default function CheckoutPage() {
                   <li key={idx} className="flex items-center justify-between py-1.5">
                     <span>{it.product?.nombre ?? "Producto"}</span>
                     <span className="text-ink/60">
-                      {it.product?.porPeso ? formatCantidad(it.cantidad, true) : `×${it.cantidad}`}
+                      {(it.product?.porPeso && !it.vendidoPorUnidad) ? formatCantidad(it.cantidad, true) : `×${it.cantidad}`}
                     </span>
                   </li>
                 ))}

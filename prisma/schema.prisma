@@ -39,6 +39,13 @@ model Product {
   // cliente elige cuántos kg quiere en vez de un número de unidades.
   // Si es false (default), se vende por unidad como siempre.
   porPeso          Boolean     @default(false)
+  // Solo tiene sentido si porPeso = true: permite que ADEMÁS del modo por
+  // peso (kg), el cliente pueda pedirlo por unidades sueltas (ej. "3
+  // tomates", "2 cebollas"). precioUnidadUsd es el precio fijo por unidad
+  // en ese modo — independiente de precioUsd (que sigue siendo el precio
+  // por kilo). No reemplaza el modo por peso, coexisten los dos.
+  permiteUnidad    Boolean     @default(false)
+  precioUnidadUsd  Float?
   // Orden manual del producto dentro de su categoría (menor = aparece
   // primero). Todos los productos existentes arrancan en 0 y se
   // desempatan por fecha de creación, así que no cambia nada hasta que el
@@ -116,6 +123,11 @@ model OrderItem {
   // Para productos por peso (Product.porPeso = true) son los kilogramos
   // pedidos y puede traer decimales (0.5, 1.25, etc.), por eso es Float.
   cantidad   Float
+  // true si ESTA línea se pidió "por unidad" (ej. 3 tomates) en vez de
+  // por peso, para un producto híbrido (Product.permiteUnidad = true).
+  // En ese caso "cantidad" es la cantidad de unidades (entero), no
+  // kilogramos, y "precioUsd" es el precio POR UNIDAD (no por kilo).
+  vendidoPorUnidad Boolean @default(false)
   // Si la tienda ajusta la cantidad/peso real disponible (ej. pidieron 3
   // mayonesas y solo hay 1, o pidieron 200g de queso y al pesar salieron
   // 220g), aquí queda la cantidad que el cliente pidió ORIGINALMENTE antes
@@ -123,6 +135,11 @@ model OrderItem {
   // resto de la app -que ya lee "cantidad" para totales y listados- no
   // necesita cambiar). Queda en null mientras no se haya ajustado nada.
   cantidadOriginal Float?
+  // Solo para líneas vendidoPorUnidad = true: el peso real (en gramos) que
+  // la tienda pesó al armar el pedido (ej. cliente pidió "3 tomates", la
+  // tienda pesa y anota 340). Es un dato interno/de inventario — no
+  // cambia lo que paga el cliente, que sigue siendo por unidad.
+  pesoConfirmadoGramos Int?
   precioUsd  Float
   disponible Boolean?
   product    Product  @relation(fields: [productId], references: [id])

@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     clienteNombre: string;
     clienteTelefono: string;
     direccion: string;
-    items: { productId: string; cantidad: number }[];
+    items: { productId: string; cantidad: number; vendidoPorUnidad?: boolean }[];
   };
 
   if (!clienteNombre || !clienteTelefono || !direccion || !items?.length) {
@@ -57,10 +57,18 @@ export async function POST(req: NextRequest) {
       items: {
         create: items.map((i) => {
           const p = products.find((pr) => pr.id === i.productId)!;
+          // Si el producto es híbrido (porPeso + permiteUnidad) y esta
+          // línea se pidió "por unidad", se precifica con precioUnidadUsd
+          // (precio fijo por unidad) en vez de precioUsd (precio por kilo).
+          // Si por alguna razón el producto no tiene precioUnidadUsd
+          // cargado, se cae de vuelta a precioUsd para no romper el pedido.
+          const esPorUnidadHibrida = Boolean(p.porPeso && p.permiteUnidad && i.vendidoPorUnidad);
+          const precioUsd = esPorUnidadHibrida && p.precioUnidadUsd ? p.precioUnidadUsd : p.precioUsd;
           return {
             productId: i.productId,
             cantidad: i.cantidad,
-            precioUsd: p.precioUsd
+            precioUsd,
+            vendidoPorUnidad: esPorUnidadHibrida
           };
         })
       }

@@ -18,11 +18,20 @@ type Product = {
   // se interpreta como kilogramos (puede traer decimales) en vez de
   // unidades.
   porPeso: boolean;
+  // Solo aplica si porPeso = true: además de pedirse por peso, se puede
+  // pedir por unidades sueltas (ej. "3 tomates") a precioUnidadUsd.
+  permiteUnidad?: boolean;
+  precioUnidadUsd?: number | null;
 };
 
 type Cliente = { id: string; nombre: string };
 
-type CartLine = { productId: string; cantidad: number };
+// vendidoPorUnidad solo es relevante para productos híbridos
+// (porPeso && permiteUnidad): distingue si ESA línea del carrito se armó
+// en modo peso (kg, cantidad puede traer decimales) o en modo unidad
+// (cantidad entera, ej. "3 tomates"). Para el resto de los productos
+// queda undefined/false y no cambia nada del comportamiento de siempre.
+type CartLine = { productId: string; cantidad: number; vendidoPorUnidad?: boolean };
 
 const CART_KEY = "delivery_cart";
 const ACTIVE_ORDER_KEY = "active_order_id";
@@ -190,7 +199,17 @@ export default function CatalogPage() {
       }
       const saved = localStorage.getItem(CART_KEY);
       if (saved) setCart(JSON.parse(saved));
-      setPedidoActivoId(localStorage.getItem(ACTIVE_ORDER_KEY));
+      const idActivo = localStorage.getItem(ACTIVE_ORDER_KEY);
+      setPedidoActivoId(idActivo);
+      // Si el cliente tiene un pedido en curso (por ejemplo, minimizó la
+      // pestaña para mandar el comprobante por WhatsApp y volvió a abrir
+      // la página desde cero), lo llevamos derecho de vuelta al checkout
+      // en vez de dejarlo en el catálogo con solo un aviso que puede pasar
+      // desapercibido — así no se pierde el pedido a mitad de pago.
+      if (idActivo) {
+        router.replace("/checkout");
+        return;
+      }
       setLoading(false);
       // Recién ahora es seguro dejar que el próximo efecto empiece a
       // guardar el carrito: si lo activamos antes, ese efecto escribe el
@@ -298,8 +317,10 @@ export default function CatalogPage() {
     );
   }
 
-  function quitarLineaCompleta(productId: string) {
-    setCart((prev) => prev.filter((l) => l.productId !== productId));
+  function quitarLineaCompleta(productId: string, vendidoPorUnidad?: boolean) {
+    setCart((prev) =>
+      prev.filter((l) => !(l.productId === productId && !!l.vendidoPorUnidad === !!vendidoPorUnidad))
+    );
   }
 
   // --- Carrito para productos por peso (kg) ---
@@ -333,19 +354,62 @@ export default function CatalogPage() {
     }
   }
 
+  // --- Carrito para el modo "por unidad" de un producto híbrido ---
+  // Es una línea de carrito APARTE de la de peso (se distinguen por
+  // vendidoPorUnidad), así que un mismo producto puede tener a la vez una
+  // línea en kg y otra en unidades — el cliente elige cuál usar, o ambas.
+  function fijarUnidadesHibrido(productId: string, unidades: number) {
+    const carritoEstabaVacio = cart.length === 0;
+    setCart((prev) => {
+      const limpio = Math.max(0, Math.round(unidades));
+      if (limpio <= 0) return prev.filter((l) => !(l.productId === productId && l.vendidoPorUnidad));
+      const existing = prev.find((l) => l.productId === productId && l.vendidoPorUnidad);
+      if (existing) {
+        return prev.map((l) =>
+          l.productId === productId && l.vendidoPorUnidad ? { ...l, cantidad: limpio } : l
+        );
+      }
+      return [...prev, { productId, cantidad: limpio, vendidoPorUnidad: true }];
+    });
+    if (carritoEstabaVacio) {
+      setMostrarResumen(true);
+    }
+  }
+
+  function ajustarUnidadesHibrido(productId: string, delta: number) {
+    const actual = cart.find((l) => l.productId === productId && l.vendidoPorUnidad)?.cantidad ?? 0;
+    fijarUnidadesHibrido(productId, actual + delta);
+    if (delta > 0) {
+      const nombre = products.find((p) => p.id === productId)?.nombre ?? "Producto";
+      notificarAgregado(productId, `✓ Agregado: ${nombre}`);
+    }
+  }
+
+  // Precio efectivo de una línea de carrito: para una línea "por unidad"
+  // de un producto híbrido, precioUnidadUsd (fijo por unidad) en vez de
+  // precioUsd (por kilo).
+  function precioUsdLinea(p: Product, l: CartLine): number {
+    if (p.porPeso && p.permiteUnidad && l.vendidoPorUnidad) {
+      return p.precioUnidadUsd ?? 0;
+    }
+    return p.precioUsd;
+  }
+
   // Total para el badge "N producto(s)": suma unidades normalmente, pero
-  // un producto por peso cuenta como 1 (no se suman kilos como si fueran
-  // unidades, "0.5 producto(s)" no tendría sentido).
+  // una línea EN MODO PESO cuenta como 1 (no se suman kilos como si fueran
+  // unidades, "0.5 producto(s)" no tendría sentido). Una línea en modo
+  // unidad (incluida la de un producto híbrido) sí suma su cantidad real.
   const totalItems = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
-    return sum + (p?.porPeso ? 1 : l.cantidad);
+    const esLineaEnModoPeso = p?.porPeso && !l.vendidoPorUnidad;
+    return sum + (esLineaEnModoPeso ? 1 : l.cantidad);
   }, 0);
   // La ganancia se suma POR PRODUCTO, así que el total en Bs se calcula
   // línea por línea (no sumando primero en $ y agregando la ganancia una
   // sola vez al final).
   const totalBsCarrito = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
-    return sum + (p ? calcPrecioBs(p.precioUsd, ganancia, tasaCambio) * l.cantidad : 0);
+    return sum + (p ? calcPrecioBs(precioUsdLinea(p, l), ganancia, tasaCambio) * l.cantidad : 0);
   }, 0);
 
   if (loading) {
@@ -556,7 +620,9 @@ export default function CatalogPage() {
                 </h2>
                 <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                   {categoryProducts.map((p) => {
-                    const line = cart.find((l) => l.productId === p.id);
+                    const line = cart.find((l) => l.productId === p.id && !l.vendidoPorUnidad);
+                    // Solo se usa en productos híbridos (porPeso + permiteUnidad).
+                    const lineaUnidad = cart.find((l) => l.productId === p.id && l.vendidoPorUnidad);
                     const precioBs = calcPrecioBs(p.precioUsd, ganancia, tasaCambio).toFixed(2);
                     return (
                       <li
@@ -727,6 +793,40 @@ export default function CatalogPage() {
                               </div>
                             );
                           })()}
+
+                          {/* Producto híbrido: además del selector de kg de
+                              arriba, un stepper aparte para pedir por
+                              unidades sueltas (ej. "3 tomates"), con su
+                              propio precio fijo. Es una línea de carrito
+                              distinta a la de peso — el cliente puede usar
+                              una, la otra, o las dos. */}
+                          {p.activo && p.porPeso && p.permiteUnidad && (
+                            <div className="flex flex-col gap-1 mt-1.5 pt-1.5 border-t border-leaf-50">
+                              <p className="text-[10px] sm:text-xs text-ink/50">
+                                O por unidad: Bs {calcPrecioBs(p.precioUnidadUsd ?? 0, ganancia, tasaCambio).toFixed(2)} c/u
+                              </p>
+                              <div className="flex items-center justify-between gap-1.5">
+                                <button
+                                  onClick={() => ajustarUnidadesHibrido(p.id, -1)}
+                                  disabled={!lineaUnidad}
+                                  className="w-7 h-7 rounded-full border border-clay-400 text-clay-600 flex items-center justify-center font-bold text-sm active:scale-90 transition-transform disabled:opacity-30"
+                                  aria-label={`Quitar una unidad de ${p.nombre}`}
+                                >
+                                  −
+                                </button>
+                                <span className="text-xs sm:text-sm font-medium">
+                                  {lineaUnidad ? `${lineaUnidad.cantidad} und` : "0 und"}
+                                </span>
+                                <button
+                                  onClick={() => ajustarUnidadesHibrido(p.id, 1)}
+                                  className="w-7 h-7 rounded-full bg-clay-600 text-white flex items-center justify-center font-bold text-sm active:scale-90 transition-transform"
+                                  aria-label={`Agregar una unidad de ${p.nombre}`}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </li>
                     );
@@ -773,33 +873,52 @@ export default function CatalogPage() {
                   {cart.map((line) => {
                     const p = products.find((pr) => pr.id === line.productId);
                     if (!p) return null;
+                    // Una línea está "en modo peso" si el producto es
+                    // porPeso Y esta línea puntual no se marcó como
+                    // vendidoPorUnidad (para productos híbridos puede haber
+                    // dos líneas del mismo producto, una de cada modo).
+                    const esPeso = p.porPeso && !line.vendidoPorUnidad;
                     return (
-                      <li key={line.productId} className="flex items-center justify-between gap-2 py-2">
-                        <span className="text-sm text-ink flex-1 min-w-0 truncate">{p.nombre}</span>
+                      <li
+                        key={`${line.productId}-${line.vendidoPorUnidad ? "und" : "kg"}`}
+                        className="flex items-center justify-between gap-2 py-2"
+                      >
+                        <span className="text-sm text-ink flex-1 min-w-0 truncate">
+                          {p.nombre}
+                          {line.vendidoPorUnidad && <span className="text-ink/40 text-xs"> (por unidad)</span>}
+                        </span>
                         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                           <button
                             onClick={() =>
-                              p.porPeso ? ajustarPeso(p.id, -0.25) : removeFromCart(p.id)
+                              esPeso
+                                ? ajustarPeso(p.id, -0.25)
+                                : line.vendidoPorUnidad
+                                  ? ajustarUnidadesHibrido(p.id, -1)
+                                  : removeFromCart(p.id)
                             }
                             className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold active:scale-95 transition-transform"
-                            aria-label={`Quitar ${p.porPeso ? "250g" : "una unidad"} de ${p.nombre}`}
+                            aria-label={`Quitar ${esPeso ? "250g" : "una unidad"} de ${p.nombre}`}
                           >
                             −
                           </button>
                           <span className="min-w-[3rem] text-center text-sm">
-                            {p.porPeso ? `${line.cantidad}kg` : line.cantidad}
+                            {esPeso ? `${line.cantidad}kg` : line.cantidad}
                           </span>
                           <button
                             onClick={() =>
-                              p.porPeso ? ajustarPeso(p.id, 0.25) : addToCart(p.id)
+                              esPeso
+                                ? ajustarPeso(p.id, 0.25)
+                                : line.vendidoPorUnidad
+                                  ? ajustarUnidadesHibrido(p.id, 1)
+                                  : addToCart(p.id)
                             }
                             className="w-8 h-8 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold active:scale-95 transition-transform"
-                            aria-label={`Agregar ${p.porPeso ? "250g" : "una unidad"} de ${p.nombre}`}
+                            aria-label={`Agregar ${esPeso ? "250g" : "una unidad"} de ${p.nombre}`}
                           >
                             +
                           </button>
                           <button
-                            onClick={() => quitarLineaCompleta(p.id)}
+                            onClick={() => quitarLineaCompleta(p.id, line.vendidoPorUnidad)}
                             className="ml-0.5 px-2.5 py-1.5 rounded-md text-alert-600 text-xs font-medium hover:bg-alert-50 active:scale-95 transition-all"
                             aria-label={`Quitar ${p.nombre} del carrito`}
                           >

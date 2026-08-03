@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     telefono?: string;
     direccion?: string;
     password?: string;
-    items: { productId: string; cantidad: number }[];
+    items: { productId: string; cantidad: number; vendidoPorUnidad?: boolean }[];
     estadoInicial?: string;
     notas?: string;
   };
@@ -86,15 +86,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ningún artículo del pedido es válido" }, { status: 400 });
   }
 
+  // Igual que en /api/orders: si el producto es híbrido (porPeso +
+  // permiteUnidad) y el artículo se marcó "por unidad", se precifica con
+  // precioUnidadUsd en vez de precioUsd (precio por kilo).
+  function precioEfectivo(p: (typeof products)[number], vendidoPorUnidad?: boolean) {
+    const esPorUnidadHibrida = Boolean(p.porPeso && p.permiteUnidad && vendidoPorUnidad);
+    return esPorUnidadHibrida && p.precioUnidadUsd ? p.precioUnidadUsd : p.precioUsd;
+  }
+
   const totalUsd = itemsValidos.reduce((sum, i) => {
     const p = products.find((pr) => pr.id === i.productId)!;
-    return sum + p.precioUsd * i.cantidad;
+    return sum + precioEfectivo(p, i.vendidoPorUnidad) * i.cantidad;
   }, 0);
   // Igual que en el resto del sitio: la ganancia se suma por producto antes
   // de convertir a Bs (ver lib/precio.ts).
   const totalBs = itemsValidos.reduce((sum, i) => {
     const p = products.find((pr) => pr.id === i.productId)!;
-    return sum + precioBs(p.precioUsd, config.ganancia, config.tasaCambio) * i.cantidad;
+    return sum + precioBs(precioEfectivo(p, i.vendidoPorUnidad), config.ganancia, config.tasaCambio) * i.cantidad;
   }, 0);
 
   const estadosPermitidos = ["ESPERANDO_PAGO", "PAGO_EN_REVISION", "CONFIRMADO", "EN_PREPARACION"];
@@ -118,7 +126,8 @@ export async function POST(req: NextRequest) {
           return {
             productId: i.productId,
             cantidad: i.cantidad,
-            precioUsd: p.precioUsd,
+            precioUsd: precioEfectivo(p, i.vendidoPorUnidad),
+            vendidoPorUnidad: Boolean(p.porPeso && p.permiteUnidad && i.vendidoPorUnidad),
             disponible: true
           };
         })

@@ -15,6 +15,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       ...(body.categoria !== undefined && { categoria: body.categoria }),
       ...(body.activo !== undefined && { activo: Boolean(body.activo) }),
       ...(body.porPeso !== undefined && { porPeso: Boolean(body.porPeso) }),
+      ...(body.permiteUnidad !== undefined && { permiteUnidad: Boolean(body.permiteUnidad) }),
+      ...(body.precioUnidadUsd !== undefined && {
+        precioUnidadUsd: body.precioUnidadUsd === null || body.precioUnidadUsd === "" ? null : Number(body.precioUnidadUsd)
+      }),
       ...(body.imagenUrl !== undefined && { imagenUrl: body.imagenUrl }),
       ...(body.orden !== undefined && { orden: Number(body.orden) })
     }

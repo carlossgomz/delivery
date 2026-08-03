@@ -176,7 +176,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const idsRecibidos = (body.items as { id: string }[]).map((it) => it.id);
     const existentes = await prisma.orderItem.findMany({ where: { id: { in: idsRecibidos } } });
 
-    for (const it of body.items as { id: string; disponible: boolean; cantidad?: number }[]) {
+    for (const it of body.items as {
+      id: string;
+      disponible: boolean;
+      cantidad?: number;
+      pesoConfirmadoGramos?: number | null;
+    }[]) {
       const actual = existentes.find((e) => e.id === it.id);
       const data: Record<string, unknown> = { disponible: it.disponible };
 
@@ -188,6 +193,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       ) {
         data.cantidadOriginal = (actual as any).cantidadOriginal ?? actual.cantidad;
         data.cantidad = it.cantidad;
+      }
+
+      // Peso real (gramos) que la tienda pesó para un artículo pedido
+      // "por unidad" (ej. "3 tomates" -> pesó 340g). Puramente informativo
+      // para la tienda, no afecta el precio ni el total del pedido.
+      if (it.pesoConfirmadoGramos !== undefined) {
+        data.pesoConfirmadoGramos =
+          it.pesoConfirmadoGramos === null || Number.isNaN(it.pesoConfirmadoGramos)
+            ? null
+            : Math.round(it.pesoConfirmadoGramos);
       }
 
       await prisma.orderItem.update({ where: { id: it.id }, data: data as any });

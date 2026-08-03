@@ -14,11 +14,22 @@ type Product = {
   categoria: string;
   activo: boolean;
   porPeso: boolean;
+  // Solo aplica si porPeso = true: además de pedirse por peso (kg), se
+  // puede pedir por unidades sueltas (ej. "3 tomates") a precioUnidadUsd.
+  permiteUnidad?: boolean;
+  precioUnidadUsd?: number | null;
   orden: number;
   createdAt?: string;
 };
 
-type EditingValue = { nombre: string; precioUsd: string; porPeso: boolean; categoria: string };
+type EditingValue = {
+  nombre: string;
+  precioUsd: string;
+  porPeso: boolean;
+  categoria: string;
+  permiteUnidad: boolean;
+  precioUnidadUsd: string;
+};
 
 export default function AdminProductosPage() {
   const [tasaCambio, setTasaCambio] = useState<number>(0);
@@ -158,6 +169,8 @@ export default function AdminProductosPage() {
           precioUsd: p.precioUsd?.toString() ?? "0",
           porPeso: Boolean(p.porPeso),
           categoria: p.categoria,
+          permiteUnidad: Boolean(p.permiteUnidad),
+          precioUnidadUsd: p.precioUnidadUsd?.toString() ?? "",
         };
       });
       setEditingValues(iniciales);
@@ -193,7 +206,7 @@ export default function AdminProductosPage() {
 
   function handleProductChange(
     id: string,
-    field: "nombre" | "precioUsd" | "porPeso" | "categoria",
+    field: "nombre" | "precioUsd" | "porPeso" | "categoria" | "permiteUnidad" | "precioUnidadUsd",
     value: string | boolean
   ) {
     setEditingValues((prev) => ({
@@ -219,6 +232,8 @@ export default function AdminProductosPage() {
         precioUsd,
         porPeso: val.porPeso,
         categoria: val.categoria,
+        permiteUnidad: val.porPeso ? val.permiteUnidad : false,
+        precioUnidadUsd: val.porPeso && val.permiteUnidad ? (parseFloat(val.precioUnidadUsd) || 0) : null,
       };
 
       const res = await fetch(`/api/products/${id}`, {
@@ -492,6 +507,8 @@ export default function AdminProductosPage() {
             precioUsd: producto.precioUsd.toString(),
             porPeso: Boolean(producto.porPeso),
             categoria: producto.categoria,
+            permiteUnidad: Boolean(producto.permiteUnidad),
+            precioUnidadUsd: producto.precioUnidadUsd?.toString() ?? "",
           },
         }));
         setNuevoProducto({ nombre: "", precioUsd: "", categoria: "", porPeso: false });
@@ -801,6 +818,8 @@ export default function AdminProductosPage() {
                       precioUsd: product.precioUsd?.toString() ?? "0",
                       porPeso: Boolean(product.porPeso),
                       categoria: product.categoria,
+                      permiteUnidad: Boolean(product.permiteUnidad),
+                      precioUnidadUsd: product.precioUnidadUsd?.toString() ?? "",
                     };
 
                     const precioBs = calcularPrecioBs(edit.precioUsd);
@@ -946,6 +965,47 @@ export default function AdminProductosPage() {
                             </label>
                           </div>
                         </div>
+
+                        {/* Venta híbrida: solo tiene sentido si el producto ya
+                            se vende por peso. Permite ADEMÁS pedirlo por
+                            unidades sueltas (ej. "3 tomates") con su propio
+                            precio fijo por unidad, sin sacar la opción por
+                            peso. */}
+                        {edit.porPeso && (
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                            <div>
+                              <label className="block text-[11px] font-medium text-ink/50 mb-1">También por unidad</label>
+                              <label className="flex items-center gap-2 text-sm text-ink/70 border border-clay-200 rounded-lg px-3 py-2.5 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={edit.permiteUnidad}
+                                  onChange={(e) => handleProductChange(product.id, "permiteUnidad", e.target.checked)}
+                                  className="w-4 h-4 accent-clay-600 cursor-pointer"
+                                  title='Además de por kg, el cliente puede pedir "N unidades" (ej. 3 tomates)'
+                                />
+                                Ej: "3 tomates"
+                              </label>
+                            </div>
+
+                            {edit.permiteUnidad && (
+                              <div>
+                                <label className="block text-[11px] font-medium text-ink/50 mb-1">Precio por unidad ($)</label>
+                                <div className="relative flex items-center">
+                                  <span className="absolute left-3 text-sm text-ink/40">$</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={edit.precioUnidadUsd}
+                                    onChange={(e) => handleProductChange(product.id, "precioUnidadUsd", e.target.value)}
+                                    className="w-full text-sm pl-7 pr-2 py-2.5 border border-clay-200 hover:border-clay-400 focus:border-clay-600 rounded-lg focus:bg-white focus:outline-none"
+                                  />
+                                  <span className="absolute right-2 text-[10px] text-ink/40">/unidad</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                         {/* BOTONES DE ACCIÓN */}
                         <div className="flex justify-end gap-2 mt-3">

@@ -32,3 +32,12 @@ export function prefijoCantidad(cantidad: number, porPeso?: boolean): string {
   if (!porPeso) return `${cantidad}×`;
   return `${formatCantidad(cantidad, true)} de`;
 }
+
+// Formatea el peso real (en gramos) que la tienda confirmó al pesar un
+// pedido hecho "por unidad" en un producto híbrido (ej. "3 tomates" ->
+// "340 g"). Solo aplica a OrderItem.pesoConfirmadoGramos.
+export function formatPesoConfirmado(gramos: number): string {
+  if (gramos < 1000) return `${Math.round(gramos)} g`;
+  const kilos = Number((gramos / 1000).toFixed(2)).toString();
+  return `${kilos} kg`;
+}
