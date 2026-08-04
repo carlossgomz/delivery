@@ -6,12 +6,15 @@ import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import Confetti from "@/app/components/Confetti";
 import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
-import { totalBsLinea } from "@/lib/precio";
+import { precioBs, totalBsLinea } from "@/lib/precio";
 
 type Product = {
   id: string;
   nombre: string;
   precioUsd: number;
+  categoria?: string;
+  activo?: boolean;
+  imagenUrl?: string | null;
   porPeso?: boolean;
   permiteUnidad?: boolean;
   pesoEstimadoUnidadGramos?: number | null;
@@ -44,7 +47,7 @@ type OrderData = {
     vendidoPorUnidad?: boolean;
     // Cuántas unidades pidió el cliente originalmente, fijo para mostrarlo.
     unidadesPedidas?: number | null;
-    product?: { nombre: string; porPeso?: boolean };
+    product?: { nombre: string; porPeso?: boolean; categoria?: string };
   }[];
 };
 
@@ -87,9 +90,22 @@ export default function CheckoutPage() {
   // dejar pasar a la pantalla de pago. Se reinicia cada vez que cambia el
   // pedido activo.
   const [continuarConParcial, setContinuarConParcial] = useState(false);
+  // Productos similares que el cliente eligió agregar en reemplazo de algo
+  // que no estaba disponible (ver "productosRecomendados" más abajo). Viajan
+  // junto con lo disponible cuando toca "Reemplazar artículo".
+  const [extrasRecomendados, setExtrasRecomendados] = useState<CartLine[]>([]);
   useEffect(() => {
     setContinuarConParcial(false);
+    setExtrasRecomendados([]);
   }, [orderId]);
+
+  function toggleRecomendado(productId: string) {
+    setExtrasRecomendados((prev) =>
+      prev.some((l) => l.productId === productId)
+        ? prev.filter((l) => l.productId !== productId)
+        : [...prev, { productId, cantidad: 1 }]
+    );
+  }
 
   // Trae el pedido completo (estado + totales) del servidor. Se usa tanto
   // al restaurar un pedido activo al entrar/volver a esta página, como en
@@ -250,6 +266,19 @@ export default function CheckoutPage() {
   const hayAjustes = itemsAjustados.length > 0;
   const mostrarVerificacionParcial =
     estado === "ESPERANDO_PAGO" && (hayNoDisponibles || hayAjustes) && !continuarConParcial;
+
+  // Sugerencias para reemplazar lo que no estaba disponible: otros
+  // productos activos de la(s) misma(s) categoría(s), sin repetir nada que
+  // ya esté en el pedido (disponible o no).
+  const categoriasNoDisponibles = Array.from(
+    new Set(itemsNoDisponibles.map((it) => it.product?.categoria).filter((c): c is string => Boolean(c)))
+  );
+  const idsEnPedido = new Set((order?.items ?? []).map((it) => it.productId));
+  const productosRecomendados = categoriasNoDisponibles.length
+    ? products
+        .filter((p) => p.activo !== false && p.categoria && categoriasNoDisponibles.includes(p.categoria) && !idsEnPedido.has(p.id))
+        .slice(0, 6)
+    : [];
 
   async function enviarPedido() {
     if (!pedidosHabilitados) {
@@ -478,11 +507,14 @@ export default function CheckoutPage() {
     setEnviando(true);
     try {
       const disponibles = (order?.items ?? []).filter((it) => it.disponible !== false);
-      const cartRestaurado: CartLine[] = disponibles.map((it) => ({
-        productId: it.productId,
-        cantidad: it.cantidad,
-        vendidoPorUnidad: it.vendidoPorUnidad
-      }));
+      const cartRestaurado: CartLine[] = [
+        ...disponibles.map((it) => ({
+          productId: it.productId,
+          cantidad: it.cantidad,
+          vendidoPorUnidad: it.vendidoPorUnidad
+        })),
+        ...extrasRecomendados
+      ];
       localStorage.setItem(CART_KEY, JSON.stringify(cartRestaurado));
       await fetch(`/api/orders/${orderId}`, {
         method: "PATCH",
@@ -694,6 +726,51 @@ export default function CheckoutPage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {productosRecomendados.length > 0 && (
+              <div className="p-3 bg-leaf-50/60 rounded-lg border border-leaf-100">
+                <p className="text-xs font-semibold text-leaf-700 mb-2">
+                  💡 ¿Te sirve alguno de estos en su lugar?
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {productosRecomendados.map((p) => {
+                    const seleccionado = extrasRecomendados.some((l) => l.productId === p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => toggleRecomendado(p.id)}
+                        className={`flex items-center gap-2 text-left p-2 rounded-lg border transition-colors ${
+                          seleccionado
+                            ? "border-leaf-600 bg-leaf-100/60"
+                            : "border-leaf-100 bg-white hover:border-leaf-300"
+                        }`}
+                      >
+                        <span className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-leaf-50 border border-leaf-100 flex items-center justify-center">
+                          {p.imagenUrl ? (
+                            <img src={p.imagenUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-leaf-300 text-sm">🛒</span>
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-xs font-medium text-ink truncate">{p.nombre}</span>
+                          <span className="block text-[11px] text-ink/50">
+                            Bs {precioBs(p.precioUsd, ganancia, order?.tasaCambio ?? tasaCambio).toFixed(2)}
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-sm text-leaf-700">{seleccionado ? "✓" : "+"}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {extrasRecomendados.length > 0 && (
+                  <p className="text-[11px] text-leaf-700 mt-2">
+                    Se agregarán a tu pedido al tocar "Reemplazar artículo" abajo.
+                  </p>
+                )}
               </div>
             )}
 

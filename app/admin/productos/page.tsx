@@ -574,6 +574,77 @@ export default function AdminProductosPage() {
         </p>
       </div>
 
+      {/* CATEGORÍAS: imagen representativa (círculo del catálogo) y
+          renombrado en bloque */}
+      <div>
+        <h2 className="font-display text-xl text-leaf-800 mb-1">Categorías</h2>
+        <p className="text-xs text-ink/50 mb-4">
+          La foto de cada categoría es la que ve el cliente en el círculo, arriba del catálogo.
+          Cambiar el nombre acá lo aplica a todos los productos de esa categoría a la vez.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {categoriasUnicas.map((cat) => (
+            <div
+              key={cat}
+              className="flex items-center gap-2 bg-white border border-leaf-100 rounded-lg px-2.5 py-2 min-w-0"
+            >
+              <label
+                className="relative shrink-0 w-9 h-9 rounded-full border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group"
+                title="Cambiar imagen de la categoría"
+              >
+                {categoriaImagenes[cat] ? (
+                  <img src={categoriaImagenes[cat] as string} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="w-full h-full flex items-center justify-center text-leaf-300 text-sm">
+                    🛒
+                  </span>
+                )}
+                <span className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center text-white text-[8px] font-medium opacity-0 group-hover:opacity-100">
+                  {subiendoImagenCategoriaId === cat ? "..." : "Cambiar"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={subiendoImagenCategoriaId === cat}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) subirImagenCategoria(cat, file);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+              <input
+                type="text"
+                value={renombrando[cat] ?? cat}
+                onChange={(e) => setRenombrando((prev) => ({ ...prev, [cat]: e.target.value }))}
+                className="text-sm border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-1.5 py-1 focus:bg-leaf-50/40 focus:outline-none min-w-0 flex-1"
+              />
+              <button
+                onClick={() => renombrarCategoria(cat)}
+                disabled={guardandoCategoria === cat || (renombrando[cat] ?? cat).trim() === cat}
+                className="px-2.5 py-1 rounded-md bg-leaf-600 text-white text-xs font-medium disabled:opacity-30 hover:bg-leaf-700 transition-colors shrink-0"
+              >
+                {guardandoCategoria === cat ? "..." : "Guardar"}
+              </button>
+              <button
+                onClick={() => eliminarCategoria(cat)}
+                disabled={eliminandoCategoria === cat}
+                title="Eliminar categoría"
+                className="px-2 py-1 rounded-md border border-alert-600 text-alert-600 text-xs font-medium disabled:opacity-30 hover:bg-alert-50 transition-colors shrink-0"
+              >
+                {eliminandoCategoria === cat ? "..." : "🗑"}
+              </button>
+            </div>
+          ))}
+          {categoriasUnicas.length === 0 && (
+            <p className="text-xs text-ink/40">Todavía no hay categorías (agrega un producto primero).</p>
+          )}
+        </div>
+      </div>
+
+      <hr className="border-leaf-100" />
+
       {/* AGREGAR PRODUCTO NUEVO */}
       <div className="bg-leaf-50/60 border border-leaf-100 rounded-lg p-4">
         <p className="text-sm font-medium text-leaf-800 mb-3">➕ Agregar producto nuevo</p>
@@ -648,77 +719,6 @@ export default function AdminProductosPage() {
         {mensajeNuevoProducto && (
           <p className="text-xs mt-2.5 text-leaf-700">{mensajeNuevoProducto}</p>
         )}
-      </div>
-
-      <hr className="border-leaf-100" />
-
-      {/* CATEGORÍAS: imagen representativa (círculo del catálogo) y
-          renombrado en bloque */}
-      <div>
-        <h2 className="font-display text-xl text-leaf-800 mb-1">Categorías</h2>
-        <p className="text-xs text-ink/50 mb-4">
-          La foto de cada categoría es la que ve el cliente en el círculo, arriba del catálogo.
-          Cambiar el nombre acá lo aplica a todos los productos de esa categoría a la vez.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {categoriasUnicas.map((cat) => (
-            <div
-              key={cat}
-              className="flex items-center gap-2 bg-white border border-leaf-100 rounded-lg px-2.5 py-2"
-            >
-              <label
-                className="relative shrink-0 w-9 h-9 rounded-full border border-leaf-100 bg-leaf-50 overflow-hidden cursor-pointer group"
-                title="Cambiar imagen de la categoría"
-              >
-                {categoriaImagenes[cat] ? (
-                  <img src={categoriaImagenes[cat] as string} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="w-full h-full flex items-center justify-center text-leaf-300 text-sm">
-                    🛒
-                  </span>
-                )}
-                <span className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center text-white text-[8px] font-medium opacity-0 group-hover:opacity-100">
-                  {subiendoImagenCategoriaId === cat ? "..." : "Cambiar"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  disabled={subiendoImagenCategoriaId === cat}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) subirImagenCategoria(cat, file);
-                    e.target.value = "";
-                  }}
-                />
-              </label>
-              <input
-                type="text"
-                value={renombrando[cat] ?? cat}
-                onChange={(e) => setRenombrando((prev) => ({ ...prev, [cat]: e.target.value }))}
-                className="text-sm border border-transparent hover:border-leaf-100 focus:border-leaf-500 rounded px-1.5 py-1 focus:bg-leaf-50/40 focus:outline-none w-32"
-              />
-              <button
-                onClick={() => renombrarCategoria(cat)}
-                disabled={guardandoCategoria === cat || (renombrando[cat] ?? cat).trim() === cat}
-                className="px-2.5 py-1 rounded-md bg-leaf-600 text-white text-xs font-medium disabled:opacity-30 hover:bg-leaf-700 transition-colors shrink-0"
-              >
-                {guardandoCategoria === cat ? "..." : "Guardar"}
-              </button>
-              <button
-                onClick={() => eliminarCategoria(cat)}
-                disabled={eliminandoCategoria === cat}
-                title="Eliminar categoría"
-                className="px-2 py-1 rounded-md border border-alert-600 text-alert-600 text-xs font-medium disabled:opacity-30 hover:bg-alert-50 transition-colors shrink-0"
-              >
-                {eliminandoCategoria === cat ? "..." : "🗑"}
-              </button>
-            </div>
-          ))}
-          {categoriasUnicas.length === 0 && (
-            <p className="text-xs text-ink/40">Todavía no hay categorías (agrega un producto primero).</p>
-          )}
-        </div>
       </div>
 
       <hr className="border-leaf-100" />

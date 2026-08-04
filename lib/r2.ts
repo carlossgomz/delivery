@@ -11,6 +11,12 @@ const r2 = new S3Client({
     accessKeyId: process.env.R2_ACCESS_KEY_ID!,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
   },
+  // El SDK de AWS calcula por defecto un checksum CRC32 en cada request
+  // (desde las versiones recientes de @aws-sdk/client-s3). R2 no valida
+  // ese checksum igual que S3 y eso rompe la firma de la request
+  // (SignatureDoesNotMatch), así que lo desactivamos.
+  requestChecksumCalculation: "WHEN_REQUIRED",
+  responseChecksumValidation: "WHEN_REQUIRED",
 });
 
 const BUCKET = process.env.R2_BUCKET_NAME!;
