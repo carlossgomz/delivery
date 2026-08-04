@@ -280,6 +280,17 @@ export default function CheckoutPage() {
         .slice(0, 6)
     : [];
 
+  // Preview del total en esta misma ventana: lo que ya está disponible más
+  // lo que el cliente vaya eligiendo de las sugerencias, sin necesidad de
+  // volver al catálogo para verlo reflejado.
+  const hayReemplazoSeleccionado = extrasRecomendados.length > 0;
+  const totalExtrasBs = extrasRecomendados.reduce((sum, l) => {
+    const p = products.find((pr) => pr.id === l.productId);
+    if (!p) return sum;
+    return sum + totalBsLinea(p.precioUsd, ganancia, order?.tasaCambio ?? tasaCambio, l.cantidad, false);
+  }, 0);
+  const totalConReemplazoBs = (order?.totalBs ?? 0) + totalExtrasBs;
+
   async function enviarPedido() {
     if (!pedidosHabilitados) {
       setErrorMsg("En estos momentos no estamos atendiendo pedidos.");
@@ -766,41 +777,38 @@ export default function CheckoutPage() {
                     );
                   })}
                 </div>
-                {extrasRecomendados.length > 0 && (
-                  <p className="text-[11px] text-leaf-700 mt-2">
-                    Se agregarán a tu pedido al tocar "Reemplazar artículo" abajo.
-                  </p>
-                )}
               </div>
             )}
 
-            {itemsDisponibles.length > 0 && (
+            {(itemsDisponibles.length > 0 || hayReemplazoSeleccionado) && (
               <div className="p-3 bg-leaf-100/30 rounded-lg border border-leaf-100">
-                <p className="text-xs text-ink/60">Total si continúas con lo disponible:</p>
+                <p className="text-xs text-ink/60">
+                  {hayReemplazoSeleccionado ? "Total con el reemplazo elegido:" : "Total si continúas con lo disponible:"}
+                </p>
                 <p className="text-lg font-bold text-leaf-800">
-                  Bs {(order?.totalBs ?? 0).toFixed(2)}
+                  Bs {totalConReemplazoBs.toFixed(2)}
                 </p>
               </div>
             )}
 
             <div className="flex flex-col gap-2 pt-1">
-              {itemsDisponibles.length > 0 && (
-                <button
-                  disabled={enviando}
-                  onClick={() => setContinuarConParcial(true)}
-                  className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-40"
-                >
-                  ✅ {hayAjustes && !hayNoDisponibles ? "Confirmar cambios y continuar" : "Continuar solo con lo disponible"}
-                </button>
-              )}
-              {hayNoDisponibles && (
-                <button
-                  disabled={enviando}
-                  onClick={reemplazarArticulo}
-                  className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
-                >
-                  🔄 Reemplazar artículo (volver al catálogo)
-                </button>
+              {(itemsDisponibles.length > 0 || hayReemplazoSeleccionado) && (
+                <div>
+                  <button
+                    disabled={enviando}
+                    onClick={() => (hayReemplazoSeleccionado ? reemplazarArticulo() : setContinuarConParcial(true))}
+                    className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-40"
+                  >
+                    {hayReemplazoSeleccionado
+                      ? "🔄 Reemplazar y continuar"
+                      : `✅ ${hayAjustes && !hayNoDisponibles ? "Confirmar cambios y continuar" : "Continuar pedido"}`}
+                  </button>
+                  <p className="text-[11px] text-ink/50 text-center mt-1">
+                    {hayReemplazoSeleccionado
+                      ? "Volverás al catálogo con tu carrito listo (sin lo no disponible, con lo que elegiste arriba)."
+                      : "Mismo pedido, quitando lo que no estaba disponible."}
+                  </p>
+                </div>
               )}
               <button
                 disabled={enviando}
