@@ -277,7 +277,7 @@ export default function CheckoutPage() {
   const productosRecomendados = categoriasNoDisponibles.length
     ? products
         .filter((p) => p.activo !== false && p.categoria && categoriasNoDisponibles.includes(p.categoria) && !idsEnPedido.has(p.id))
-        .slice(0, 6)
+        .slice(0, 4)
     : [];
 
   // Preview del total en esta misma ventana: lo que ya está disponible más
@@ -541,6 +541,39 @@ export default function CheckoutPage() {
     }
   }
 
+  // El cliente eligió una sugerencia como reemplazo: a diferencia de
+  // reemplazarArticulo(), esto NO cancela el pedido ni vuelve al catálogo —
+  // reemplaza el artículo dentro del MISMO pedido y lo manda de nuevo a
+  // verificación, así que el cliente se queda en esta misma pantalla
+  // viendo la pantalla de "espera" hasta que la tienda confirme el nuevo
+  // artículo (ver acción "reemplazar_items" en /api/orders/[id]).
+  async function reemplazarEnMismoPedido() {
+    if (!orderId || extrasRecomendados.length === 0) return;
+    setEnviando(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reemplazar_items", agregar: extrasRecomendados })
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudo reemplazar el artículo.");
+      }
+      if (data?.order) {
+        setOrder(data.order);
+        setEstado(data.order.estado);
+        setExtrasRecomendados([]);
+        setContinuarConParcial(false);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al reemplazar el artículo");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   // El cliente ya no quiere hacer el pedido.
   async function rechazarPedido() {
     if (!orderId) return;
@@ -745,7 +778,10 @@ export default function CheckoutPage() {
                 <p className="text-xs font-semibold text-leaf-700 mb-2">
                   💡 ¿Te sirve alguno de estos en su lugar?
                 </p>
-                <div className="grid grid-cols-2 gap-2">
+                {/* Lista horizontal con scroll (no grilla): cada tarjeta tiene
+                    ancho fijo pero alto libre, así el nombre siempre se ve
+                    completo (con salto de línea) en vez de cortarse con "…". */}
+                <div className="flex gap-2 overflow-x-auto -mx-3 px-3 pb-1 snap-x snap-mandatory">
                   {productosRecomendados.map((p) => {
                     const seleccionado = extrasRecomendados.some((l) => l.productId === p.id);
                     return (
@@ -753,26 +789,30 @@ export default function CheckoutPage() {
                         key={p.id}
                         type="button"
                         onClick={() => toggleRecomendado(p.id)}
-                        className={`flex items-center gap-2 text-left p-2 rounded-lg border transition-colors ${
+                        className={`shrink-0 snap-start w-28 sm:w-32 flex flex-col items-center text-center gap-1 p-2 rounded-lg border transition-colors ${
                           seleccionado
                             ? "border-leaf-600 bg-leaf-100/60"
                             : "border-leaf-100 bg-white hover:border-leaf-300"
                         }`}
                       >
-                        <span className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-leaf-50 border border-leaf-100 flex items-center justify-center">
+                        <span className="relative shrink-0 w-12 h-12 rounded-full overflow-hidden bg-leaf-50 border border-leaf-100 flex items-center justify-center">
                           {p.imagenUrl ? (
                             <img src={p.imagenUrl} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-leaf-300 text-sm">🛒</span>
+                            <span className="text-leaf-300 text-base">🛒</span>
+                          )}
+                          {seleccionado && (
+                            <span className="absolute inset-0 bg-leaf-700/60 flex items-center justify-center text-white text-lg">
+                              ✓
+                            </span>
                           )}
                         </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xs font-medium text-ink truncate">{p.nombre}</span>
-                          <span className="block text-[11px] text-ink/50">
-                            Bs {precioBs(p.precioUsd, ganancia, order?.tasaCambio ?? tasaCambio).toFixed(2)}
-                          </span>
+                        <span className="text-xs font-medium text-ink leading-tight break-words">
+                          {p.nombre}
                         </span>
-                        <span className="shrink-0 text-sm text-leaf-700">{seleccionado ? "✓" : "+"}</span>
+                        <span className="text-[11px] text-ink/50">
+                          Bs {precioBs(p.precioUsd, ganancia, order?.tasaCambio ?? tasaCambio).toFixed(2)}
+                        </span>
                       </button>
                     );
                   })}
@@ -796,7 +836,7 @@ export default function CheckoutPage() {
                 <div>
                   <button
                     disabled={enviando}
-                    onClick={() => (hayReemplazoSeleccionado ? reemplazarArticulo() : setContinuarConParcial(true))}
+                    onClick={() => (hayReemplazoSeleccionado ? reemplazarEnMismoPedido() : setContinuarConParcial(true))}
                     className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium hover:bg-leaf-800 transition-colors disabled:opacity-40"
                   >
                     {hayReemplazoSeleccionado
@@ -805,10 +845,19 @@ export default function CheckoutPage() {
                   </button>
                   <p className="text-[11px] text-ink/50 text-center mt-1">
                     {hayReemplazoSeleccionado
-                      ? "Volverás al catálogo con tu carrito listo (sin lo no disponible, con lo que elegiste arriba)."
+                      ? "La tienda confirma el nuevo artículo — te quedas en esta misma pantalla."
                       : "Mismo pedido, quitando lo que no estaba disponible."}
                   </p>
                 </div>
+              )}
+              {hayNoDisponibles && !hayReemplazoSeleccionado && (
+                <button
+                  disabled={enviando}
+                  onClick={reemplazarArticulo}
+                  className="w-full py-3 rounded-lg border border-leaf-600 text-leaf-600 font-medium hover:bg-leaf-50 transition-colors disabled:opacity-40"
+                >
+                  🛒 Volver al catálogo (con lo disponible en tu carrito)
+                </button>
               )}
               <button
                 disabled={enviando}

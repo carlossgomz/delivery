@@ -46,6 +46,72 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ order });
   }
 
+  // 0.4) El cliente reemplaza, dentro del MISMO pedido, el/los artículo(s)
+  // que la tienda marcó como no disponibles por otro(s) que eligió de las
+  // sugerencias — sin cancelar el pedido ni volver al catálogo. El pedido
+  // completo vuelve a "PENDIENTE_VERIFICACION" (incluidos los artículos que
+  // ya estaban confirmados) para que la tienda revise también el/los
+  // nuevo(s), igual que si acabara de llegar.
+  if (body.action === "reemplazar_items") {
+    const existente = await prisma.order.findUnique({
+      where: { id: params.id },
+      include: { items: true }
+    });
+    if (!existente) {
+      return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+    }
+    if (existente.estado !== "ESPERANDO_PAGO") {
+      return NextResponse.json(
+        { error: "Este pedido no está en un estado que permita reemplazar artículos" },
+        { status: 400 }
+      );
+    }
+
+    const agregar = (body.agregar ?? []) as { productId: string; cantidad?: number }[];
+    const noDisponibles = existente.items.filter((i) => i.disponible === false);
+
+    if (agregar.length === 0 && noDisponibles.length === 0) {
+      return NextResponse.json({ error: "No hay nada que reemplazar" }, { status: 400 });
+    }
+
+    const productosNuevos = agregar.length
+      ? await prisma.product.findMany({ where: { id: { in: agregar.map((a) => a.productId) } } })
+      : [];
+
+    await prisma.$transaction([
+      prisma.orderItem.deleteMany({ where: { id: { in: noDisponibles.map((i) => i.id) } } }),
+      ...productosNuevos.map((p) => {
+        const cantidad = agregar.find((a) => a.productId === p.id)?.cantidad || 1;
+        return prisma.orderItem.create({
+          data: {
+            orderId: params.id,
+            productId: p.id,
+            cantidad,
+            precioUsd: p.precioUsd,
+            vendidoPorUnidad: false
+          }
+        });
+      }),
+      prisma.orderItem.updateMany({ where: { orderId: params.id }, data: { disponible: null } }),
+      prisma.order.update({
+        where: { id: params.id },
+        data: { estado: "PENDIENTE_VERIFICACION", totalUsd: null, totalBs: null }
+      })
+    ]);
+
+    const actualizado = await prisma.order.findUnique({
+      where: { id: params.id },
+      include: { items: { include: { product: true } } }
+    });
+
+    // Se emite como "nuevo_pedido" (no "pedido_actualizado") a propósito:
+    // el pedido vuelve a necesitar verificación y merece la misma alerta
+    // sonora/notificación que un pedido recién llegado, no solo un refresh
+    // silencioso de la lista.
+    await emitirEventoPedido("nuevo_pedido", actualizado);
+    return NextResponse.json({ order: actualizado });
+  }
+
   // 0.5) El cliente elige pagar después (crédito autorizado por la tienda)
   // en vez de subir comprobante ya mismo. No requiere sesión de admin,
   // pero sí que el pedido sea del cliente logueado y que la tienda le haya
