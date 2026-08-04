@@ -4,12 +4,16 @@ import sharp from "sharp";
 // Cliente S3 apuntando a Cloudflare R2 (R2 es compatible con la API de S3,
 // solo cambia el endpoint). Las credenciales viven en variables de entorno,
 // nunca hardcodeadas.
+// .trim() en las 3: es común que un dashboard de variables de entorno (ej.
+// Vercel) agregue un salto de línea invisible al pegar el valor, lo que
+// rompe la firma de cada request (SignatureDoesNotMatch) sin que se note
+// mirando el valor.
 const r2 = new S3Client({
   region: "auto",
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  endpoint: `https://${(process.env.R2_ACCOUNT_ID ?? "").trim()}.r2.cloudflarestorage.com`,
   credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    accessKeyId: (process.env.R2_ACCESS_KEY_ID ?? "").trim(),
+    secretAccessKey: (process.env.R2_SECRET_ACCESS_KEY ?? "").trim(),
   },
   // El SDK de AWS calcula por defecto un checksum CRC32 en cada request
   // (desde las versiones recientes de @aws-sdk/client-s3). R2 no valida
@@ -19,7 +23,7 @@ const r2 = new S3Client({
   responseChecksumValidation: "WHEN_REQUIRED",
 });
 
-const BUCKET = process.env.R2_BUCKET_NAME!;
+const BUCKET = (process.env.R2_BUCKET_NAME ?? "").trim();
 // URL pública del bucket (Public Development URL de R2, o tu dominio propio
 // más adelante), sin "/" al final. Ej: https://pub-xxxx.r2.dev
 const PUBLIC_URL = (process.env.R2_PUBLIC_URL || "").replace(/\/$/, "");
