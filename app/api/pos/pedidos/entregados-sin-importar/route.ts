@@ -1,18 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isPosSyncAuthed } from "@/lib/auth";
+import { totalBsLinea } from "@/lib/precio";
 
-// Pedidos ya entregados que el POS todavía no registró como venta. Se
-// devuelve "precioUsd" de cada línea tal cual está guardado en OrderItem —
-// es el precio BASE del producto, sin el recargo de delivery ($0.10 por
-// producto, Config.ganancia): ese recargo solo se aplica al calcular el
-// total que ve el cliente (ver lib/precio.ts), nunca se guarda en la
-// línea. El POS puede usar este precio directo para registrar la venta
-// "real", sin tener que restar nada.
+// Pedidos ya entregados que el POS todavía no registró como venta. Cada
+// línea trae "totalBsLinea": el monto en bolívares YA CON el recargo de
+// delivery ($0.10 por producto, Config.ganancia) incluido — el mismo
+// cálculo que usa confirmar_disponibilidad para fijar Order.totalBs (ver
+// lib/precio.ts::totalBsLinea). El POS necesita el monto CON recargo, no
+// el precio base del producto: ese $0.10 sí es dinero real que entró por
+// pago móvil y tiene que cuadrar en la caja, aunque no sea ganancia del
+// producto en sí.
 export async function GET(req: NextRequest) {
   if (!isPosSyncAuthed(req)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
+
+  const config = await prisma.config.upsert({ where: { id: 1 }, update: {}, create: { id: 1, tasaCambio: 1 } });
 
   const pedidos = await prisma.order.findMany({
     where: { estado: "ENTREGADO", importadoPos: false },
@@ -39,7 +43,7 @@ export async function GET(req: NextRequest) {
           codigo: it.product.codigo,
           nombre: it.product.nombre,
           cantidad: it.cantidad,
-          precioUsd: it.precioUsd
+          totalBsLinea: totalBsLinea(it.precioUsd, config.ganancia, p.tasaCambio, it.cantidad, it.vendidoPorUnidad)
         }))
     }))
   });
