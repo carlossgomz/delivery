@@ -13,6 +13,11 @@ type Product = {
   precioUsd: number;
   categoria: string;
   activo: boolean;
+  // Si es false, el POS de la tienda marcó este producto como "no se
+  // vende por delivery" — se filtra por completo del catálogo del
+  // cliente más abajo (a diferencia de "activo", no tiene sentido
+  // mostrarlo como "no disponible" porque nunca va a estar disponible acá).
+  disponibleDelivery?: boolean;
   imagenUrl?: string | null;
   // Si es true, precioUsd es el precio POR KILO y "cantidad" en el carrito
   // se interpreta como kilogramos (puede traer decimales) en vez de
@@ -177,7 +182,7 @@ export default function CatalogPage() {
         fetch("/api/categorias")
       ]);
       const [pData, cData] = await Promise.all([pRes.json(), cRes.json()]);
-      setProducts(pData.products);
+      setProducts((pData.products as Product[]).filter((p) => p.disponibleDelivery !== false));
       setTasaCambio(cData.tasaCambio);
       setGanancia(cData.ganancia ?? 0);
       setPedidosHabilitados(cData.pedidosHabilitados ?? true);

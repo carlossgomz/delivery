@@ -60,3 +60,19 @@ export function verifyPassword(password: string, stored: string): boolean {
   if (hashBuffer.length !== testHash.length) return false;
   return crypto.timingSafeEqual(hashBuffer, testHash);
 }
+
+// --- Sincronización con el POS de la tienda ---
+// Quien llama a /api/pos/* no es un navegador logueado (es el proceso Rust
+// del POS, corriendo en la tienda) — no tiene cookie de sesión, así que se
+// autentica con un token fijo compartido en el header Authorization, igual
+// que cualquier integración servidor-a-servidor.
+export function isPosSyncAuthed(req: Request): boolean {
+  const header = req.headers.get("authorization") ?? "";
+  const token = header.startsWith("Bearer ") ? header.slice("Bearer ".length) : "";
+  const esperado = process.env.POS_SYNC_TOKEN;
+  if (!esperado || !token) return false;
+  const tokenBuffer = Buffer.from(token);
+  const esperadoBuffer = Buffer.from(esperado);
+  if (tokenBuffer.length !== esperadoBuffer.length) return false;
+  return crypto.timingSafeEqual(tokenBuffer, esperadoBuffer);
+}

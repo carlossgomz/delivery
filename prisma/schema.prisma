@@ -34,6 +34,12 @@ model Product {
   categoria        String
   imagenUrl        String?
   activo           Boolean     @default(true)
+  // Si es false, el producto nunca se ofrece por delivery (hay artículos
+  // que solo se venden en el mostrador físico) — a diferencia de "activo"
+  // (que es un apaga/enciende manual del staff de delivery, "sin stock por
+  // ahora"), esto lo decide y sincroniza el POS de la tienda; no se edita
+  // a mano desde este panel.
+  disponibleDelivery Boolean   @default(true)
   // Si es true, el producto se vende por peso (ej. carnes, quesos,
   // vegetales "X KILO"): precioUsd es el precio por KILOGRAMO y el
   // cliente elige cuántos kg quiere en vez de un número de unidades.
@@ -85,6 +91,11 @@ model Order {
   // cuando cobra. No afecta el flujo de preparación/entrega del pedido.
   esCredito       Boolean     @default(false)
   creditoPagado   Boolean     @default(false)
+  // Se pone en true cuando el POS de la tienda ya registró este pedido
+  // como venta (una vez llega a ENTREGADO) — evita que se importe dos
+  // veces si el POS corre en más de una PC. Lo marca el propio POS vía
+  // PATCH /api/pos/pedidos/[id]/marcar-importado, nunca se toca a mano.
+  importadoPos    Boolean     @default(false)
   createdAt       DateTime    @default(now())
   // Se llena automáticamente la primera vez que el pedido llega a
   // "ENTREGADO" (ver /api/orders/[id]). Junto con createdAt permite
