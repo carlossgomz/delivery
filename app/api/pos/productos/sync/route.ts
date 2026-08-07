@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isPosSyncAuthed } from "@/lib/auth";
+import { redondearPrecio } from "@/lib/precio";
 
 // El POS de la tienda empuja acá su catálogo completo cada pocos minutos
 // (y también cuando el admin toca "sincronizar ahora"). Es la fuente de
@@ -35,14 +36,14 @@ export async function POST(req: NextRequest) {
       where: { codigo: p.codigo },
       update: {
         nombre: p.nombre,
-        precioUsd: Number(p.precioUsd) || 0,
+        precioUsd: redondearPrecio(Number(p.precioUsd) || 0),
         categoria: p.categoria || "Sin categoría",
         disponibleDelivery: Boolean(p.disponibleDelivery)
       },
       create: {
         codigo: p.codigo,
         nombre: p.nombre,
-        precioUsd: Number(p.precioUsd) || 0,
+        precioUsd: redondearPrecio(Number(p.precioUsd) || 0),
         categoria: p.categoria || "Sin categoría",
         disponibleDelivery: Boolean(p.disponibleDelivery)
       }

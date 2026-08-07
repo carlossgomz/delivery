@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isDuenoAuthed } from "@/lib/auth";
+import { redondearPrecio } from "@/lib/precio";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   if (!isDuenoAuthed()) {
@@ -11,7 +12,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     where: { id: params.id },
     data: {
       ...(body.nombre !== undefined && { nombre: body.nombre }),
-      ...(body.precioUsd !== undefined && { precioUsd: Number(body.precioUsd) }),
+      ...(body.precioUsd !== undefined && { precioUsd: redondearPrecio(Number(body.precioUsd)) }),
       ...(body.categoria !== undefined && { categoria: body.categoria }),
       ...(body.activo !== undefined && { activo: Boolean(body.activo) }),
       ...(body.porPeso !== undefined && { porPeso: Boolean(body.porPeso) }),

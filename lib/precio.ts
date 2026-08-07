@@ -11,6 +11,15 @@ export function precioConGananciaUsd(precioUsd: number, ganancia: number): numbe
   return precioUsd + (ganancia || 0);
 }
 
+// Redondea un precio en USD a 2 decimales (precisión estándar de moneda).
+// La sincronización con el POS y la carga manual desde /admin pueden traer
+// decimales de más (ej. 2.457142857142857, arrastrado de una división) —
+// esto se aplica en todo punto donde se ESCRIBE Product.precioUsd para que
+// nunca quede guardado así.
+export function redondearPrecio(valor: number): number {
+  return Math.round(valor * 100) / 100;
+}
+
 export function precioBs(precioUsd: number, ganancia: number, tasaCambio: number): number {
   return precioConGananciaUsd(precioUsd, ganancia) * (tasaCambio || 0);
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isDuenoAuthed } from "@/lib/auth";
+import { redondearPrecio } from "@/lib/precio";
 
 // El catálogo y el checkout esperan un campo "precioUsd" en cada producto.
 // Ese precio ya viene cargado directamente por el admin (sin costo ni margen).
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const precioUsd = body.precioUsd !== undefined && body.precioUsd !== null ? Number(body.precioUsd) : 0;
+  const precioUsd = body.precioUsd !== undefined && body.precioUsd !== null ? redondearPrecio(Number(body.precioUsd)) : 0;
 
   const product = await prisma.product.create({
     data: {
