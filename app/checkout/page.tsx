@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import Confetti from "@/app/components/Confetti";
+import AvisoNoPagar from "@/app/components/AvisoNoPagar";
 import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
 import { precioBs, totalBsLinea } from "@/lib/precio";
 
@@ -83,6 +84,12 @@ export default function CheckoutPage() {
   // Sirve para mostrarle un aviso claro de que falta el último paso: tocar
   // "Finalizar compra" para que el pedido quede confirmado en el sistema.
   const [volviendoDeWhatsapp, setVolviendoDeWhatsapp] = useState(false);
+
+  // Aviso de "todavía no pagues" antes de enviar el pedido a la tienda —
+  // ver app/components/AvisoNoPagar.tsx (mismo aviso que ya se mostró al
+  // salir del catálogo, se repite acá porque es el otro punto donde el
+  // cliente podría adelantarse a pagar antes de la verificación de stock).
+  const [mostrarAvisoNoPagar, setMostrarAvisoNoPagar] = useState(false);
 
   // Cuando la tienda confirma disponibilidad y NO todo estaba disponible,
   // primero mostramos un resumen (qué sí / qué no) con tres salidas
@@ -1281,11 +1288,20 @@ export default function CheckoutPage() {
 
         <button
           disabled={!nombre || !telefono || !direccion || enviando || cart.length === 0}
-          onClick={enviarPedido}
+          onClick={() => setMostrarAvisoNoPagar(true)}
           className="w-full py-3 rounded-lg bg-leaf-600 text-white font-medium disabled:opacity-40 hover:bg-leaf-800 transition-colors"
         >
           {enviando ? "Enviando…" : "Enviar pedido a la tienda"}
         </button>
+
+        <AvisoNoPagar
+          open={mostrarAvisoNoPagar}
+          onContinuar={() => {
+            setMostrarAvisoNoPagar(false);
+            enviarPedido();
+          }}
+          onCancelar={() => setMostrarAvisoNoPagar(false)}
+        />
 
         {/* El carrito sigue guardado en este punto: si se le olvidó algo o
             quiere revisar cantidades, puede volver al catálogo sin perder

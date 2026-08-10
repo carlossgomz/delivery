@@ -6,6 +6,7 @@ import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
 import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
 import { precioBs as calcPrecioBs, totalBsLinea } from "@/lib/precio";
+import AvisoNoPagar from "@/app/components/AvisoNoPagar";
 
 type Product = {
   id: string;
@@ -87,6 +88,9 @@ export default function CatalogPage() {
   // todavía no tiene sesión, para que elija entre iniciar sesión/registrarse
   // (cliente frecuente) o seguir de una vez como invitado.
   const [mostrarBienvenida, setMostrarBienvenida] = useState(false);
+  // Aviso de "todavía no pagues" antes de pasar al checkout — ver
+  // app/components/AvisoNoPagar.tsx.
+  const [mostrarAvisoNoPagar, setMostrarAvisoNoPagar] = useState(false);
 
   async function cargarMensajesNoLeidos(id: string) {
     try {
@@ -467,6 +471,15 @@ export default function CatalogPage() {
           </div>
         </div>
       )}
+
+      <AvisoNoPagar
+        open={mostrarAvisoNoPagar}
+        onContinuar={() => {
+          setMostrarAvisoNoPagar(false);
+          router.push("/checkout");
+        }}
+        onCancelar={() => setMostrarAvisoNoPagar(false)}
+      />
 
       {/* --- CABECERA + BUSCADOR + CATEGORÍAS: todo fijo mientras se
           scrollea el catálogo, agrupado en un solo bloque sticky. --- */}
@@ -962,7 +975,7 @@ export default function CatalogPage() {
                 <p className="font-medium truncate">Bs {totalBsCarrito.toFixed(2)}</p>
               </button>
               <button
-                onClick={() => router.push("/checkout")}
+                onClick={() => setMostrarAvisoNoPagar(true)}
                 className="shrink-0 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-lg bg-clay-400 text-ink text-sm sm:text-base font-medium hover:opacity-90 active:scale-95 transition-all whitespace-nowrap"
               >
                 Proceder con el pedido
