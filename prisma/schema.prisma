@@ -24,6 +24,15 @@ model Categoria {
 model Product {
   id               String      @id @default(cuid())
   codigo           String      @unique
+  // Id del producto en la base del POS (productos.id, un UUID que nunca
+  // cambia) — clave real de sincronización desde la migración que agregó
+  // este campo. "codigo" (el código de barras) SÍ puede cambiar en el POS
+  // (se le asigna el código real después de crearse con uno provisional,
+  // o se corrige a mano) — antes de tener posId, cada cambio de código
+  // creaba un producto nuevo acá en vez de actualizar el existente, dejando
+  // duplicados huérfanos. Nullable porque los productos agregados a mano
+  // desde /admin/productos (codigo "PROD-...") no vienen del POS.
+  posId            String?     @unique
   nombre           String
   // costoUsd y margenPorcentaje quedaron sin uso: el admin ahora carga
   // precioUsd directamente como precio final. Se dejan en el schema

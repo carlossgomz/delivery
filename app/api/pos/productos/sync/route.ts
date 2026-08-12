@@ -6,11 +6,13 @@ import { redondearPrecio } from "@/lib/precio";
 // El POS de la tienda empuja acá su catálogo completo cada pocos minutos
 // (y también cuando el admin toca "sincronizar ahora"). Es la fuente de
 // verdad de nombre/precio/categoría/disponibilidad-para-delivery de cada
-// producto — este endpoint solo hace upsert por "codigo" (el mismo código
-// de barra del POS). Deliberadamente NO toca "activo": ese sigue siendo el
+// producto. Deliberadamente NO toca "activo": ese sigue siendo el
 // interruptor manual de "hay/no hay stock ahora mismo" que opera el staff
 // de delivery en su propio panel (el POS no controla eso todavía).
 type ProductoSync = {
+  // Id del producto en la base del POS (productos.id) — clave real de
+  // sincronización, ver comentario de Product.posId en el schema.
+  posId: string;
   codigo: string;
   nombre: string;
   precioUsd: number;
@@ -29,25 +31,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Falta el arreglo \"productos\"." }, { status: 400 });
   }
 
-  const validos = productos.filter((p) => p.codigo && p.nombre);
+  const validos = productos.filter((p) => p.posId && p.codigo && p.nombre);
 
-  function upsert(p: ProductoSync) {
-    return prisma.product.upsert({
-      where: { codigo: p.codigo },
-      update: {
-        nombre: p.nombre,
-        precioUsd: redondearPrecio(Number(p.precioUsd) || 0),
-        categoria: p.categoria || "Sin categoría",
-        disponibleDelivery: Boolean(p.disponibleDelivery)
-      },
-      create: {
-        codigo: p.codigo,
-        nombre: p.nombre,
-        precioUsd: redondearPrecio(Number(p.precioUsd) || 0),
-        categoria: p.categoria || "Sin categoría",
-        disponibleDelivery: Boolean(p.disponibleDelivery)
-      }
-    });
+  // El código de barras del POS puede cambiar (se le asigna el real
+  // después de crearse con uno provisional, o se corrige a mano) — por eso
+  // NO es la clave de sincronización, solo un dato más que se actualiza.
+  // La clave real es posId (productos.id del POS, estable de por vida).
+  async function upsert(p: ProductoSync) {
+    const datos = {
+      codigo: p.codigo,
+      nombre: p.nombre,
+      precioUsd: redondearPrecio(Number(p.precioUsd) || 0),
+      categoria: p.categoria || "Sin categoría",
+      disponibleDelivery: Boolean(p.disponibleDelivery)
+    };
+
+    const porPosId = await prisma.product.findUnique({ where: { posId: p.posId } });
+    if (porPosId) {
+      return prisma.product.update({ where: { id: porPosId.id }, data: datos });
+    }
+
+    // Primera sincronización de este producto con el campo posId ya
+    // presente en el esquema: se busca por código (la clave vieja) para
+    // enlazarle el posId sin duplicarlo, en vez de crear una fila nueva.
+    const porCodigo = await prisma.product.findUnique({ where: { codigo: p.codigo } });
+    if (porCodigo) {
+      return prisma.product.update({ where: { id: porCodigo.id }, data: { ...datos, posId: p.posId } });
+    }
+
+    // No existe todavía en ningún lado: si nace ya marcado como "no
+    // disponible para delivery", no vale la pena crearlo — evita que un
+    // producto que el staff de delivery borró a mano (o que en el POS
+    // nunca se vendió por delivery, ej. productos de mostrador) se
+    // "recree" solo en cada sincronización.
+    if (!p.disponibleDelivery) return null;
+
+    return prisma.product.create({ data: { ...datos, posId: p.posId } });
   }
 
   // Cada producto es independiente (no hace falta que los ~600 upserts
