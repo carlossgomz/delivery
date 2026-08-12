@@ -36,7 +36,8 @@ export async function POST(req: NextRequest) {
       permiteUnidad: Boolean(body.permiteUnidad),
       pesoEstimadoUnidadGramos: body.pesoEstimadoUnidadGramos !== undefined && body.pesoEstimadoUnidadGramos !== null && body.pesoEstimadoUnidadGramos !== ""
         ? Math.round(Number(body.pesoEstimadoUnidadGramos))
-        : null
+        : null,
+      permiteMedia: Boolean(body.permiteMedia)
     }
   });
 

@@ -20,6 +20,10 @@ type Product = {
   // de una unidad, usado solo para mostrarle un precio estimado al cliente.
   permiteUnidad?: boolean;
   pesoEstimadoUnidadGramos?: number | null;
+  // Solo tiene sentido si porPeso = false: permite vender también MEDIA
+  // unidad (0.5), ej. medio cartón de huevos — descuenta del mismo
+  // producto, no crea uno aparte.
+  permiteMedia?: boolean;
   orden: number;
   createdAt?: string;
 };
@@ -31,6 +35,7 @@ type EditingValue = {
   categoria: string;
   permiteUnidad: boolean;
   pesoEstimadoUnidadGramos: string;
+  permiteMedia: boolean;
 };
 
 export default function AdminProductosPage() {
@@ -173,6 +178,7 @@ export default function AdminProductosPage() {
           categoria: p.categoria,
           permiteUnidad: Boolean(p.permiteUnidad),
           pesoEstimadoUnidadGramos: p.pesoEstimadoUnidadGramos?.toString() ?? "",
+          permiteMedia: Boolean(p.permiteMedia),
         };
       });
       setEditingValues(iniciales);
@@ -208,7 +214,7 @@ export default function AdminProductosPage() {
 
   function handleProductChange(
     id: string,
-    field: "nombre" | "precioUsd" | "porPeso" | "categoria" | "permiteUnidad" | "pesoEstimadoUnidadGramos",
+    field: "nombre" | "precioUsd" | "porPeso" | "categoria" | "permiteUnidad" | "pesoEstimadoUnidadGramos" | "permiteMedia",
     value: string | boolean
   ) {
     setEditingValues((prev) => ({
@@ -236,6 +242,7 @@ export default function AdminProductosPage() {
         categoria: val.categoria,
         permiteUnidad: val.porPeso ? val.permiteUnidad : false,
         pesoEstimadoUnidadGramos: val.porPeso && val.permiteUnidad ? (parseFloat(val.pesoEstimadoUnidadGramos) || 0) : null,
+        permiteMedia: !val.porPeso && val.permiteMedia,
       };
 
       const res = await fetch(`/api/products/${id}`, {
@@ -511,6 +518,7 @@ export default function AdminProductosPage() {
             categoria: producto.categoria,
             permiteUnidad: Boolean(producto.permiteUnidad),
             pesoEstimadoUnidadGramos: producto.pesoEstimadoUnidadGramos?.toString() ?? "",
+            permiteMedia: Boolean(producto.permiteMedia),
           },
         }));
         setNuevoProducto({ nombre: "", precioUsd: "", categoria: "", porPeso: false });
@@ -822,6 +830,7 @@ export default function AdminProductosPage() {
                       categoria: product.categoria,
                       permiteUnidad: Boolean(product.permiteUnidad),
                       pesoEstimadoUnidadGramos: product.pesoEstimadoUnidadGramos?.toString() ?? "",
+                      permiteMedia: Boolean(product.permiteMedia),
                     };
 
                     const precioBs = calcularPrecioBs(edit.precioUsd);
@@ -1010,6 +1019,31 @@ export default function AdminProductosPage() {
                                 </div>
                               </div>
                             )}
+                          </div>
+                        )}
+
+                        {/* Venta por media unidad: solo tiene sentido para un
+                            producto normal por unidad (no por peso). Permite
+                            que, además de la unidad completa, el cliente
+                            pueda pedir MEDIA (0.5) — ej. medio cartón de
+                            huevos. El precio de arriba sigue siendo el de la
+                            unidad completa; medio cobra la mitad. Ambas
+                            opciones descuentan del mismo producto. */}
+                        {!edit.porPeso && (
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                            <div>
+                              <label className="block text-[11px] font-medium text-ink/50 mb-1">También por media</label>
+                              <label className="flex items-center gap-2 text-sm text-ink/70 border border-clay-200 rounded-lg px-3 py-2.5 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={edit.permiteMedia}
+                                  onChange={(e) => handleProductChange(product.id, "permiteMedia", e.target.checked)}
+                                  className="w-4 h-4 accent-clay-600 cursor-pointer"
+                                  title='Además de la unidad completa, el cliente puede pedir media (0.5) — ej. "medio cartón" — al mismo precio por unidad, cobrado a la mitad'
+                                />
+                                Ej: "medio cartón"
+                              </label>
+                            </div>
                           </div>
                         )}
 

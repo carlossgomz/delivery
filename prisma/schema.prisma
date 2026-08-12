@@ -55,6 +55,14 @@ model Product {
   // precio real se termina de confirmar con el peso que pese la tienda.
   permiteUnidad             Boolean     @default(false)
   pesoEstimadoUnidadGramos  Int?
+  // Solo tiene sentido si porPeso = false (producto normal por unidad).
+  // Permite que, además de la unidad completa, el cliente pueda pedir
+  // MEDIA unidad (0.5) — ej. "HUEVO CARTON 36UND" vendido también como
+  // medio cartón. precioUsd sigue siendo el precio de la unidad completa;
+  // medio cartón cobra la mitad (cantidad = 0.5 x precioUsd). Ambas
+  // opciones descuentan del mismo Product, así el inventario nunca queda
+  // repartido entre dos productos distintos.
+  permiteMedia              Boolean     @default(false)
   // Orden manual del producto dentro de su categoría (menor = aparece
   // primero). Todos los productos existentes arrancan en 0 y se
   // desempatan por fecha de creación, así que no cambia nada hasta que el

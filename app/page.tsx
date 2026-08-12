@@ -32,6 +32,11 @@ type Product = {
   // estimado; el precio real se confirma cuando la tienda pesa el pedido.
   permiteUnidad?: boolean;
   pesoEstimadoUnidadGramos?: number | null;
+  // Solo aplica si porPeso = false: además de la unidad completa, se puede
+  // pedir MEDIA unidad (0.5) — ej. medio cartón de huevos. El precio sigue
+  // siendo el de precioUsd (unidad completa); medio cobra la mitad. Ambas
+  // opciones descuentan del mismo producto.
+  permiteMedia?: boolean;
 };
 
 type Cliente = { id: string; nombre: string };
@@ -411,13 +416,14 @@ export default function CatalogPage() {
   }
 
   // Total para el badge "N producto(s)": suma unidades normalmente, pero
-  // una línea EN MODO PESO cuenta como 1 (no se suman kilos como si fueran
-  // unidades, "0.5 producto(s)" no tendría sentido). Una línea en modo
-  // unidad (incluida la de un producto híbrido) sí suma su cantidad real.
+  // una línea EN MODO PESO (o "por media", ej. medio cartón) cuenta como 1
+  // (no se suman kilos/medias como si fueran unidades, "0.5 producto(s)"
+  // no tendría sentido). Una línea en modo unidad (incluida la de un
+  // producto híbrido) sí suma su cantidad real.
   const totalItems = cart.reduce((sum, l) => {
     const p = products.find((pr) => pr.id === l.productId);
-    const esLineaEnModoPeso = p?.porPeso && !l.vendidoPorUnidad;
-    return sum + (esLineaEnModoPeso ? 1 : l.cantidad);
+    const esLineaFraccionada = (p?.porPeso && !l.vendidoPorUnidad) || (p?.permiteMedia && !p?.porPeso);
+    return sum + (esLineaFraccionada ? 1 : l.cantidad);
   }, 0);
   // La ganancia se suma POR PRODUCTO, así que el total en Bs se calcula
   // línea por línea (no sumando primero en $ y agregando la ganancia una
@@ -691,9 +697,11 @@ export default function CatalogPage() {
                           )}
 
                           {/* Botón flotante de agregar rápido, solo para
-                              productos por unidad (los que son por peso
-                              usan el selector de kg de abajo). */}
-                          {p.activo && !p.porPeso && (
+                              productos por unidad normales (los que son por
+                              peso usan el selector de kg de abajo, y los que
+                              permiten media unidad usan su propio selector
+                              de abajo). */}
+                          {p.activo && !p.porPeso && !p.permiteMedia && (
                             line ? (
                               <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-white rounded-full shadow-md px-1 py-1">
                                 <button
@@ -822,6 +830,48 @@ export default function CatalogPage() {
                             );
                           })()}
 
+                          {/* Selector de media unidad: reemplaza el botón de
+                              agregar en productos que, además de la unidad
+                              completa, se pueden pedir por MEDIA (ej. medio
+                              cartón de huevos). Dos opciones nada más — cada
+                              toque suma esa cantidad a la misma línea del
+                              carrito, así que se pueden combinar (1 + ½ =
+                              1.5). El precio de arriba es el de la unidad
+                              completa; medio cobra la mitad. */}
+                          {p.activo && !p.porPeso && p.permiteMedia && (
+                            <div className="flex flex-col gap-1 mt-0.5">
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => ajustarPeso(p.id, 1)}
+                                  className="flex-1 px-2 py-1.5 rounded-lg bg-leaf-600 text-white text-[11px] sm:text-xs font-medium hover:bg-leaf-800 active:scale-95 transition-all"
+                                  aria-label={`Agregar 1 unidad completa de ${p.nombre}`}
+                                >
+                                  + 1 completo
+                                </button>
+                                <button
+                                  onClick={() => ajustarPeso(p.id, 0.5)}
+                                  className="flex-1 px-2 py-1.5 rounded-lg bg-clay-500 text-white text-[11px] sm:text-xs font-medium hover:bg-clay-700 active:scale-95 transition-all"
+                                  aria-label={`Agregar media unidad de ${p.nombre}`}
+                                >
+                                  + ½ medio
+                                </button>
+                              </div>
+                              {line && (
+                                <div className="flex items-center justify-between gap-1.5">
+                                  <span className="text-[10px] sm:text-xs text-ink/50">
+                                    En tu carrito: {line.cantidad}
+                                  </span>
+                                  <button
+                                    onClick={() => quitarLineaCompleta(p.id)}
+                                    className="text-[10px] sm:text-xs text-alert-600 underline"
+                                  >
+                                    Quitar
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
                           {/* Producto híbrido: además del selector de kg de
                               arriba, un stepper aparte para pedir por
                               unidades sueltas (ej. "3 tomates"). El precio
@@ -907,6 +957,10 @@ export default function CatalogPage() {
                     // vendidoPorUnidad (para productos híbridos puede haber
                     // dos líneas del mismo producto, una de cada modo).
                     const esPeso = p.porPeso && !line.vendidoPorUnidad;
+                    // Línea "por media": producto normal (no por peso) que
+                    // permite pedir 0.5 — el paso del stepper es de medio
+                    // en medio en vez de uno en uno.
+                    const esMedia = !p.porPeso && Boolean(p.permiteMedia);
                     return (
                       <li
                         key={`${line.productId}-${line.vendidoPorUnidad ? "und" : "kg"}`}
@@ -921,12 +975,14 @@ export default function CatalogPage() {
                             onClick={() =>
                               esPeso
                                 ? ajustarPeso(p.id, -0.25)
-                                : line.vendidoPorUnidad
-                                  ? ajustarUnidadesHibrido(p.id, -1)
-                                  : removeFromCart(p.id)
+                                : esMedia
+                                  ? ajustarPeso(p.id, -0.5)
+                                  : line.vendidoPorUnidad
+                                    ? ajustarUnidadesHibrido(p.id, -1)
+                                    : removeFromCart(p.id)
                             }
                             className="w-8 h-8 rounded-full border border-leaf-400 text-leaf-600 flex items-center justify-center font-bold active:scale-95 transition-transform"
-                            aria-label={`Quitar ${esPeso ? "250g" : "una unidad"} de ${p.nombre}`}
+                            aria-label={`Quitar ${esPeso ? "250g" : esMedia ? "medio" : "una unidad"} de ${p.nombre}`}
                           >
                             −
                           </button>
@@ -937,12 +993,14 @@ export default function CatalogPage() {
                             onClick={() =>
                               esPeso
                                 ? ajustarPeso(p.id, 0.25)
-                                : line.vendidoPorUnidad
-                                  ? ajustarUnidadesHibrido(p.id, 1)
-                                  : addToCart(p.id)
+                                : esMedia
+                                  ? ajustarPeso(p.id, 0.5)
+                                  : line.vendidoPorUnidad
+                                    ? ajustarUnidadesHibrido(p.id, 1)
+                                    : addToCart(p.id)
                             }
                             className="w-8 h-8 rounded-full bg-leaf-600 text-white flex items-center justify-center font-bold active:scale-95 transition-transform"
-                            aria-label={`Agregar ${esPeso ? "250g" : "una unidad"} de ${p.nombre}`}
+                            aria-label={`Agregar ${esPeso ? "250g" : esMedia ? "medio" : "una unidad"} de ${p.nombre}`}
                           >
                             +
                           </button>

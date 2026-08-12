@@ -18,7 +18,7 @@ type OrderItem = {
   // Cuántas unidades pidió el cliente originalmente (ej. 3), fijo para
   // mostrarlo aunque después se ajuste el peso. Solo si vendidoPorUnidad.
   unidadesPedidas?: number | null;
-  product: { nombre: string; porPeso?: boolean; permiteUnidad?: boolean };
+  product: { nombre: string; porPeso?: boolean; permiteUnidad?: boolean; permiteMedia?: boolean };
 };
 
 type Order = {
@@ -755,7 +755,7 @@ export default function AdminPedidosPage() {
                           <div className="flex items-center gap-1">
                             <button
                               type="button"
-                              onClick={() => nudgeCantidad(order, item, esPorPeso ? -0.025 : -1)}
+                              onClick={() => nudgeCantidad(order, item, esPorPeso ? -0.025 : item.product?.permiteMedia ? -0.5 : -1)}
                               className="w-6 h-6 shrink-0 rounded-full border border-leaf-300 text-leaf-700 flex items-center justify-center text-sm font-bold active:scale-90 transition-transform"
                               aria-label={`Restar de ${item.product?.nombre}`}
                               tabIndex={-1}
@@ -786,7 +786,7 @@ export default function AdminPedidosPage() {
                             />
                             <button
                               type="button"
-                              onClick={() => nudgeCantidad(order, item, esPorPeso ? 0.025 : 1)}
+                              onClick={() => nudgeCantidad(order, item, esPorPeso ? 0.025 : item.product?.permiteMedia ? 0.5 : 1)}
                               className="w-6 h-6 shrink-0 rounded-full bg-leaf-600 text-white flex items-center justify-center text-sm font-bold active:scale-90 transition-transform"
                               aria-label={`Sumar a ${item.product?.nombre}`}
                               tabIndex={-1}

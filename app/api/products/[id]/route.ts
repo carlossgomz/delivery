@@ -17,6 +17,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       ...(body.activo !== undefined && { activo: Boolean(body.activo) }),
       ...(body.porPeso !== undefined && { porPeso: Boolean(body.porPeso) }),
       ...(body.permiteUnidad !== undefined && { permiteUnidad: Boolean(body.permiteUnidad) }),
+      ...(body.permiteMedia !== undefined && { permiteMedia: Boolean(body.permiteMedia) }),
       ...(body.pesoEstimadoUnidadGramos !== undefined && {
         pesoEstimadoUnidadGramos: body.pesoEstimadoUnidadGramos === null || body.pesoEstimadoUnidadGramos === "" ? null : Math.round(Number(body.pesoEstimadoUnidadGramos))
       }),
