@@ -863,7 +863,7 @@ export default function CatalogPage() {
                                   className="flex-1 px-2 py-1.5 rounded-lg bg-clay-500 text-white text-[11px] sm:text-xs font-medium hover:bg-clay-700 active:scale-95 transition-all"
                                   aria-label={`Agregar media unidad de ${p.nombre}`}
                                 >
-                                  1/2
+                                  +1/2
                                 </button>
                               </div>
                               {line && (
