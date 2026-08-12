@@ -786,12 +786,22 @@ export default function CatalogPage() {
 
                             return (
                               <div className="flex flex-col gap-1 mt-0.5">
+                                {/* Aviso notable: muchos clientes escriben
+                                    "250" pensando que son gramos, cuando en
+                                    realidad este campo es en KILOS (250kg en
+                                    vez de 250g) — hay que aclarar la
+                                    conversión a decimales bien visible,
+                                    justo encima del campo donde se
+                                    equivocan. */}
+                                <p className="text-[9px] sm:text-[10px] font-semibold text-amber-800 bg-amber-100 border border-amber-300 rounded px-1.5 py-1 leading-tight">
+                                  ⚠️ Precio por 1 KILO. Para gramos usa decimales: 250g = 0.250, 300g = 0.3
+                                </p>
                                 <div className="flex items-center gap-1">
                                   <input
                                     type="number"
                                     min={0.05}
                                     step={0.05}
-                                    placeholder="kg"
+                                    placeholder="0.250"
                                     value={draftValue}
                                     onChange={(e) =>
                                       setPesoDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
@@ -846,14 +856,14 @@ export default function CatalogPage() {
                                   className="flex-1 px-2 py-1.5 rounded-lg bg-leaf-600 text-white text-[11px] sm:text-xs font-medium hover:bg-leaf-800 active:scale-95 transition-all"
                                   aria-label={`Agregar 1 unidad completa de ${p.nombre}`}
                                 >
-                                  + 1 completo
+                                  +1
                                 </button>
                                 <button
                                   onClick={() => ajustarPeso(p.id, 0.5)}
                                   className="flex-1 px-2 py-1.5 rounded-lg bg-clay-500 text-white text-[11px] sm:text-xs font-medium hover:bg-clay-700 active:scale-95 transition-all"
                                   aria-label={`Agregar media unidad de ${p.nombre}`}
                                 >
-                                  + ½ medio
+                                  1/2
                                 </button>
                               </div>
                               {line && (
