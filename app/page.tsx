@@ -860,7 +860,7 @@ export default function CatalogPage() {
                                 </button>
                                 <button
                                   onClick={() => ajustarPeso(p.id, 0.5)}
-                                  className="flex-1 px-2 py-1.5 rounded-lg bg-clay-500 text-white text-[11px] sm:text-xs font-medium hover:bg-clay-700 active:scale-95 transition-all"
+                                  className="flex-1 px-2 py-1.5 rounded-lg bg-clay-600 text-white text-[11px] sm:text-xs font-medium hover:opacity-90 active:scale-95 transition-all"
                                   aria-label={`Agregar media unidad de ${p.nombre}`}
                                 >
                                   +1/2
