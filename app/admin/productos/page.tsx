@@ -6,6 +6,9 @@ import { normalizarTexto } from "@/lib/texto";
 
 type Product = {
   id: string;
+  // Presente solo si el producto viene del POS (sincronizado); null/undefined
+  // para productos agregados a mano solo en delivery-app.
+  posId?: string | null;
   nombre: string;
   costoUsd?: number | null;
   precioUsd: number;
@@ -1059,6 +1062,11 @@ export default function AdminProductosPage() {
                           <button
                             onClick={() => toggleDisponibilidad(product)}
                             disabled={cambiandoDisponibilidadId === product.id}
+                            title={
+                              product.posId
+                                ? "Este producto viene del POS: la próxima sincronización va a volver a poner esto según el stock real, así que es solo un cambio temporal."
+                                : undefined
+                            }
                             className={`px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 transition-colors border ${product.activo
                               ? "border-alert-600 text-alert-600 hover:bg-alert-50"
                               : "border-leaf-600 text-leaf-600 hover:bg-leaf-50"

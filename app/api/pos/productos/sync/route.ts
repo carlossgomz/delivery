@@ -5,10 +5,11 @@ import { redondearPrecio } from "@/lib/precio";
 
 // El POS de la tienda empuja acá su catálogo completo cada pocos minutos
 // (y también cuando el admin toca "sincronizar ahora"). Es la fuente de
-// verdad de nombre/precio/categoría/disponibilidad-para-delivery de cada
-// producto. Deliberadamente NO toca "activo": ese sigue siendo el
-// interruptor manual de "hay/no hay stock ahora mismo" que opera el staff
-// de delivery en su propio panel (el POS no controla eso todavía).
+// verdad de nombre/precio/categoría/disponibilidad-para-delivery/stock de
+// cada producto — incluido "activo", que ahora lo controla el POS según
+// haya o no stock real (antes era un interruptor 100% manual del staff de
+// delivery, y se perdían ventas cuando alguien se olvidaba de reactivar un
+// producto que ya había vuelto a tener stock).
 type ProductoSync = {
   // Id del producto en la base del POS (productos.id) — clave real de
   // sincronización, ver comentario de Product.posId en el schema.
@@ -18,6 +19,11 @@ type ProductoSync = {
   precioUsd: number;
   categoria: string;
   disponibleDelivery: boolean;
+  // Opcional por compatibilidad con instalaciones del POS todavía sin
+  // actualizar (no mandan este campo): si no viene, NO se toca "activo"
+  // (se deja como estaba, o el default true si es un producto nuevo) en
+  // vez de asumir que no hay stock.
+  hayStock?: boolean;
 };
 
 export async function POST(req: NextRequest) {
@@ -43,7 +49,8 @@ export async function POST(req: NextRequest) {
       nombre: p.nombre,
       precioUsd: redondearPrecio(Number(p.precioUsd) || 0),
       categoria: p.categoria || "Sin categoría",
-      disponibleDelivery: Boolean(p.disponibleDelivery)
+      disponibleDelivery: Boolean(p.disponibleDelivery),
+      ...(p.hayStock !== undefined && { activo: Boolean(p.hayStock) })
     };
 
     const porPosId = await prisma.product.findUnique({ where: { posId: p.posId } });
