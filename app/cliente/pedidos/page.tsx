@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatCantidad } from "@/lib/peso";
+import { iniciarSondeo } from "@/lib/sondeo";
 
 type OrderItem = {
   id: string;
@@ -96,11 +97,11 @@ export default function MisPedidosPage() {
     // Refresca solo el estado de los pedidos cada pocos segundos, para que
     // el cliente vea "en preparación" / "en camino" / "entregado" sin tener
     // que recargar la página manualmente.
-    const interval = setInterval(cargar, 5000);
+    const detenerSondeo = iniciarSondeo(cargar, 5000);
 
     return () => {
       activo = false;
-      clearInterval(interval);
+      detenerSondeo();
     };
   }, [router]);
 

@@ -8,6 +8,7 @@ import Confetti from "@/app/components/Confetti";
 import AvisoNoPagar from "@/app/components/AvisoNoPagar";
 import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
 import { precioBs, totalBsLinea } from "@/lib/precio";
+import { iniciarSondeo } from "@/lib/sondeo";
 
 type Product = {
   id: string;
@@ -224,25 +225,9 @@ export default function CheckoutPage() {
       return;
     }
 
-    const interval = setInterval(() => {
-      cargarOrden(orderId);
-    }, 4000);
-
-    // Si el cliente minimizó la pestaña (ej. para mandar el comprobante
-    // por WhatsApp) y vuelve sin que la página se recargue, refrescamos el
-    // pedido apenas la pestaña vuelve a estar visible, en vez de esperar
-    // hasta 4 segundos al próximo intervalo.
-    function alVolverVisible() {
-      if (document.visibilityState === "visible") {
-        cargarOrden(orderId as string);
-      }
-    }
-    document.addEventListener("visibilitychange", alVolverVisible);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener("visibilitychange", alVolverVisible);
-    };
+    // Si el cliente minimizó la pestaña (ej. para mandar el comprobante por
+    // WhatsApp) no se consulta; al volver se refresca el pedido enseguida.
+    return iniciarSondeo(() => cargarOrden(orderId), 4000);
   }, [orderId, estado]);
 
   // La ganancia se suma por producto, así que el total en Bs se calcula

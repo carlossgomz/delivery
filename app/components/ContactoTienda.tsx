@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { iniciarSondeo } from "@/lib/sondeo";
 
 type Mensaje = {
   id: string;
@@ -76,8 +77,7 @@ export default function ContactoTienda() {
     }
 
     cargarMensajes();
-    const interval = setInterval(cargarMensajes, POLL_MS);
-    return () => clearInterval(interval);
+    return iniciarSondeo(cargarMensajes, POLL_MS);
   }, [listo]);
 
   useEffect(() => {

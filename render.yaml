@@ -1,0 +1,41 @@
+# Hosting temporal mientras la cuenta de Vercel está en pausa (hasta 2026-12-05).
+# Vercel sigue siendo el hosting principal: ver SISTEMA/VOLVER-A-VERCEL.md.
+# Los valores se cargan a mano en Render; aquí no va ningún secreto.
+services:
+  - type: web
+    name: delivery-temporal
+    runtime: node
+    plan: free
+    region: virginia
+    branch: reducir-consultas
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DELIVERY_PASSWORD
+        sync: false
+      - key: POS_SYNC_TOKEN
+        sync: false
+      - key: KV_REST_API_URL
+        sync: false
+      - key: KV_REST_API_TOKEN
+        sync: false
+      - key: KV_REST_API_READ_ONLY_TOKEN
+        sync: false
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_NAME
+        sync: false
+      - key: R2_PUBLIC_URL
+        sync: false

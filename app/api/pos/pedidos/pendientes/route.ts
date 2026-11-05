@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isPosSyncAuthed } from "@/lib/auth";
 
-// El POS consulta esto cada ~30s para mostrar un aviso en su encabezado —
+// El POS consulta esto al recibir un aviso en vivo, con un respaldo periódico,
+// para mostrar un aviso en su encabezado —
 // "PENDIENTE_VERIFICACION" es específicamente el pedido recién llegado que
 // todavía nadie del staff de delivery revisó (no cuenta pedidos que ya
 // están en curso, esos ya los está atendiendo alguien).

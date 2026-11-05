@@ -8,7 +8,7 @@ import { redis } from "@/lib/redis";
 //
 // Ahora usamos el pub/sub de Upstash Redis (HTTP streaming, no requiere una
 // conexión TCP persistente), que es compartido por todas las instancias.
-const CANAL_PEDIDOS = "pedidos";
+export const CANAL_PEDIDOS = "pedidos";
 
 export type EventoPedido = "nuevo_pedido" | "pedido_actualizado" | "pedido_eliminado";
 

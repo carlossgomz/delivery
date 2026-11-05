@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { reproducirAlerta } from "@/lib/alertaSonido";
+import { iniciarSondeo } from "@/lib/sondeo";
 import { actualizarBadgeFavicon } from "@/lib/faviconBadge";
 import type { StaffRole } from "@/lib/auth";
 
@@ -124,16 +125,22 @@ export default function AdminNav({ role }: { role: StaffRole }) {
       }
     });
 
-    // Respaldo por si el stream se cae en silencio.
-    const polling = setInterval(() => {
-      cargarNoLeidos();
-      cargarPedidosPendientes();
-    }, 15000);
+    // Respaldo por si el stream se cae en silencio. Con la pestaña oculta se
+    // espacia pero no se apaga: aquí vive la alerta de pedido nuevo, y el
+    // personal suele tener el panel en segundo plano.
+    const detenerSondeo = iniciarSondeo(
+      () => {
+        cargarNoLeidos();
+        cargarPedidosPendientes();
+      },
+      15000,
+      60000
+    );
 
     return () => {
       chatSource.close();
       ordersSource.close();
-      clearInterval(polling);
+      detenerSondeo();
     };
   }, []);
 

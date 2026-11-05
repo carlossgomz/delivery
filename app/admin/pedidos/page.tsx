@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatCantidad } from "@/lib/peso";
+import { iniciarSondeo } from "@/lib/sondeo";
 import { fechaVenezolana, formatFechaHoraVzla } from "@/lib/timezone";
 
 type OrderItem = {
@@ -260,14 +261,15 @@ export default function AdminPedidosPage() {
     // la app corre en varias instancias/serverless y el aviso se genera en
     // una instancia distinta a la que tiene esta pestaña conectada). Así el
     // comprobante y cualquier cambio de estado siempre terminan apareciendo
-    // solos, sin que el admin tenga que refrescar la página a mano.
-    const polling = setInterval(cargar, 6000);
+    // solos, sin que el admin tenga que refrescar la página a mano. Con la
+    // pestaña oculta no hace falta: la alerta la sigue dando AdminNav.
+    const detenerSondeo = iniciarSondeo(cargar, 6000);
 
     return () => {
       if (eventSource) {
         eventSource.close();
       }
-      clearInterval(polling);
+      detenerSondeo();
     };
   }, []);
 

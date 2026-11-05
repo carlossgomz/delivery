@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { HORARIO_ATENCION } from "@/lib/horario";
+import { iniciarSondeo } from "@/lib/sondeo";
 import { formatCantidad, pesoEstimadoKg } from "@/lib/peso";
 import { precioBs as calcPrecioBs, totalBsLinea } from "@/lib/precio";
 import AvisoNoPagar from "@/app/components/AvisoNoPagar";
@@ -164,8 +165,7 @@ export default function CatalogPage() {
   // Pedidos se actualice sola (ej. cuando la tienda confirma un pago).
   useEffect(() => {
     if (!cliente) return;
-    const interval = setInterval(cargarPedidosPendientes, 8000);
-    return () => clearInterval(interval);
+    return iniciarSondeo(cargarPedidosPendientes, 8000);
   }, [cliente]);
 
   // Igual, pero para la burbuja de mensajes nuevos del botón Contacto;
@@ -173,8 +173,7 @@ export default function CatalogPage() {
   // clienteIdChat en vez de cliente.
   useEffect(() => {
     if (!clienteIdChat) return;
-    const interval = setInterval(() => cargarMensajesNoLeidos(clienteIdChat), 8000);
-    return () => clearInterval(interval);
+    return iniciarSondeo(() => cargarMensajesNoLeidos(clienteIdChat), 8000);
   }, [clienteIdChat]);
 
   // Imágenes elegidas a propósito para cada categoría (asignadas desde el
