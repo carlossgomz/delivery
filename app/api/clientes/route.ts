@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { CLIENTE_COOKIE_NAME, hashPassword, isAdminAuthed } from "@/lib/auth";
+import {
+  CLIENTE_COOKIE_NAME,
+  DURACION_SESION_CLIENTE_SEGUNDOS,
+  crearSesionCliente,
+  hashPassword,
+  isAdminAuthed
+} from "@/lib/auth";
+import { secretoDeSesion } from "@/lib/sesion-personal";
 import { soloDigitos } from "@/lib/cedula";
 
 // Lista de todos los clientes registrados, para el panel /admin/clientes.
@@ -27,6 +34,15 @@ export async function GET() {
 
 // Registro de cliente. Lo deja logueado de una vez (misma cookie que login).
 export async function POST(req: NextRequest) {
+  // Se revisa antes de crear la cuenta para no dejarla creada y sin sesión.
+  if (!secretoDeSesion()) {
+    console.error("SESSION_SECRET falta o tiene menos de 32 caracteres");
+    return NextResponse.json(
+      { error: "No se pudo crear la cuenta. Intenta más tarde." },
+      { status: 500 }
+    );
+  }
+
   const body = await req.json();
   const { nombre, telefono, direccion, password } = body as {
     nombre: string;
@@ -78,10 +94,10 @@ export async function POST(req: NextRequest) {
       direccion: cliente.direccion
     }
   });
-  res.cookies.set(CLIENTE_COOKIE_NAME, cliente.id, {
+  res.cookies.set(CLIENTE_COOKIE_NAME, crearSesionCliente(cliente.id)!, {
     httpOnly: true,
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 180 // 180 días
+    maxAge: DURACION_SESION_CLIENTE_SEGUNDOS
   });
   return res;
 }
