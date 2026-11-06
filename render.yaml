@@ -27,7 +27,7 @@ services:
         sync: false
       - key: KV_REST_API_TOKEN
         sync: false
-      - key: KV_REST_API_READ_ONLY_TOKEN
+      - key: POS_AVISOS_TOKEN
         sync: false
       - key: R2_ACCOUNT_ID
         sync: false
