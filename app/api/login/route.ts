@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ADMIN_COOKIE_NAME, StaffRole } from "@/lib/auth";
+import { ADMIN_COOKIE_NAME, StaffRole, crearSesionPersonal } from "@/lib/auth";
+import { DURACION_SESION_SEGUNDOS } from "@/lib/sesion-personal";
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json();
@@ -19,11 +20,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 });
   }
 
+  const sesion = crearSesionPersonal(role);
+  if (!sesion) {
+    console.error("SESSION_SECRET falta o tiene menos de 32 caracteres");
+    return NextResponse.json(
+      { error: "El servidor no tiene configurado SESSION_SECRET" },
+      { status: 500 }
+    );
+  }
+
   const res = NextResponse.json({ ok: true, role });
-  res.cookies.set(ADMIN_COOKIE_NAME, role, {
+  res.cookies.set(ADMIN_COOKIE_NAME, sesion, {
     httpOnly: true,
     sameSite: "lax",
-    maxAge: 60 * 60 * 12
+    maxAge: DURACION_SESION_SEGUNDOS
   });
   return res;
 }

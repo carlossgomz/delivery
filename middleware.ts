@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { leerSesion, secretoDeSesion, type StaffRole } from "./lib/sesion-personal";
 
 const COOKIE_NAME = "admin_session";
 
@@ -13,12 +14,31 @@ function esRutaSoloDueno(pathname: string): boolean {
   );
 }
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-  const role = req.cookies.get(COOKIE_NAME)?.value;
-  const staffOk = role === "admin" || role === "delivery";
+// Misma comprobación que getStaffRole en lib/auth.ts, con Web Crypto porque
+// en Edge no existe el crypto de Node.
+async function rolVerificado(valor: string | undefined): Promise<StaffRole | null> {
+  const sesion = leerSesion(valor);
+  const secreto = secretoDeSesion();
+  if (!sesion || !secreto) return null;
 
-  if (!staffOk) {
+  const codificador = new TextEncoder();
+  const clave = await crypto.subtle.importKey(
+    "raw",
+    codificador.encode(secreto),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["verify"]
+  );
+  const firma = Uint8Array.from(sesion.firma.match(/../g)!, (par) => parseInt(par, 16));
+  const valida = await crypto.subtle.verify("HMAC", clave, firma, codificador.encode(sesion.carga));
+  return valida ? sesion.rol : null;
+}
+
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const role = await rolVerificado(req.cookies.get(COOKIE_NAME)?.value);
+
+  if (!role) {
     const loginUrl = new URL("/login", req.url);
     return NextResponse.redirect(loginUrl);
   }

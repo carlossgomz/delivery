@@ -1,5 +1,11 @@
 import { cookies } from "next/headers";
 import crypto from "crypto";
+import {
+  DURACION_SESION_SEGUNDOS,
+  leerSesion,
+  secretoDeSesion,
+  type StaffRole
+} from "./sesion-personal";
 
 const COOKIE_NAME = "admin_session";
 
@@ -9,12 +15,30 @@ const COOKIE_NAME = "admin_session";
 //               mensajes, clientes y llamadas. Puede además abrir/cerrar
 //               la recepción de pedidos ("atendiendo en tienda").
 // Cada rol entra con una clave distinta (ver /api/login), pero ambos
-// comparten la misma cookie de sesión: lo único que cambia es su valor.
-export type StaffRole = "admin" | "delivery";
+// comparten la misma cookie de sesión, firmada (ver lib/sesion-personal.ts).
+export type { StaffRole };
+
+function firmarSesion(carga: string, secreto: string): string {
+  return crypto.createHmac("sha256", secreto).update(carga).digest("hex");
+}
+
+// Devuelve null si falta SESSION_SECRET: sin él no se puede iniciar sesión.
+export function crearSesionPersonal(rol: StaffRole): string | null {
+  const secreto = secretoDeSesion();
+  if (!secreto) return null;
+  const vence = Math.floor(Date.now() / 1000) + DURACION_SESION_SEGUNDOS;
+  const carga = `${rol}.${vence}`;
+  return `${carga}.${firmarSesion(carga, secreto)}`;
+}
 
 export function getStaffRole(): StaffRole | null {
-  const value = cookies().get(COOKIE_NAME)?.value;
-  return value === "admin" || value === "delivery" ? value : null;
+  const sesion = leerSesion(cookies().get(COOKIE_NAME)?.value);
+  const secreto = secretoDeSesion();
+  if (!sesion || !secreto) return null;
+
+  const esperada = Buffer.from(firmarSesion(sesion.carga, secreto));
+  const recibida = Buffer.from(sesion.firma);
+  return crypto.timingSafeEqual(esperada, recibida) ? sesion.rol : null;
 }
 
 // Cualquier miembro del personal autenticado (dueño o empleado de delivery).
@@ -33,8 +57,7 @@ export function isDuenoAuthed(): boolean {
 export const ADMIN_COOKIE_NAME = COOKIE_NAME;
 
 // --- Sesión de cliente (registro sencillo) ---
-// La cookie guarda directamente el id del cliente (igual de "sencillo" que
-// el admin_session actual). Alcanza para el tamaño de esta tienda; si más
+// La cookie guarda directamente el id del cliente. Alcanza para el tamaño de esta tienda; si más
 // adelante se necesita más seguridad, se puede cambiar por un token opaco
 // guardado en su propia tabla de sesiones.
 const CLIENTE_COOKIE_NAME = "cliente_session";
